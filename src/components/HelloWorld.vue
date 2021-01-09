@@ -23,15 +23,6 @@
             ></b-form-input>
           </b-form-group>
           <b-form-group
-              label="Terminal Description"
-              description="Optional: describe this terminal"
-          >
-            <b-form-input
-                v-model="terminal_description"
-                placeholder="Enter Description"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group
               label="Pairing Code"
               description="The pairing code was given to you when you claimed your Portal"
           >
@@ -57,24 +48,27 @@
       return {
         portal_id: null,
         terminal_name: null,
-        terminal_description: null,
         pairing_code: null
       }
     },
 
     methods: {
       pair: function () {
+        let this_ = this;
         this.$http.post('/core/identity_handler/terminals?code=' + this.pairing_code, {
           name: this.terminal_name,
-          description: this.terminal_description
         })
-          .then(jwt => (this.$http.defaults.headers.common['Authorization'] = jwt))
+          .then(function (response) {
+            let jwt = response.data.token;
+            this_.$http.defaults.headers.common['Authorization'] = jwt;
+            localStorage.setItem('access_token', jwt);
+          })
       }
     },
 
     mounted: function () {
       let component = this;
-      this.$http.get('/core/identity_handler/meta/whoami')
+      this.$http.get('/core/identity_handler/public/meta/whoareyou')
         .then(response => (component.portal_id = response.data.id))
     }
   }
