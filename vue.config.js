@@ -2,7 +2,7 @@ module.exports = {
   devServer: {
     proxy: {
       '^/core': {
-        target: 'https://yqs579.p.getportal.org',
+        target: 'https://fc7z6q.p.getportal.org',
         changeOrigin: true
       },
     }

@@ -7,8 +7,8 @@
         <h1>Welcome to your Portal</h1>
 
         <p>Your Portal's ID is <br>
-          <span v-if="portal_id==null"><b-spinner small></b-spinner></span>
           <span v-if="portal_id">{{ portal_id.substring(0, 6) }}</span>
+          <span v-else><b-spinner small></b-spinner></span>
         </p>
 
         <p>Pair this browser to your Portal.</p>
@@ -48,20 +48,22 @@
       return {
         portal_id: null,
         terminal_name: null,
-        pairing_code: null
+        pairing_code: null,
       }
     },
 
     methods: {
       pair: function () {
         let this_ = this;
-        this.$http.post('/core/identity_handler/terminals?code=' + this.pairing_code, {
+        this.$http.post('/core/identity_handler/public/pair/terminal?code=' + this.pairing_code, {
           name: this.terminal_name,
+          description: 'some secription'
         })
           .then(function (response) {
             let jwt = response.data.token;
             this_.$http.defaults.headers.common['Authorization'] = jwt;
             localStorage.setItem('access_token', jwt);
+            this_.$router.replace('/')
           })
       }
     },
