@@ -7,8 +7,10 @@
         <h1>Welcome to your Portal</h1>
 
         <p>Your Portal's ID is <br>
-          <span v-if="portal_id">{{ portal_id.substring(0, 6) }}</span>
-          <span v-else><b-spinner small></b-spinner></span>
+          <b-skeleton-wrapper :loading="!portal_id">
+            <template #loading><b-skeleton width="3em"></b-skeleton></template>
+            <span v-if="portal_id">{{ portal_id.substring(0, 6) }}</span>
+          </b-skeleton-wrapper>
         </p>
 
         <p>Pair this browser to your Portal.</p>
@@ -101,5 +103,9 @@ export default {
 <style scoped>
 img {
   padding: 3em;
+}
+
+div {
+  text-align: center;
 }
 </style>
