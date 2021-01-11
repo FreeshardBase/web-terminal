@@ -13,6 +13,7 @@
 
         <p>Pair this browser to your Portal.</p>
         <b-form @submit.prevent="pair">
+
           <b-form-group
               label="Terminal Name"
               description="The name under which your Portal will know this browser"
@@ -22,6 +23,7 @@
                 placeholder="Enter Name"
             ></b-form-input>
           </b-form-group>
+
           <b-form-group
               label="Pairing Code"
               description="The pairing code was given to you when you claimed your Portal"
@@ -31,11 +33,14 @@
                 placeholder="Enter Pairing Code"
             ></b-form-input>
           </b-form-group>
+
           <b-button type="submit" variant="primary">
             <span v-if="pairing_in_progress"><b-spinner small></b-spinner></span>
             <span v-else>Pair</span>
           </b-button>
         </b-form>
+
+        <b-alert variant="danger" dismissible v-model="show_error">{{pairing_error}}</b-alert>
 
       </b-col>
       <b-col></b-col>
@@ -53,19 +58,27 @@ export default {
       terminal_name: null,
       pairing_code: null,
       pairing_in_progress: false,
+      pairing_error: null,
+      show_error: false,
     }
   },
 
   methods: {
     pair: function () {
-      this.pairing_in_progress = true;
       let component = this;
+      this.pairing_in_progress = true;
+      this.show_error = false;
       this.$http.post('/core/identity_handler/public/pair/terminal?code=' + this.pairing_code, {
         name: this.terminal_name,
       })
           .then(function () {
             component.$router.replace('/')
           })
+          .catch(function (response) {
+            component.pairing_in_progress = false;
+            component.pairing_error = response;
+            component.show_error = true;
+          });
     }
   },
 
