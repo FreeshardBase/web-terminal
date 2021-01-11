@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="3.3848cm" height="5.5164cm" version="1.1" viewBox="0 0 33.848 55.164" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:osb="http://www.openswatchbook.org/uri/2009/osb" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient id="linearGradient5217" gradientTransform="matrix(.65221 0 0 .64519 117.74 173.42)" osb:paint="solid">
+   <stop stop-color="#0062ff" offset="0"/>
+  </linearGradient>
+  <linearGradient id="linearGradient5247" gradientTransform="matrix(.64519 0 0 .64519 118.52 172.06)" gradientUnits="userSpaceOnUse" xlink:href="#linearGradient5217"/>
+  <linearGradient id="linearGradient5277" x1="168.62" x2="221.09" y1="167" y2="167" gradientTransform="matrix(.64519 0 0 .64519 118.52 172.06)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#007bff" offset="0"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-227.31 -252.22)">
+  <g fill-rule="evenodd">
+   <path d="m227.48 262.06 16.762-9.6778 16.762 9.6778v35.485l-16.762 9.6778-16.762-9.6778z" fill="url(#linearGradient5277)"/>
+   <path d="m244.24 252.38-16.762 9.6778v35.485l8.3812-4.8389v-25.808l8.3812-4.8389z" fill="url(#linearGradient5217)" stroke="#000" stroke-width=".064519"/>
+   <path d="m244.24 307.22 16.762-9.6778v-35.485l-8.3812 4.8389v25.808l-8.3812 4.8389z" fill="url(#linearGradient5247)" stroke="#000" stroke-width=".064519"/>
+  </g>
+  <path d="m227.48 262.06 16.762-9.6778 16.762 9.6778v35.485l-16.762 9.6778-16.762-9.6778z" fill="none" stroke="#000" stroke-linejoin="round" stroke-width=".323"/>
+  <path d="m227.68 262.19 16.557-9.6072 16.557 9.6072v35.226l-16.557 9.6072-16.557-9.6072z" fill="none" stroke="#fff" stroke-linejoin="round" stroke-width=".22169"/>
+ </g>
+</svg>
