@@ -21,35 +21,37 @@
 </template>
 
 <script>
-  export default {
-    name: 'Home',
+export default {
+  name: 'Home',
 
-    data: function () {
-      return {
-        portal_id: null,
-        terminal_id: null,
-        terminal_name: null,
-      }
-    },
-
-    mounted: function () {
-      let component = this;
-      if (!localStorage.getItem('access_token')) {
-        console.log('No token, redirecting to hello world');
-        this.$router.replace('/helloworld');
-      } else {
-        this.$http.get('/core/identity_handler/public/meta/whoareyou')
-        .then(function (response) {
-          component.portal_id = response.data.id;
-        });
-        this.$http.get('/core/identity_handler/public/meta/whoami')
-        .then(function (response) {
-          component.terminal_id = response.data.id;
-          component.terminal_name = response.data.name;
-        });
-      }
+  data: function () {
+    return {
+      portal_id: null,
+      terminal_id: null,
+      terminal_name: null,
     }
+  },
+
+  mounted: function () {
+    let component = this;
+    this.$http.get('/core/identity_handler/public/meta/whoami')
+        .then(function (response) {
+
+          if (response.data.type === 'anonymous') {
+            console.log('No token, redirecting to hello world');
+            component.$router.replace('/helloworld');
+
+          } else if (response.data.type === 'terminal') {
+            component.terminal_id = response.data.id;
+            component.terminal_name = response.data.name;
+            component.$http.get('/core/identity_handler/public/meta/whoareyou')
+                .then(function (response) {
+                  component.portal_id = response.data.id;
+                });
+          }
+        });
   }
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
