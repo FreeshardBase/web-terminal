@@ -1,11 +1,17 @@
 <template>
   <div>
     <navbar></navbar>
-    <b-container>
+    <b-container fluid>
       <b-row>
         <b-col>
-          <p>Home sweet Home</p>
-          <p>Your Portal's ID is <br>
+          <b-container fluid>
+            <b-row align-h="start">
+              <b-col cols="6" md="2"><AppIcon name="filebrowser"></AppIcon></b-col>
+            </b-row>
+          </b-container>
+        </b-col>
+        <b-col sm="3" class="border-left border-top">
+          <p>Your Portal:
             <b-skeleton-wrapper :loading="!portal_id">
               <template #loading>
                 <b-skeleton width="4em"></b-skeleton>
@@ -13,20 +19,18 @@
               <span v-if="portal_id">{{ portal_id.substring(0, 6) }}</span>
             </b-skeleton-wrapper>
           </p>
-          <p>Your Terminal's ID is <br>
+          <p>This Terminal:
             <b-skeleton-wrapper :loading="!terminal_id">
               <template #loading>
                 <b-skeleton width="4em"></b-skeleton>
               </template>
-              <span v-if="terminal_id">{{ terminal_id }}</span>
+              <span v-if="terminal_id">{{ terminal_id }} </span>
             </b-skeleton-wrapper>
-          </p>
-          <p>Your Terminal's Name is <br>
             <b-skeleton-wrapper :loading="!terminal_name">
               <template #loading>
                 <b-skeleton width="4em"></b-skeleton>
               </template>
-              <span v-if="terminal_name">{{ terminal_name }}</span>
+              <span v-if="terminal_name">({{ terminal_name }})</span>
             </b-skeleton-wrapper>
           </p>
         </b-col>
@@ -37,10 +41,11 @@
 
 <script>
 import navbar from "@/components/Navbar";
+import AppIcon from "@/components/AppIcon";
 
 export default {
   name: 'Home',
-  components: {navbar},
+  components: {AppIcon, navbar},
   data: function () {
     return {
       portal_id: null,
