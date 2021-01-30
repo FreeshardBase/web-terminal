@@ -1,35 +1,46 @@
 <template>
-  <b-container>
-    <b-row>
-      <b-col>
-        <p>Home sweet Home</p>
-        <p>Your Portal's ID is <br>
-          <b-skeleton-wrapper :loading="!portal_id">
-            <template #loading><b-skeleton width="4em"></b-skeleton></template>
-            <span v-if="portal_id">{{ portal_id.substring(0, 6) }}</span>
-          </b-skeleton-wrapper>
-        </p>
-        <p>Your Terminal's ID is <br>
-          <b-skeleton-wrapper :loading="!terminal_id">
-            <template #loading><b-skeleton width="4em"></b-skeleton></template>
-            <span v-if="terminal_id">{{ terminal_id }}</span>
-          </b-skeleton-wrapper>
-        </p>
-        <p>Your Terminal's Name is <br>
-          <b-skeleton-wrapper :loading="!terminal_name">
-            <template #loading><b-skeleton width="4em"></b-skeleton></template>
-            <span v-if="terminal_name">{{ terminal_name }}</span>
-          </b-skeleton-wrapper>
-        </p>
-      </b-col>
-    </b-row>
-  </b-container>
+  <div>
+    <navbar></navbar>
+    <b-container>
+      <b-row>
+        <b-col>
+          <p>Home sweet Home</p>
+          <p>Your Portal's ID is <br>
+            <b-skeleton-wrapper :loading="!portal_id">
+              <template #loading>
+                <b-skeleton width="4em"></b-skeleton>
+              </template>
+              <span v-if="portal_id">{{ portal_id.substring(0, 6) }}</span>
+            </b-skeleton-wrapper>
+          </p>
+          <p>Your Terminal's ID is <br>
+            <b-skeleton-wrapper :loading="!terminal_id">
+              <template #loading>
+                <b-skeleton width="4em"></b-skeleton>
+              </template>
+              <span v-if="terminal_id">{{ terminal_id }}</span>
+            </b-skeleton-wrapper>
+          </p>
+          <p>Your Terminal's Name is <br>
+            <b-skeleton-wrapper :loading="!terminal_name">
+              <template #loading>
+                <b-skeleton width="4em"></b-skeleton>
+              </template>
+              <span v-if="terminal_name">{{ terminal_name }}</span>
+            </b-skeleton-wrapper>
+          </p>
+        </b-col>
+      </b-row>
+    </b-container>
+  </div>
 </template>
 
 <script>
+import navbar from "@/components/Navbar";
+
 export default {
   name: 'Home',
-
+  components: {navbar},
   data: function () {
     return {
       portal_id: null,
