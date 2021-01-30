@@ -4,6 +4,7 @@
     <b-container fluid>
       <b-row>
         <b-col>
+          <h1>Apps</h1>
           <b-container fluid>
             <b-row align-h="start">
               <b-col cols="6" md="2"><AppIcon name="filebrowser"></AppIcon></b-col>
