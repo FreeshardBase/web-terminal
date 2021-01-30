@@ -2,14 +2,14 @@
   <b-container>
     <b-row>
       <b-col></b-col>
-      <b-col cols="5">
+      <b-col class="pb-3">
         <img alt="Portal logo" src="../assets/logo.svg">
         <h1>Welcome to your Portal</h1>
 
         <p>Your Portal's ID is <br>
           <b-skeleton-wrapper :loading="!portal_id">
             <template #loading><b-skeleton width="3em"></b-skeleton></template>
-            <span v-if="portal_id">{{ portal_id.substring(0, 6) }}</span>
+            <span class="font-weight-bold" v-if="portal_id">{{ portal_id.substring(0, 6) }}</span>
           </b-skeleton-wrapper>
         </p>
 
@@ -28,7 +28,7 @@
 
           <b-form-group
               label="Pairing Code"
-              description="The pairing code was given to you when you claimed your Portal"
+              description="Is this the first terminal you pair with your Portal? Then the pairing code was given to you when you claimed your Portal. Otherwise, use a terminal that is already paired to get a new pairing code."
           >
             <b-form-input
                 v-model="pairing_code"
