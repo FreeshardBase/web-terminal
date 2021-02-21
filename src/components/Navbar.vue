@@ -38,4 +38,8 @@ name: "Navbar"
   width: 6em;
 }
 
+.portal-id-input input {
+  cursor: pointer;
+}
+
 </style>
