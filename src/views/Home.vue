@@ -26,6 +26,10 @@ export default {
     return {
     }
   },
+
+  mounted() {
+    this.$store.dispatch('query_meta')
+  }
 }
 </script>
 

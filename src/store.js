@@ -7,7 +7,6 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     meta: {
-      was_set: false,
       terminal_id: 'unknown',
       terminal_name: 'unknown',
       portal_id: 'unknown'
@@ -15,15 +14,26 @@ const store = new Vuex.Store({
   },
   mutations: {
     set_meta (state, meta) {
-      if (state.meta.was_set) {
-        throw 'meta has already been set'
-      } else {
-        state.meta.terminal_id = meta.terminal_id;
-        state.meta.terminal_name = meta.terminal_name;
-        state.meta.portal_id = meta.portal_id;
-        state.meta.was_set = true;
-      }
+      state.meta.terminal_id = meta.terminal_id;
+      state.meta.terminal_name = meta.terminal_name;
+      state.meta.portal_id = meta.portal_id;
     }
+  },
+  actions: {
+    async query_meta (context) {
+      let meta = {}
+      let whoami = await this._vm.$http.get('/core/identity_handler/public/meta/whoami')
+      if (whoami.data.type !== 'anonymous') {
+        meta.terminal_id = whoami.data.id;
+        meta.terminal_name = whoami.data.name;
+      }
+
+      const whoareyou = await this._vm.$http.get('/core/identity_handler/public/meta/whoareyou')
+      meta.portal_id = whoareyou.data.id;
+
+      context.commit('set_meta', meta)
+    }
+
   }
 })
 
