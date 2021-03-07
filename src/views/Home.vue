@@ -2,13 +2,9 @@
   <div>
     <navbar></navbar>
     <b-container fluid>
-      <b-row>
-        <b-col>
-          <b-container fluid>
-            <b-row align-h="start">
-              <b-col cols="6" md="2"><AppIcon name="filebrowser"></AppIcon></b-col>
-            </b-row>
-          </b-container>
+      <b-row align-h="start">
+        <b-col v-for="app in apps" :key="app.name" cols="6" md="2">
+          <AppIcon :name="app.name"></AppIcon>
         </b-col>
       </b-row>
     </b-container>
@@ -24,11 +20,13 @@ export default {
   components: {AppIcon, navbar},
   data: function () {
     return {
+      apps: [],
     }
   },
 
-  mounted() {
-    this.$store.dispatch('query_meta')
+  async mounted() {
+    await this.$store.dispatch('query_meta');
+    this.apps = (await this.$http.get('/core/app_controller/protected/apps')).data
   }
 }
 </script>

@@ -13,7 +13,7 @@ export default {
   props: ['name'],
   computed: {
     iconSrc() {
-      return require(`../assets/${this.name}.svg`)
+      return `/core/app_controller/protected/apps/${this.name}/icon`
     },
     title() {
       return this.name.toLowerCase().trim().replace(/^\w/, (c) => c.toUpperCase())
