@@ -18,7 +18,7 @@
       </template>
 
       <template #modal-footer>
-        <b-button variant="outline-danger">Remove</b-button>
+        <b-button variant="outline-danger" @click="removeApp(detailItem.name)">Remove</b-button>
       </template>
 
       <b-table
@@ -49,21 +49,33 @@ name: "Apps",
   },
 
   methods: {
+    refresh() {
+      let component = this;
+      this.$http.get('/core/app_controller/protected/apps')
+      .then(function (response) {
+        component.apps = response.data;
+      })
+      .catch(function (response) {
+        console.log(response)
+      })
+    },
+
     showDetails(item) {
       this.detailItem = item;
       this.$bvModal.show('apps-details');
-    }
+    },
+
+    removeApp(name) {
+      let component = this;
+      this.$http.delete(`/core/app_controller/protected/apps/${name}`)
+      .then(function () {
+        component.refresh();
+      })
+    },
   },
 
   mounted() {
-    let component = this;
-    this.$http.get('/core/app_controller/protected/apps')
-    .then(function (response) {
-      component.apps = response.data;
-    })
-    .catch(function (response) {
-      console.log(response)
-    })
+    this.refresh();
   }
 }
 </script>
