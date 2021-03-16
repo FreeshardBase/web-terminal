@@ -19,7 +19,7 @@ export default {
       return this.name.toLowerCase().trim().replace(/^\w/, (c) => c.toUpperCase())
     },
     href() {
-      return `${this.name}.${window.location.host}`
+      return `https://${this.name}.${window.location.host}`
     },
   },
 }
