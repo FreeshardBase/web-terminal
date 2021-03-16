@@ -5,7 +5,10 @@
 
     <b-table :fields="fields" :items="apps" hover primary-key="name">
       <template #cell(iconname)="data">
-        <img :alt="data.item.name" :src="`/core/app_controller/protected/apps/${data.item.name}/icon`" class="icon">
+        <img
+            :src="`/core/app_controller/protected/apps/${data.item.name}/icon`"
+            alt="🔲"
+            class="icon">
         <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
       </template>
     </b-table>
