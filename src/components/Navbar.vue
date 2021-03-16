@@ -21,6 +21,10 @@
           <b-nav-item to="/terminals">Terminals</b-nav-item>
         </b-navbar-nav>
 
+        <b-navbar-nav>
+          <b-nav-item to="/apps">Apps</b-nav-item>
+        </b-navbar-nav>
+
         <b-navbar-nav class="ml-auto">
           <b-nav-item-dropdown right>
             <template #button-content>Settings</template>

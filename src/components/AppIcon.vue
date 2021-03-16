@@ -1,7 +1,7 @@
 <template>
   <a :href="href" target="_blank">
     <div>
-      <img :alt="name" :src="iconSrc" class="h-100">
+      <img alt="🔲" :src="iconSrc" class="h-100">
       <p>{{ title }}</p>
     </div>
   </a>
@@ -19,7 +19,7 @@ export default {
       return this.name.toLowerCase().trim().replace(/^\w/, (c) => c.toUpperCase())
     },
     href() {
-      return `/app/${this.name}`
+      return `https://${this.name}.${window.location.host}`
     },
   },
 }
