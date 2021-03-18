@@ -45,24 +45,44 @@
 
     <b-modal id="add-app" title="Add App">
       <p>
-        Add an app by providing a docker image and tag.
-        You can give it any name you want.
-        Provide a data dir for Portal to mount an empty host directory.
-        That way, your app can persist its data.
+        Add any app from a source docker image. A good source for apps is <a href="https://fleet.linuxserver.io/" target="_blank">linuxserver.io</a>.
       </p>
 
       <b-form>
-        <b-form-group label="Name">
+        <b-form-group
+            description="Name the app however you want. It will be accessible at <app-name>.<portal-id>.p.getportal.org."
+            label="Name">
           <b-input v-model="appToAdd.name"></b-input>
         </b-form-group>
-        <b-form-group label="Image">
+
+        <b-form-group
+            description="The identifier of the docker image, optionally including version tag."
+            label="Image">
           <b-input v-model="appToAdd.image"></b-input>
         </b-form-group>
-        <b-form-group label="Version">
-          <b-input v-model="appToAdd.version"></b-input>
+
+        <b-form-group
+            description="The port at which the image hosts its web-UI."
+            label="Web-UI Port">
+          <b-input v-model="appToAdd.port"></b-input>
         </b-form-group>
-        <b-form-group label="Data Dir">
-          <b-input v-model="appToAdd.data_dir"></b-input>
+
+        <b-form-group
+            description="The container's directories where persistent volumes should be mounted."
+            label="Data Dir">
+          <template v-for="(dir, index) in appToAdd.data_dirs">
+            <b-input-group :key="index">
+              <b-form-input v-model="appToAdd.data_dirs[index]"></b-form-input>
+              <b-input-group-append>
+                <b-button @click="appToAdd.data_dirs.splice(index, 1)" variant="danger">
+                  <b-icon-trash></b-icon-trash>
+                </b-button>
+              </b-input-group-append>
+            </b-input-group>
+          </template>
+          <b-button @click="appToAdd.data_dirs.push('')" variant="success">
+            <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
+          </b-button>
         </b-form-group>
       </b-form>
 
@@ -98,8 +118,8 @@ export default {
       appToAdd: {
         name: '',
         image: '',
-        version: '',
-        data_dir: '',
+        port: '',
+        data_dirs: [''],
       },
     }
   },
