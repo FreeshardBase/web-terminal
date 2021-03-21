@@ -23,7 +23,7 @@
             <template #cell(iconname)="data">
               <img
                   :src="`/core/app_controller/protected/apps/${data.item.name}/icon`"
-                  alt="🔲"
+                  alt="❓"
                   class="icon">
               <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
             </template>
@@ -121,7 +121,7 @@ export default {
       apps: [],
       fields: [
         {key: 'iconname', sortable: true, label: 'Name'},
-        {key: 'version', sortable: true},
+        {key: 'image', sortable: true},
         {key: 'installation_reason', sortable: true},
       ],
 
