@@ -1,31 +1,43 @@
 <template>
   <div>
     <navbar></navbar>
-    <h1>Apps</h1>
+    <b-container class="mt-4">
+      <b-row>
 
-    <b-table :fields="fields" :items="apps" hover primary-key="name">
-      <template #cell(iconname)="data">
-        <img
-            :src="`/core/app_controller/protected/apps/${data.item.name}/icon`"
-            alt="🔲"
-            class="icon">
-        <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
-      </template>
-    </b-table>
+        <b-col>
+          <h1>Apps</h1>
+        </b-col>
 
-    <p class="text-center">
-      <b-button v-b-modal:add-app variant="success">
-        <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-        Add
-      </b-button>
-    </p>
+        <b-col class="text-right">
+          <b-button v-b-modal:add-app variant="success">
+            <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
+            Install
+          </b-button>
+        </b-col>
 
+      </b-row>
+      <b-row>
+
+        <b-col>
+          <b-table :fields="fields" :items="apps" hover primary-key="name">
+            <template #cell(iconname)="data">
+              <img
+                  :src="`/core/app_controller/protected/apps/${data.item.name}/icon`"
+                  alt="🔲"
+                  class="icon">
+              <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
+            </template>
+          </b-table>
+        </b-col>
+
+      </b-row>
+    </b-container>
 
     <b-modal id="apps-details">
       <template #modal-header>
-        <span class="text-capitalize">
-          {{ detailItem.name }}
-        </span>
+              <span class="text-capitalize">
+                {{ detailItem.name }}
+              </span>
       </template>
 
       <template #modal-footer>
@@ -43,9 +55,10 @@
       </b-table>
     </b-modal>
 
-    <b-modal id="add-app" title="Add App">
+    <b-modal id="add-app" title="Install App">
       <p>
-        Add any app from a source docker image. A good source for apps is <a href="https://fleet.linuxserver.io/" target="_blank">linuxserver.io</a>.
+        Add any app from a source docker image. A good source for apps is
+        <a href="https://fleet.linuxserver.io/" target="_blank">linuxserver.io</a>.
       </p>
 
       <b-form>
@@ -74,13 +87,13 @@
             <b-input-group :key="index">
               <b-form-input v-model="appToAdd.data_dirs[index]"></b-form-input>
               <b-input-group-append>
-                <b-button @click="appToAdd.data_dirs.splice(index, 1)" variant="danger">
+                <b-button variant="danger" @click="appToAdd.data_dirs.splice(index, 1)">
                   <b-icon-trash></b-icon-trash>
                 </b-button>
               </b-input-group-append>
             </b-input-group>
           </template>
-          <b-button @click="appToAdd.data_dirs.push('')" variant="success">
+          <b-button variant="success" @click="appToAdd.data_dirs.push('')">
             <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
           </b-button>
         </b-form-group>
@@ -92,7 +105,6 @@
           Add
         </b-button>
       </template>
-
     </b-modal>
 
   </div>

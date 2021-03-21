@@ -1,23 +1,42 @@
 <template>
   <div>
     <navbar></navbar>
-    <h1>Terminals</h1>
-    <b-table :items="terminals" hover></b-table>
+    <b-container class="mt-4">
+      <b-row>
 
-    <b-button variant="primary" @click="newPairingCode">Add Terminal</b-button>
-    <div v-if="pairingCodeLoading || pairingCode">
-      <p>
-        Browse to {{ hostname }} on your new terminal and use this pairing code to pair it.
-      </p>
-      <p>
-        <b-skeleton-wrapper :loading="pairingCodeLoading">
-          <template #loading>
-            <b-skeleton width="4em"></b-skeleton>
-          </template>
-          <span v-if="pairingCode"><strong>{{ pairingCode.code }}</strong></span>
-        </b-skeleton-wrapper>
-      </p>
-    </div>
+        <b-col>
+          <h1>Terminals</h1>
+        </b-col>
+
+        <b-col class="text-right">
+          <b-button variant="success" @click="newPairingCode">
+            <b-icon-plus-circle-fill></b-icon-plus-circle-fill> Add
+          </b-button>
+        </b-col>
+
+      </b-row>
+      <b-row>
+
+        <b-col>
+          <b-table :items="terminals" hover></b-table>
+
+          <div v-if="pairingCodeLoading || pairingCode">
+            <p>
+              Browse to {{ hostname }} on your new terminal and use this pairing code to pair it.
+            </p>
+            <p>
+              <b-skeleton-wrapper :loading="pairingCodeLoading">
+                <template #loading>
+                  <b-skeleton width="4em"></b-skeleton>
+                </template>
+                <span v-if="pairingCode"><strong>{{ pairingCode.code }}</strong></span>
+              </b-skeleton-wrapper>
+            </p>
+          </div>
+        </b-col>
+      </b-row>
+
+    </b-container>
   </div>
 </template>
 
