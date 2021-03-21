@@ -1,7 +1,8 @@
 <template>
   <a :href="href" target="_blank">
     <div>
-      <img alt="🔲" :src="iconSrc" class="h-100">
+      <img v-show="iconLoaded" alt="🔲" :src="iconSrc" class="h-100 app-icon" @load="iconLoaded=true">
+      <b-icon-box v-show="!iconLoaded" class="app-icon"></b-icon-box>
       <p>{{ title }}</p>
     </div>
   </a>
@@ -11,6 +12,11 @@
 export default {
   name: 'AppIcon',
   props: ['name'],
+  data: function () {
+    return {
+      iconLoaded: false,
+    }
+  },
   computed: {
     iconSrc() {
       return `/core/app_controller/protected/apps/${this.name}/icon`
@@ -26,9 +32,9 @@ export default {
 </script>
 
 <style scoped>
-img {
-  max-height: 4em;
-  max-width: 4em;
+.app-icon {
+  height: 4em;
+  width: 4em;
 }
 
 div {
