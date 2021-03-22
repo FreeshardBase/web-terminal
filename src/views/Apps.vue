@@ -5,7 +5,11 @@
       <b-row>
 
         <b-col>
-          <h1>Apps</h1>
+          <h1>Apps
+            <a href="https://whimsical.com/portal-apps-U4jLYGegCbJHH2h84MxFMT" target="_blank">
+              <small><b-icon-info-square-fill></b-icon-info-square-fill></small>
+            </a>
+          </h1>
         </b-col>
 
         <b-col class="text-right">
@@ -56,10 +60,7 @@
     </b-modal>
 
     <b-modal id="add-app" title="Install App">
-      <p>
-        Add any app from a source docker image. A good source for apps is
-        <a href="https://fleet.linuxserver.io/" target="_blank">linuxserver.io</a>.
-      </p>
+      <p>There is no app store yet. But you can install any public docker image.</p>
 
       <b-form>
         <b-form-group
@@ -131,7 +132,7 @@ export default {
         name: '',
         image: '',
         port: '',
-        data_dirs: [''],
+        data_dirs: [],
       },
     }
   },
