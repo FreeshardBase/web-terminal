@@ -1,8 +1,30 @@
 <template>
   <div id="app">
-    <router-view/>
+    <div v-if="loading">Loading...</div>
+    <router-view v-else/>
   </div>
 </template>
+
+<script>
+export default {
+  data: () => ({
+    loading: true
+  }),
+
+  mounted() {
+    const component = this;
+    this.$store.dispatch('query_meta')
+    this.$http.get('/core/identity_handler/public/meta/whoami')
+        .then(function (response) {
+          if (response.data.type === 'anonymous') {
+            component.$router.replace('/helloworld');
+          }
+          component.loading = false;
+        });
+  }
+}
+</script>
+
 
 <style>
 

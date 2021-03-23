@@ -2,47 +2,58 @@
   <b-container>
     <b-row>
       <b-col></b-col>
-      <b-col cols="5">
-        <img alt="Portal logo" src="../assets/logo.svg">
-        <h1>Welcome to your Portal</h1>
+      <b-col class="pb-3">
+        <div>
+          <img alt="Portal logo" src="../assets/logo.svg">
+          <h1>Welcome to your Portal</h1>
+        </div>
 
-        <p>Your Portal's ID is <br>
-          <b-skeleton-wrapper :loading="!portal_id">
-            <template #loading><b-skeleton width="3em"></b-skeleton></template>
-            <span v-if="portal_id">{{ portal_id.substring(0, 6) }}</span>
-          </b-skeleton-wrapper>
-        </p>
+        <div class="mt-4">
+          <p>Your Portal's ID is <br>
+            <b-skeleton-wrapper :loading="!portal_id">
+              <template #loading>
+                <b-skeleton width="3em"></b-skeleton>
+              </template>
+              <b-form-input :value="portal_id.substring(0, 6)" class="text-monospace portal-id-input"
+                            readonly></b-form-input>
+            </b-skeleton-wrapper>
+          </p>
+        </div>
 
-        <p>Pair this browser to your Portal.</p>
-        <b-form @submit.prevent="pair">
+        <div class="mt-4">
+          <p>Pair this browser to your Portal so that it becomes a <i>Terminal</i>. You only have to do this once per
+            Terminal.</p>
+          <b-form @submit.prevent="pair">
 
-          <b-form-group
-              label="Terminal Name"
-              description="The name under which your Portal will know this browser"
-          >
-            <b-form-input
-                v-model="terminal_name"
-                placeholder="Enter Name"
-            ></b-form-input>
-          </b-form-group>
+            <b-form-group
+                description="The name under which your Portal will know this browser"
+                label="Terminal Name"
+            >
+              <b-form-input
+                  v-model="terminal_name"
+                  placeholder="Enter Name"
+              ></b-form-input>
+            </b-form-group>
 
-          <b-form-group
-              label="Pairing Code"
-              description="The pairing code was given to you when you claimed your Portal"
-          >
-            <b-form-input
-                v-model="pairing_code"
-                placeholder="Enter Pairing Code"
-            ></b-form-input>
-          </b-form-group>
+            <b-form-group
+                description="Is this the first Terminal you pair with your Portal? Then the pairing code was given to you when you claimed your Portal. Otherwise, use a Terminal that is already paired to get a new pairing code."
+                label="Pairing Code"
+            >
+              <b-form-input
+                  v-model="pairing_code"
+                  placeholder="Enter Pairing Code"
+                  class="text-monospace"
+              ></b-form-input>
+            </b-form-group>
 
-          <b-button type="submit" variant="primary">
-            <span v-if="pairing_in_progress"><b-spinner small></b-spinner></span>
-            <span v-else>Pair</span>
-          </b-button>
-        </b-form>
+            <b-button type="submit" variant="primary">
+              <span v-if="pairing_in_progress"><b-spinner small></b-spinner></span>
+              <span v-else><b-icon-link45deg></b-icon-link45deg> Pair</span>
+            </b-button>
+          </b-form>
+        </div>
 
-        <b-alert variant="danger" dismissible v-model="show_error">{{pairing_error}}</b-alert>
+        <b-alert v-model="show_error" dismissible variant="danger">{{ pairing_error }}</b-alert>
 
       </b-col>
       <b-col></b-col>
@@ -101,6 +112,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+.portal-id-input {
+  width: 6em;
+  text-align: center;
+  display: inline-block;
+}
+
 img {
   padding: 3em;
 }
