@@ -1,17 +1,25 @@
 <template>
-  <a :href="href" target="_blank">
-    <div>
-      <img v-show="iconLoaded" alt="🔲" :src="iconSrc" class="h-100 app-icon" @load="iconLoaded=true">
-      <b-icon-box v-show="!iconLoaded" class="app-icon"></b-icon-box>
-      <p>{{ title }}</p>
+  <div>
+    <div v-if="app.status === 'running'">
+      <a :href="href" target="_blank">
+        <div>
+          <img v-show="iconLoaded" :src="iconSrc" alt="🔲" class="app-icon" @load="iconLoaded=true">
+          <b-icon-box v-show="!iconLoaded" class="app-icon"></b-icon-box>
+          <p>{{ title }}</p>
+        </div>
+      </a>
     </div>
-  </a>
+    <div v-else>
+      <b-spinner class="app-icon"></b-spinner>
+      <p class="text-secondary">{{ title }}</p>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
   name: 'AppIcon',
-  props: ['name'],
+  props: ['app'],
   data: function () {
     return {
       iconLoaded: false,
@@ -19,13 +27,13 @@ export default {
   },
   computed: {
     iconSrc() {
-      return `/core/app_controller/protected/apps/${this.name}/icon`
+      return `/core/app_controller/protected/apps/${this.app.name}/icon`
     },
     title() {
-      return this.name.toLowerCase().trim().replace(/^\w/, (c) => c.toUpperCase())
+      return this.app.name.toLowerCase().trim().replace(/^\w/, (c) => c.toUpperCase())
     },
     href() {
-      return `https://${this.name}.${window.location.host}`
+      return `https://${this.app.name}.${window.location.host}`
     },
   },
 }

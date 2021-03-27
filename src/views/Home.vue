@@ -4,7 +4,7 @@
     <b-container fluid>
       <b-row align-h="start">
         <b-col v-for="app in apps" :key="app.name" cols="6" md="2">
-          <AppIcon :name="app.name"></AppIcon>
+          <AppIcon :app="app"></AppIcon>
         </b-col>
       </b-row>
     </b-container>

@@ -122,6 +122,7 @@ export default {
       apps: [],
       fields: [
         {key: 'iconname', sortable: true, label: 'Name'},
+        {key: 'status', sortable: true},
         {key: 'image', sortable: true},
         {key: 'installation_reason', sortable: true},
       ],
