@@ -20,23 +20,33 @@
         </b-col>
 
       </b-row>
+
       <b-row>
-
         <b-col>
-          <b-table :fields="fields" :items="apps" hover primary-key="name">
-            <template #cell(iconname)="data">
-              <img
-                  :src="`/core/app_controller/protected/apps/${data.item.name}/icon`"
-                  alt="❓"
-                  class="icon">
-              <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
-            </template>
-          </b-table>
-        </b-col>
+          <b-tabs content-class="mt-3" align="center">
 
+            <b-tab title="Installed" active>
+              <b-table :fields="fields" :items="apps" hover primary-key="name">
+                <template #cell(iconname)="data">
+                  <img
+                      :src="`/core/app_controller/protected/apps/${data.item.name}/icon`"
+                      alt="❓"
+                      class="icon">
+                  <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
+                </template>
+              </b-table>
+            </b-tab>
+
+            <b-tab title="Store">
+
+            </b-tab>
+          </b-tabs>
+        </b-col>
       </b-row>
+
     </b-container>
 
+    <!-- Modal: app details -->
     <b-modal id="apps-details">
       <template #modal-header>
               <span class="text-capitalize">
@@ -59,6 +69,7 @@
       </b-table>
     </b-modal>
 
+    <!-- Modal: add app -->
     <b-modal id="add-app" title="Install App">
       <p>There is no app store yet. But you can install any public docker image.</p>
 
