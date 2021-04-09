@@ -38,7 +38,13 @@
             </b-tab>
 
             <b-tab title="Store">
-
+              <b-container>
+                <b-row cols="2">
+                  <b-col v-for="app in store" :key="app.name" class="p-1">
+                    <AppStoreEntry :app="app"></AppStoreEntry>
+                  </b-col>
+                </b-row>
+              </b-container>
             </b-tab>
           </b-tabs>
         </b-col>
@@ -124,10 +130,11 @@
 
 <script>
 import Navbar from "@/components/Navbar";
+import AppStoreEntry from "@/components/AppStoreEntry";
 
 export default {
   name: "Apps",
-  components: {Navbar},
+  components: {AppStoreEntry, Navbar},
   data: function () {
     return {
       apps: [],
@@ -146,15 +153,35 @@ export default {
         port: '',
         data_dirs: [],
       },
+
+      store: [
+        {name: "foo", description: "bar"},
+        {name: "fooo", description: "bar"},
+        {name: "foooo", description: "bar"},
+        {name: "fooh", description: "bar"},
+        {name: "foohh", description: "bar"},
+        {name: "fooa", description: "bar"}
+      ]
     }
   },
 
   methods: {
-    refresh() {
+    refreshApps() {
       let component = this;
       this.$http.get('/core/app_controller/protected/apps')
           .then(function (response) {
             component.apps = response.data;
+          })
+          .catch(function (response) {
+            console.log(response)
+          })
+    },
+
+    refreshStore() {
+      let component = this;
+      this.$http.get('/core/app_controller/protected/store/apps')
+          .then(function (response) {
+            component.store = response.data;
           })
           .catch(function (response) {
             console.log(response)
@@ -171,7 +198,7 @@ export default {
       let component = this;
       this.$http.delete(`/core/app_controller/protected/apps/${name}`)
           .then(function () {
-            component.refresh();
+            component.refreshApps();
           })
     },
 
@@ -180,14 +207,15 @@ export default {
       let component = this;
       this.$http.post(`/core/app_controller/protected/apps/${this.appToAdd.name}`, this.appToAdd)
           .then(function () {
-            component.refresh();
+            component.refreshApps();
           })
     },
 
   },
 
   mounted() {
-    this.refresh();
+    this.refreshApps();
+    this.refreshStore();
   }
 }
 </script>
