@@ -7,7 +7,9 @@
         <b-col>
           <h1>Apps
             <a href="https://whimsical.com/portal-apps-U4jLYGegCbJHH2h84MxFMT" target="_blank">
-              <small><b-icon-info-square-fill></b-icon-info-square-fill></small>
+              <small>
+                <b-icon-info-square-fill></b-icon-info-square-fill>
+              </small>
             </a>
           </h1>
         </b-col>
@@ -21,11 +23,13 @@
 
       </b-row>
 
-      <b-row>
+      <b-row align-v="stretch" class="flex-grow-1">
         <b-col>
-          <b-tabs content-class="mt-3" align="center">
+          <b-tabs align="center" content-class="mt-3">
 
-            <b-tab title="Installed" active>
+
+            <!-- Installed -->
+            <b-tab active title="Installed">
               <b-table :fields="fields" :items="apps" hover primary-key="name">
                 <template #cell(iconname)="data">
                   <img
@@ -37,14 +41,43 @@
               </b-table>
             </b-tab>
 
+
+            <!-- Store -->
             <b-tab title="Store">
+              <b-overlay :show="store.branch.updating" rounded="sm" variant="white" class="w-100 p-1">
               <b-container>
-                <b-row cols="2">
-                  <b-col v-for="app in store" :key="app.name" class="p-1">
-                    <AppStoreEntry :app="app"></AppStoreEntry>
+
+                <!-- Entries -->
+                  <b-row cols="2">
+                    <b-col v-for="app in store.apps" :key="app.name" class="p-1">
+                      <AppStoreEntry :app="app"></AppStoreEntry>
+                    </b-col>
+                  </b-row>
+
+                <!-- Options -->
+                <b-row align-v="end">
+                  <b-col class="text-right p-1">
+                    <b-dropdown class="m-2" dropup no-caret right text="Drop-Up" variant="outline-secondary">
+                      <template #button-content>
+                        <b-icon-gear-fill></b-icon-gear-fill>
+                      </template>
+                      <b-dropdown-form>
+                        <b-form-group label="App Store Branch">
+                          <b-form-radio-group
+                              v-model="store.branch.selected"
+                              :options="store.branch.options"
+                              button-variant="outline-primary"
+                              buttons
+                              :disabled="store.branch.updating"
+                          ></b-form-radio-group>
+                        </b-form-group>
+                      </b-dropdown-form>
+                    </b-dropdown>
                   </b-col>
                 </b-row>
+
               </b-container>
+                </b-overlay>
             </b-tab>
           </b-tabs>
         </b-col>
@@ -154,14 +187,14 @@ export default {
         data_dirs: [],
       },
 
-      store: [
-        {name: "foo", description: "bar"},
-        {name: "fooo", description: "bar"},
-        {name: "foooo", description: "bar"},
-        {name: "fooh", description: "bar"},
-        {name: "foohh", description: "bar"},
-        {name: "fooa", description: "bar"}
-      ]
+      store: {
+        apps: [],
+        branch: {
+          selected: 'master',
+          updating: false,
+          options: ['master', 'develop']
+        }
+      },
     }
   },
 
@@ -179,9 +212,9 @@ export default {
 
     refreshStore() {
       let component = this;
-      this.$http.get('/core/app_controller/protected/store/apps')
+      return this.$http.get('/core/app_controller/protected/store/apps')
           .then(function (response) {
-            component.store = response.data;
+            component.store.apps = response.data;
           })
           .catch(function (response) {
             console.log(response)
@@ -211,6 +244,15 @@ export default {
           })
     },
 
+  },
+
+  watch: {
+    'store.branch.selected': function () {
+      this.store.branch.updating = true;
+      this.$http.post(`/core/app_controller/protected/store/ref?ref=${this.store.branch.selected}`)
+      .then(() => this.refreshStore()
+          .then(this.store.branch.updating = false))
+    }
   },
 
   mounted() {
