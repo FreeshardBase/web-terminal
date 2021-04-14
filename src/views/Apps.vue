@@ -3,40 +3,69 @@
     <navbar></navbar>
     <b-container class="mt-4">
       <b-row>
-
         <b-col>
-          <h1>Apps
-            <a href="https://whimsical.com/portal-apps-U4jLYGegCbJHH2h84MxFMT" target="_blank">
-              <small><b-icon-info-square-fill></b-icon-info-square-fill></small>
-            </a>
-          </h1>
+          <h1>Apps</h1>
         </b-col>
-
-        <b-col class="text-right">
-          <b-button v-b-modal:add-app variant="success">
-            <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-            Install
-          </b-button>
-        </b-col>
-
       </b-row>
-      <b-row>
 
+      <b-row align-v="stretch" class="flex-grow-1">
         <b-col>
-          <b-table :fields="fields" :items="apps" hover primary-key="name">
-            <template #cell(iconname)="data">
-              <img
-                  :src="`/core/app_controller/protected/apps/${data.item.name}/icon`"
-                  alt="❓"
-                  class="icon">
-              <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
-            </template>
-          </b-table>
-        </b-col>
+          <b-tabs align="center" content-class="mt-3">
 
+
+            <!-- Installed -->
+            <b-tab active title="Installed">
+              <b-table :fields="fields" :items="apps" hover primary-key="name">
+                <template #cell(iconname)="data">
+                  <img
+                      :src="`/core/app_controller/protected/apps/${data.item.name}/icon`"
+                      alt="❓"
+                      class="icon">
+                  <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
+                </template>
+              </b-table>
+            </b-tab>
+
+
+            <!-- Store -->
+            <b-tab title="Store">
+              <b-overlay :show="store.branch.updating" rounded="sm" variant="white" class="w-100 p-1">
+              <b-container>
+
+                <!-- Entries -->
+                  <b-row cols="2">
+                    <b-col v-for="app in store.apps" :key="app.name" class="p-1">
+                      <AppStoreEntry :app="app"></AppStoreEntry>
+                    </b-col>
+                  </b-row>
+
+                <!-- Options -->
+                <b-row align-v="end">
+                  <b-col class="text-right p-1">
+                    <b-dropdown class="m-2" dropup no-caret right text="Drop-Up" variant="outline-secondary">
+                      <template #button-content>
+                        <b-icon-gear-fill></b-icon-gear-fill>
+                      </template>
+                      <b-dropdown-item>
+                        <b-button v-b-modal:add-app variant="success">
+                          <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
+                          Install Custom
+                        </b-button>
+                      </b-dropdown-item>
+                    </b-dropdown>
+                  </b-col>
+                </b-row>
+
+              </b-container>
+                </b-overlay>
+            </b-tab>
+          </b-tabs>
+        </b-col>
       </b-row>
+
     </b-container>
 
+    <!-- Modal: app details -->
     <b-modal id="apps-details">
       <template #modal-header>
               <span class="text-capitalize">
@@ -59,9 +88,8 @@
       </b-table>
     </b-modal>
 
+    <!-- Modal: add app -->
     <b-modal id="add-app" title="Install App">
-      <p>There is no app store yet. But you can install any public docker image.</p>
-
       <b-form>
         <b-form-group
             description="Name the app however you want. It will be accessible at <app-name>.<portal-id>.p.getportal.org."
@@ -113,10 +141,11 @@
 
 <script>
 import Navbar from "@/components/Navbar";
+import AppStoreEntry from "@/components/AppStoreEntry";
 
 export default {
   name: "Apps",
-  components: {Navbar},
+  components: {AppStoreEntry, Navbar},
   data: function () {
     return {
       apps: [],
@@ -135,15 +164,35 @@ export default {
         port: '',
         data_dirs: [],
       },
+
+      store: {
+        apps: [],
+        branch: {
+          selected: 'master',
+          updating: false,
+          options: ['master', 'develop']
+        }
+      },
     }
   },
 
   methods: {
-    refresh() {
+    refreshApps() {
       let component = this;
       this.$http.get('/core/app_controller/protected/apps')
           .then(function (response) {
             component.apps = response.data;
+          })
+          .catch(function (response) {
+            console.log(response)
+          })
+    },
+
+    refreshStore() {
+      let component = this;
+      return this.$http.get('/core/app_controller/protected/store/apps')
+          .then(function (response) {
+            component.store.apps = response.data;
           })
           .catch(function (response) {
             console.log(response)
@@ -160,7 +209,7 @@ export default {
       let component = this;
       this.$http.delete(`/core/app_controller/protected/apps/${name}`)
           .then(function () {
-            component.refresh();
+            component.refreshApps();
           })
     },
 
@@ -169,14 +218,25 @@ export default {
       let component = this;
       this.$http.post(`/core/app_controller/protected/apps/${this.appToAdd.name}`, this.appToAdd)
           .then(function () {
-            component.refresh();
+            component.refreshApps();
+            component.refreshStore();
           })
     },
 
   },
 
+  watch: {
+    'store.branch.selected': function () {
+      this.store.branch.updating = true;
+      this.$http.post(`/core/app_controller/protected/store/ref?ref=${this.store.branch.selected}`)
+      .then(() => this.refreshStore()
+          .then(this.store.branch.updating = false))
+    }
+  },
+
   mounted() {
-    this.refresh();
+    this.refreshApps();
+    this.refreshStore();
   }
 }
 </script>
