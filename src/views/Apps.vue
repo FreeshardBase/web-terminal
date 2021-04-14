@@ -46,18 +46,6 @@
                       <template #button-content>
                         <b-icon-gear-fill></b-icon-gear-fill>
                       </template>
-                      <b-dropdown-form>
-                        <b-form-group label="App Store Branch">
-                          <b-form-radio-group
-                              v-model="store.branch.selected"
-                              :options="store.branch.options"
-                              button-variant="outline-primary"
-                              buttons
-                              :disabled="store.branch.updating"
-                          ></b-form-radio-group>
-                        </b-form-group>
-                      </b-dropdown-form>
-                      <b-dropdown-divider></b-dropdown-divider>
                       <b-dropdown-item>
                         <b-button v-b-modal:add-app variant="success">
                           <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
