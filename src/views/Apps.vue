@@ -3,24 +3,9 @@
     <navbar></navbar>
     <b-container class="mt-4">
       <b-row>
-
         <b-col>
-          <h1>Apps
-            <a href="https://whimsical.com/portal-apps-U4jLYGegCbJHH2h84MxFMT" target="_blank">
-              <small>
-                <b-icon-info-square-fill></b-icon-info-square-fill>
-              </small>
-            </a>
-          </h1>
+          <h1>Apps</h1>
         </b-col>
-
-        <b-col class="text-right">
-          <b-button v-b-modal:add-app variant="success">
-            <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-            Install
-          </b-button>
-        </b-col>
-
       </b-row>
 
       <b-row align-v="stretch" class="flex-grow-1">
@@ -72,6 +57,13 @@
                           ></b-form-radio-group>
                         </b-form-group>
                       </b-dropdown-form>
+                      <b-dropdown-divider></b-dropdown-divider>
+                      <b-dropdown-item>
+                        <b-button v-b-modal:add-app variant="success">
+                          <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
+                          Install Custom
+                        </b-button>
+                      </b-dropdown-item>
                     </b-dropdown>
                   </b-col>
                 </b-row>
@@ -110,8 +102,6 @@
 
     <!-- Modal: add app -->
     <b-modal id="add-app" title="Install App">
-      <p>There is no app store yet. But you can install any public docker image.</p>
-
       <b-form>
         <b-form-group
             description="Name the app however you want. It will be accessible at <app-name>.<portal-id>.p.getportal.org."
@@ -241,6 +231,7 @@ export default {
       this.$http.post(`/core/app_controller/protected/apps/${this.appToAdd.name}`, this.appToAdd)
           .then(function () {
             component.refreshApps();
+            component.refreshStore();
           })
     },
 
