@@ -126,6 +126,25 @@
             <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
           </b-button>
         </b-form-group>
+
+        <b-form-group
+            description="Environment variables to be set inside the container"
+            label="Environment Vars">
+          <template v-for="(entry, index) in appToAdd.env_vars">
+            <b-input-group :key="index">
+              <b-form-input v-model="entry.key"></b-form-input>
+              <b-form-input v-model="entry.value"></b-form-input>
+              <b-input-group-append>
+                <b-button variant="danger" @click="appToAdd.env_vars.splice(index, 1)">
+                  <b-icon-trash></b-icon-trash>
+                </b-button>
+              </b-input-group-append>
+            </b-input-group>
+          </template>
+          <b-button variant="success" @click="appToAdd.env_vars.push({'key': '', 'value': ''})">
+            <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
+          </b-button>
+        </b-form-group>
       </b-form>
 
       <template #modal-footer>
@@ -163,6 +182,7 @@ export default {
         image: '',
         port: '',
         data_dirs: [],
+        env_vars: [],
       },
 
       store: {
