@@ -2,7 +2,7 @@ module.exports = {
   devServer: {
     proxy: {
       '^/core': {
-        target: 'https://4vab2a.p.getportal.org',
+        target: 'https://p7cnzk.p.getportal.org',
         changeOrigin: true,
         cookieDomainRewrite: {
         "*": "localhost",

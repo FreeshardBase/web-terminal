@@ -42,14 +42,17 @@
                 <!-- Options -->
                 <b-row align-v="end">
                   <b-col class="text-right p-1">
+                    <!-- Refresh -->
                     <b-button variant="outline-secondary" @click="hardRefreshStore('master')">
                       <b-icon-arrow-repeat></b-icon-arrow-repeat>
                     </b-button>
 
+                    <!-- Settings -->
                     <b-dropdown class="m-2" dropup no-caret right text="Drop-Up" variant="outline-secondary">
                       <template #button-content>
                         <b-icon-gear-fill></b-icon-gear-fill>
                       </template>
+                      <!-- Custom App -->
                       <b-dropdown-item>
                         <b-button v-b-modal:add-app variant="success">
                           <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
@@ -57,11 +60,12 @@
                         </b-button>
                       </b-dropdown-item>
                       <b-dropdown-divider></b-dropdown-divider>
-                      <b-dropdown-form>
+                      <!-- Store Branch -->
+                      <b-dropdown-form @submit.prevent="hardRefreshStore(store.customBranch)">
                         <b-input-group>
                           <b-form-input placeholder="Store Branch" v-model="store.customBranch"></b-form-input>
                           <b-input-group-append>
-                            <b-button variant="outline-secondary" @click="hardRefreshStore(store.customBranch)">
+                            <b-button variant="outline-secondary" type="submit">
                               <b-icon-arrow-repeat></b-icon-arrow-repeat>
                             </b-button>
                           </b-input-group-append>
