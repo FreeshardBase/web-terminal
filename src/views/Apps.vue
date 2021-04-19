@@ -29,7 +29,7 @@
 
             <!-- Store -->
             <b-tab title="Store">
-              <b-overlay :show="store.branch.updating" rounded="sm" variant="white" class="w-100 p-1">
+              <b-overlay :show="store.updating" rounded="sm" variant="white" class="w-100 p-1">
               <b-container>
 
                 <!-- Entries -->
@@ -42,6 +42,10 @@
                 <!-- Options -->
                 <b-row align-v="end">
                   <b-col class="text-right p-1">
+                    <b-button variant="outline-secondary" @click="hardRefreshStore('master')">
+                      <b-icon-arrow-repeat></b-icon-arrow-repeat>
+                    </b-button>
+
                     <b-dropdown class="m-2" dropup no-caret right text="Drop-Up" variant="outline-secondary">
                       <template #button-content>
                         <b-icon-gear-fill></b-icon-gear-fill>
@@ -49,9 +53,20 @@
                       <b-dropdown-item>
                         <b-button v-b-modal:add-app variant="success">
                           <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-                          Install Custom
+                          Install Custom App
                         </b-button>
                       </b-dropdown-item>
+                      <b-dropdown-divider></b-dropdown-divider>
+                      <b-dropdown-form>
+                        <b-input-group>
+                          <b-form-input placeholder="Store Branch" v-model="store.customBranch"></b-form-input>
+                          <b-input-group-append>
+                            <b-button variant="outline-secondary" @click="hardRefreshStore(store.customBranch)">
+                              <b-icon-arrow-repeat></b-icon-arrow-repeat>
+                            </b-button>
+                          </b-input-group-append>
+                        </b-input-group>
+                      </b-dropdown-form>
                     </b-dropdown>
                   </b-col>
                 </b-row>
@@ -187,11 +202,8 @@ export default {
 
       store: {
         apps: [],
-        branch: {
-          selected: 'master',
-          updating: false,
-          options: ['master', 'develop']
-        }
+        customBranch: '',
+        updating: false,
       },
     }
   },
@@ -243,15 +255,14 @@ export default {
           })
     },
 
-  },
-
-  watch: {
-    'store.branch.selected': function () {
-      this.store.branch.updating = true;
-      this.$http.post(`/core/app_controller/protected/store/ref?ref=${this.store.branch.selected}`)
+    hardRefreshStore(branchName) {
+      this.store.updating = true;
+      this.$http.post(`/core/app_controller/protected/store/ref?ref=${branchName}`)
       .then(() => this.refreshStore()
-          .then(this.store.branch.updating = false))
-    }
+          .then(this.store.updating = false))
+      .catch(() => this.hardRefreshStore('master'))
+    },
+
   },
 
   mounted() {
