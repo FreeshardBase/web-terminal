@@ -149,7 +149,6 @@ export default {
 
       customApp: {
         "name": "foo",
-        "description": "the foo application",
         "image": "fooapps/foo:1.2.3",
         "port": 80,
         "data_dirs": [
@@ -158,7 +157,8 @@ export default {
         ],
         "env_vars": {
           "FOO": "bar"
-        }
+        },
+        "prefix_public": "/public",
       },
 
       store: {
@@ -207,9 +207,10 @@ export default {
     },
 
     addApp() {
-      this.$bvModal.hide('add-app');
+      this.$bvModal.hide('custom-app');
       let component = this;
-      this.$http.post(`/core/app_controller/protected/apps/${this.customApp.name}`, this.customApp)
+      const customAppJson = JSON.parse(this.customApp)
+      this.$http.post(`/core/app_controller/protected/apps/${customAppJson.name}`, this.customApp)
           .then(function () {
             component.refreshApps();
             component.refreshStore();
