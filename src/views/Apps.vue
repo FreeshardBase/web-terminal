@@ -54,7 +54,7 @@
                       </template>
                       <!-- Custom App -->
                       <b-dropdown-item>
-                        <b-button v-b-modal:add-app variant="success">
+                        <b-button v-b-modal:custom-app variant="outline-success">
                           <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
                           Install Custom App
                         </b-button>
@@ -107,69 +107,20 @@
       </b-table>
     </b-modal>
 
-    <!-- Modal: add app -->
-    <b-modal id="add-app" title="Install App">
+    <!-- Modal: custom app -->
+    <b-modal id="custom-app" title="Install Custom App">
       <b-form>
-        <b-form-group
-            description="Name the app however you want. It will be accessible at <app-name>.<portal-id>.p.getportal.org."
-            label="Name">
-          <b-input v-model="appToAdd.name"></b-input>
-        </b-form-group>
-
-        <b-form-group
-            description="The identifier of the docker image, optionally including version tag."
-            label="Image">
-          <b-input v-model="appToAdd.image"></b-input>
-        </b-form-group>
-
-        <b-form-group
-            description="The port at which the image hosts its web-UI."
-            label="Web-UI Port">
-          <b-input v-model="appToAdd.port"></b-input>
-        </b-form-group>
-
-        <b-form-group
-            description="The container's directories where persistent volumes should be mounted."
-            label="Data Dir">
-          <template v-for="(dir, index) in appToAdd.data_dirs">
-            <b-input-group :key="index">
-              <b-form-input v-model="appToAdd.data_dirs[index]"></b-form-input>
-              <b-input-group-append>
-                <b-button variant="danger" @click="appToAdd.data_dirs.splice(index, 1)">
-                  <b-icon-trash></b-icon-trash>
-                </b-button>
-              </b-input-group-append>
-            </b-input-group>
-          </template>
-          <b-button variant="success" @click="appToAdd.data_dirs.push('')">
-            <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-          </b-button>
-        </b-form-group>
-
-        <b-form-group
-            description="Environment variables to be set inside the container"
-            label="Environment Vars">
-          <template v-for="(entry, index) in appToAdd.env_vars">
-            <b-input-group :key="index">
-              <b-form-input v-model="entry.key"></b-form-input>
-              <b-form-input v-model="entry.value"></b-form-input>
-              <b-input-group-append>
-                <b-button variant="danger" @click="appToAdd.env_vars.splice(index, 1)">
-                  <b-icon-trash></b-icon-trash>
-                </b-button>
-              </b-input-group-append>
-            </b-input-group>
-          </template>
-          <b-button variant="success" @click="appToAdd.env_vars.push({'key': '', 'value': ''})">
-            <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-          </b-button>
+        <b-form-group>
+          <b-form-textarea rows="18" v-model="customApp"></b-form-textarea>
+          <b-form-text>
+            Enter the app definition in JSON format. Take a look at the <a href="https://gitlab.com/ptl-public/app-repository">App Repository</a> for hints.
+          </b-form-text>
         </b-form-group>
       </b-form>
 
       <template #modal-footer>
-        <b-button variant="success" @click="addApp">
-          <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-          Add
+        <b-button variant="outline-success" @click="addApp">
+          Install
         </b-button>
       </template>
     </b-modal>
@@ -196,12 +147,18 @@ export default {
 
       detailItem: {},
 
-      appToAdd: {
-        name: '',
-        image: '',
-        port: '',
-        data_dirs: [],
-        env_vars: [],
+      customApp: {
+        "name": "foo",
+        "image": "fooapps/foo:1.2.3",
+        "port": 80,
+        "data_dirs": [
+          "/data",
+          "/config"
+        ],
+        "env_vars": {
+          "FOO": "bar"
+        },
+        "prefix_public": "/public",
       },
 
       store: {
@@ -250,9 +207,10 @@ export default {
     },
 
     addApp() {
-      this.$bvModal.hide('add-app');
+      this.$bvModal.hide('custom-app');
       let component = this;
-      this.$http.post(`/core/app_controller/protected/apps/${this.appToAdd.name}`, this.appToAdd)
+      const customAppJson = JSON.parse(this.customApp)
+      this.$http.post(`/core/app_controller/protected/apps/${customAppJson.name}`, this.customApp)
           .then(function () {
             component.refreshApps();
             component.refreshStore();
