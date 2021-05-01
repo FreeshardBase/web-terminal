@@ -35,7 +35,7 @@
                 <!-- Entries -->
                   <b-row cols="2">
                     <b-col v-for="app in store.apps" :key="app.name" class="p-1">
-                      <AppStoreEntry :app="app"></AppStoreEntry>
+                      <AppStoreEntry :app="app" @installed="refreshAll"></AppStoreEntry>
                     </b-col>
                   </b-row>
 
@@ -236,11 +236,15 @@ export default {
       .catch(() => this.hardRefreshStore('master'))
     },
 
+    refreshAll() {
+      this.refreshStore();
+      this.refreshApps();
+    }
+
   },
 
   mounted() {
-    this.refreshApps();
-    this.refreshStore();
+    this.refreshAll();
   }
 }
 </script>
