@@ -101,10 +101,7 @@
         <span v-else></span>
       </template>
 
-      <b-table
-          :fields="[{key: '0', label: 'property'}, {key: '1', label: 'value'}]"
-          :items="Object.entries(detailItem)">
-      </b-table>
+      <b-form-textarea rows="18" plaintext :value="detailItem"></b-form-textarea>
     </b-modal>
 
     <!-- Modal: custom app -->
