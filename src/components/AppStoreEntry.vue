@@ -26,9 +26,10 @@ export default {
 
   methods: {
     installApp() {
+      const this_ = this;
       this.$http.post(`/core/app_controller/protected/store/apps/${this.app.name}`)
-          .then(function (response) {
-            console.log(response)
+          .then(function () {
+            this_.$emit('installed')
           })
           .catch(function (response) {
             console.log(response)
