@@ -111,16 +111,18 @@
     <b-modal id="custom-app" title="Install Custom App">
       <b-form>
         <b-form-group>
-          <b-form-textarea rows="18" v-model="customApp"></b-form-textarea>
+          <b-form-textarea rows="18" v-model="store.customApp.content"></b-form-textarea>
           <b-form-text>
             Enter the app definition in JSON format. Take a look at the <a href="https://gitlab.com/ptl-public/app-repository">App Repository</a> for hints.
           </b-form-text>
         </b-form-group>
       </b-form>
+      <span class="text-danger">{{ store.customApp.errorMessage }}</span>
 
       <template #modal-footer>
-        <b-button variant="outline-success" @click="addApp">
-          Install
+        <b-button variant="outline-success" @click="addCustomApp">
+          <span v-if="store.customApp.updating"><b-spinner small></b-spinner></span>
+          <span v-else>Install</span>
         </b-button>
       </template>
     </b-modal>
@@ -147,24 +149,27 @@ export default {
 
       detailItem: {},
 
-      customApp: {
-        "name": "foo",
-        "image": "fooapps/foo:1.2.3",
-        "port": 80,
-        "data_dirs": [
-          "/data",
-          "/config"
-        ],
-        "env_vars": {
-          "FOO": "bar"
-        },
-        "prefix_public": "/public",
-      },
-
       store: {
         apps: [],
         customBranch: '',
         updating: false,
+        customApp: {
+          updating: false,
+          errorMessage: '',
+          content: {
+            "name": "foo",
+            "image": "fooapps/foo:1.2.3",
+            "port": 80,
+            "data_dirs": [
+              "/data",
+              "/config"
+            ],
+            "env_vars": {
+              "FOO": "bar"
+            },
+            "prefix_public": "/public",
+          },
+        },
       },
     }
   },
@@ -206,14 +211,23 @@ export default {
           })
     },
 
-    addApp() {
-      this.$bvModal.hide('custom-app');
+    addCustomApp() {
+      this.store.customApp.updating = true;
       let component = this;
-      const customAppJson = JSON.parse(this.customApp)
-      this.$http.post(`/core/app_controller/protected/apps/${customAppJson.name}`, this.customApp)
+      this.$http.post(`/core/app_controller/protected/apps`, this.store.customApp.content)
           .then(function () {
             component.refreshApps();
             component.refreshStore();
+            component.$bvModal.hide('custom-app');
+            component.store.customApp.updating = false;
+          })
+          .catch(function (e) {
+            let errorMessage = e.response.data.detail[0].msg;
+            if (errorMessage === 'field required') {
+              errorMessage += `: ${e.response.data.detail[0].loc[1]}`
+            }
+            component.store.customApp.errorMessage = errorMessage;
+            component.store.customApp.updating = false;
           })
     },
 
