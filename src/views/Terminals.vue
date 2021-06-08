@@ -30,21 +30,27 @@
       <b-row>
 
         <b-col>
-          <b-table :items="terminals" hover></b-table>
+          <b-table :items="terminals" :fields="terminals_fields" hover>
 
-          <div v-if="pairingCodeLoading || pairingCode">
-            <p>
-              Browse to {{ hostname }} on your new terminal and use this pairing code to pair it.
-            </p>
-            <p>
-              <b-skeleton-wrapper :loading="pairingCodeLoading">
-                <template #loading>
-                  <b-skeleton width="4em"></b-skeleton>
-                </template>
-                <span v-if="pairingCode"><strong>{{ pairingCode.code }}</strong></span>
-              </b-skeleton-wrapper>
-            </p>
-          </div>
+            <template #cell(id)="data">
+              <span class="text-monospace">{{ data.value }} </span>
+              <b-badge
+                  v-if="isThisTerminal(data.value)"
+                  variant="primary">
+                This
+              </b-badge>
+            </template>
+
+            <template #cell(actions)="data">
+              <b-button
+                  variant="danger" size="sm"
+                  v-if="!isThisTerminal(data.item.id)"
+                  @click="deleteTerminal(data.item.id)">
+                <b-icon-trash></b-icon-trash>
+              </b-button>
+            </template>
+
+          </b-table>
         </b-col>
       </b-row>
 
@@ -61,6 +67,7 @@ export default {
   data: function () {
     return {
       terminals: [],
+      terminals_fields: ['id', 'name', 'description', {key: 'actions', label: '', class: 'text-right'}],
       pairing: {
         code: null,
         loading: false,
@@ -89,18 +96,37 @@ export default {
             console.log(response)
             component.pairing.loading = false;
           })
+    },
+
+    deleteTerminal(id) {
+      let component = this;
+      this.$http.delete(`/core/identity_handler/protected/terminals/id/${id}`)
+          .then(function () {
+            component.refreshTerminals();
+          })
+          .catch(function (response) {
+            console.log(response);
+          });
+    },
+
+    refreshTerminals() {
+      let component = this;
+      this.$http.get('/core/identity_handler/protected/terminals')
+          .then(function (response) {
+            component.terminals = response.data;
+          })
+          .catch(function (response) {
+            console.log(response)
+          })
+    },
+
+    isThisTerminal(id) {
+      return this.$store.state.meta.terminal_id.substring(0, 6) === id;
     }
   },
 
   mounted: function () {
-    let component = this;
-    this.$http.get('/core/identity_handler/protected/terminals')
-        .then(function (response) {
-          component.terminals = response.data;
-        })
-        .catch(function (response) {
-          console.log(response)
-        })
+    this.refreshTerminals();
   }
 }
 </script>
