@@ -30,21 +30,18 @@
       <b-row>
 
         <b-col>
-          <b-table :items="terminals" hover></b-table>
+          <b-table :items="terminals" hover>
 
-          <div v-if="pairingCodeLoading || pairingCode">
-            <p>
-              Browse to {{ hostname }} on your new terminal and use this pairing code to pair it.
-            </p>
-            <p>
-              <b-skeleton-wrapper :loading="pairingCodeLoading">
-                <template #loading>
-                  <b-skeleton width="4em"></b-skeleton>
-                </template>
-                <span v-if="pairingCode"><strong>{{ pairingCode.code }}</strong></span>
-              </b-skeleton-wrapper>
-            </p>
-          </div>
+            <template #cell(id)="data">
+              <span class="text-monospace">{{ data.value }} </span>
+              <b-badge
+                  v-if="$store.state.meta.terminal_id.substring(0, 6) === data.value"
+                  variant="primary">
+                This
+              </b-badge>
+            </template>
+
+          </b-table>
         </b-col>
       </b-row>
 
