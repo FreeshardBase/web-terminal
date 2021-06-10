@@ -32,10 +32,10 @@
         <b-col>
           <b-table :items="terminals" :fields="terminals_fields" hover>
 
-            <template #cell(id)="data">
+            <template #cell(name)="data">
               <span class="text-monospace">{{ data.value }} </span>
               <b-badge
-                  v-if="isThisTerminal(data.value)"
+                  v-if="isThisTerminal(data.item.id)"
                   variant="primary">
                 This
               </b-badge>
@@ -67,7 +67,7 @@ export default {
   data: function () {
     return {
       terminals: [],
-      terminals_fields: ['id', 'name', 'description', {key: 'actions', label: '', class: 'text-right'}],
+      terminals_fields: ['name', {key: 'actions', label: '', class: 'text-right'}],
       pairing: {
         code: null,
         loading: false,
