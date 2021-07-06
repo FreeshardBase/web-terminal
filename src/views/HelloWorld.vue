@@ -4,44 +4,46 @@
       <b-col></b-col>
       <b-col class="pb-3">
         <div>
-          <img alt="Portal logo" src="../assets/logo.svg">
-          <h1>Welcome to your Portal</h1>
+          <h1 class="mt-5">Welcome</h1>
         </div>
 
         <div class="mt-4">
-          <p>Your Portal's ID is <br>
+          <p>This Portal is <br>
             <b-skeleton-wrapper :loading="!portal_id">
               <template #loading>
                 <b-skeleton width="3em"></b-skeleton>
               </template>
-              <b-form-input :value="portal_id.substring(0, 6)" class="text-monospace portal-id-input"
-                            readonly></b-form-input>
+              <b-input-group class="portal-id-input">
+                <b-input-group-prepend>
+                  <b-input-group-text>
+                    <img class="h-100" style="max-height: 1.5em" alt="Portal logo" src="../assets/logo.svg">
+                  </b-input-group-text>
+                </b-input-group-prepend>
+                <b-form-input class="text-monospace" readonly :value="portal_id.substring(0, 6)"></b-form-input>
+              </b-input-group>
             </b-skeleton-wrapper>
           </p>
         </div>
 
         <div class="mt-4">
-          <p>Pair this browser to your Portal so that it becomes a <i>Terminal</i>. You only have to do this once per
-            Terminal.</p>
+          <p>To <i>pair</i> this device, give it a name and enter a pairing code.</p>
           <b-form @submit.prevent="pair">
 
             <b-form-group
-                description="The name under which your Portal will know this browser"
-                label="Terminal Name"
+                label="Device Name"
             >
               <b-form-input
                   v-model="terminal_name"
-                  placeholder="Enter Name"
+                  placeholder="E.g. Notebook or Smartphone"
               ></b-form-input>
             </b-form-group>
 
             <b-form-group
-                description="Is this the first Terminal you pair with your Portal? Then the pairing code was given to you when you claimed your Portal. Otherwise, use a Terminal that is already paired to get a new pairing code."
+                description="The one-time pairing code was given to you when you claimed your Portal. You can also get a new one by using a paired device."
                 label="Pairing Code"
             >
               <b-form-input
                   v-model="pairing_code"
-                  placeholder="Enter Pairing Code"
                   class="text-monospace"
               ></b-form-input>
             </b-form-group>
@@ -114,13 +116,9 @@ export default {
 <style scoped>
 
 .portal-id-input {
-  width: 6em;
+  width: 8em;
   text-align: center;
-  display: inline-block;
-}
-
-img {
-  padding: 3em;
+  display: inline-flex;
 }
 
 div {
