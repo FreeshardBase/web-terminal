@@ -26,11 +26,11 @@
         </div>
 
         <div class="mt-4">
-          <p>To <i>pair</i> this device, give it a name and enter a pairing code.</p>
+          <p>Is this your Portal? Then <b>pair</b> this device with your Portal. It will become a <b>Terminal</b>.</p>
           <b-form @submit.prevent="pair">
 
             <b-form-group
-                label="Device Name"
+                label="Terminal Name"
             >
               <b-form-input
                   v-model="terminal_name"
@@ -39,12 +39,13 @@
             </b-form-group>
 
             <b-form-group
-                description="The one-time pairing code was given to you when you claimed your Portal. You can also get a new one by using a paired device."
-                label="Pairing Code"
+                description="The one-time pairing code was given to you when you claimed your Portal. You can also get a new one by using an existing Terminal."
+                label="One-Time Pairing Code"
             >
               <b-form-input
                   v-model="pairing_code"
                   class="text-monospace"
+                  placeholder="*** ***"
               ></b-form-input>
             </b-form-group>
 

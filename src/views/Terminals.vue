@@ -23,7 +23,7 @@
         </b-col>
 
         <b-tooltip target="pairing-code-box" triggers="hover" placement="leftbottom">
-          Open your Portal on another device and use this pairing code to turn it into a <i>Terminal</i>.
+          Open your Portal on another device and use this <b>one-time pairing code</b> to pair them.
         </b-tooltip>
 
       </b-row>
