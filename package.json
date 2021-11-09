@@ -1,6 +1,6 @@
 {
   "name": "web-terminal",
-  "version": "0.6.0.dev0",
+  "version": "0.6.0-SNAPSHOT",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
