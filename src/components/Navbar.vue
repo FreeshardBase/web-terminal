@@ -9,7 +9,7 @@
               <img class="h-100" style="max-height: 1.5em" alt="Portal logo" src="../assets/logo.svg">
             </b-input-group-text>
           </b-input-group-prepend>
-          <b-form-input class="portal-id-input text-monospace" readonly :value="$store.state.meta.portal_id.substring(0, 6)"></b-form-input>
+          <b-form-input class="portal-id-input text-monospace" readonly :value="$store.getters.short_portal_id"></b-form-input>
           <b-input-group-append>
             <b-input-group-text>
               {{ $store.state.meta.terminal_name}}
@@ -21,6 +21,10 @@
       <b-nav-toggle target="nav-collapse"></b-nav-toggle>
 
       <b-collapse id="nav-collapse" is-nav>
+
+        <b-navbar-nav>
+          <b-nav-item to="/">Home</b-nav-item>
+        </b-navbar-nav>
 
         <b-navbar-nav>
           <b-nav-item to="/terminals">Terminals</b-nav-item>

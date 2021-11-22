@@ -12,6 +12,17 @@ const store = new Vuex.Store({
       portal_id: 'unknown'
     }
   },
+  getters: {
+    short_portal_id: state => {
+      return state.meta.portal_id.substr(0, 6);
+    },
+    portal_domain: (state, getters) => {
+      return `${getters.short_portal_id}.p.getportal.org`;
+    },
+    portal_href: (state, getters) => {
+      return `https://${getters.portal_domain}`;
+    },
+  },
   mutations: {
     set_meta (state, meta) {
       state.meta.terminal_id = meta.terminal_id;

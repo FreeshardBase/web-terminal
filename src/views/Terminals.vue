@@ -23,7 +23,7 @@
         </b-col>
 
         <b-tooltip target="pairing-code-box" triggers="hover" placement="leftbottom">
-          Open your Portal on another device and use this <b>one-time pairing code</b> to pair them.
+          Browse to <a :href="$store.getters.portal_href">{{ $store.getters.portal_domain }}</a> on another device and use this <b>one-time pairing code</b> to pair them.
         </b-tooltip>
 
       </b-row>
@@ -72,8 +72,6 @@ export default {
         code: null,
         loading: false,
       },
-      pairingCode: null,
-      pairingCodeLoading: false,
     }
   },
 
