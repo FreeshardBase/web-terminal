@@ -3,15 +3,19 @@ import App from './App.vue'
 import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import  Axios  from  'axios'
 import router from './router'
 import store from './store'
+import axios from "axios";
 
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
 Vue.config.productionTip = false
-Vue.prototype.$http  =  Axios;
+Vue.prototype.$http = axios.create({
+  headers: {
+    "Content-type": "application/json"
+  }
+});
 
 
 new Vue({
