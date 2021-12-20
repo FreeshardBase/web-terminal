@@ -3,7 +3,7 @@
     <div v-if="app.status === 'running'">
       <a :href="href" target="_blank">
         <div>
-          <img v-show="iconLoaded" :src="iconSrc" alt="🔲" class="app-icon" @load="iconLoaded=true">
+          <img :id="app.name" v-show="iconLoaded" :src="iconSrc" alt="🔲" class="app-icon" @load="iconLoaded=true">
           <b-icon-box v-show="!iconLoaded" class="app-icon"></b-icon-box>
           <p>{{ title }}</p>
         </div>
