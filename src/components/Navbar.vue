@@ -52,7 +52,7 @@ export default {
 
   methods: {
     restart() {
-      this.$http.post('/core/identity_handler/protected/restart')
+      this.$http.post('/core/protected/restart')
       .then(function () {
         console.log('restarting in 1 minute')
       })

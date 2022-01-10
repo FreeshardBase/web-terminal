@@ -33,13 +33,13 @@ const store = new Vuex.Store({
   actions: {
     async query_meta (context) {
       let meta = {}
-      let whoami = await this._vm.$http.get('/core/identity_handler/public/meta/whoami')
+      let whoami = await this._vm.$http.get('/core/public/meta/whoami')
       if (whoami.data.type !== 'anonymous') {
         meta.terminal_id = whoami.data.id;
         meta.terminal_name = whoami.data.name;
       }
 
-      const whoareyou = await this._vm.$http.get('/core/identity_handler/public/meta/whoareyou')
+      const whoareyou = await this._vm.$http.get('/core/public/meta/whoareyou')
       meta.portal_id = whoareyou.data.id;
 
       context.commit('set_meta', meta)

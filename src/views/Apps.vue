@@ -18,7 +18,7 @@
               <b-table :fields="fields" :items="apps" hover primary-key="name">
                 <template #cell(iconname)="data">
                   <img
-                      :src="`/core/app_controller/protected/apps/${data.item.name}/icon`"
+                      :src="`/core/protected/apps/${data.item.name}/icon`"
                       alt="❓"
                       class="icon">
                   <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
@@ -174,7 +174,7 @@ export default {
   methods: {
     refreshApps() {
       let component = this;
-      this.$http.get('/core/app_controller/protected/apps')
+      this.$http.get('/core/protected/apps')
           .then(function (response) {
             component.apps = response.data;
           })
@@ -185,7 +185,7 @@ export default {
 
     refreshStore() {
       let component = this;
-      return this.$http.get('/core/app_controller/protected/store/apps')
+      return this.$http.get('/core/protected/store/apps')
           .then(function (response) {
             component.store.apps = response.data;
           })
@@ -202,7 +202,7 @@ export default {
     removeApp(name) {
       this.$bvModal.hide('apps-details');
       let component = this;
-      this.$http.delete(`/core/app_controller/protected/apps/${name}`)
+      this.$http.delete(`/core/protected/apps/${name}`)
           .then(function () {
             component.refreshApps();
           })
@@ -211,7 +211,7 @@ export default {
     addCustomApp() {
       this.store.customApp.updating = true;
       let component = this;
-      this.$http.post(`/core/app_controller/protected/apps`, this.store.customApp.content)
+      this.$http.post(`/core/protected/apps`, this.store.customApp.content)
           .then(function () {
             component.refreshApps();
             component.refreshStore();
@@ -230,7 +230,7 @@ export default {
 
     hardRefreshStore(branchName) {
       this.store.updating = true;
-      this.$http.post(`/core/app_controller/protected/store/ref?ref=${branchName}`)
+      this.$http.post(`/core/protected/store/ref?ref=${branchName}`)
       .then(() => this.refreshStore()
           .then(this.store.updating = false))
       .catch(() => this.hardRefreshStore('master'))
