@@ -84,7 +84,7 @@ export default {
       let component = this;
       this.pairing_in_progress = true;
       this.show_error = false;
-      this.$http.post('/core/identity_handler/public/pair/terminal?code=' + this.pairing_code, {
+      this.$http.post('/core/public/pair/terminal?code=' + this.pairing_code, {
         name: this.terminal_name,
       })
           .then(function () {
@@ -100,14 +100,14 @@ export default {
 
   mounted: function () {
     let component = this;
-    this.$http.get('/core/identity_handler/public/meta/whoami')
+    this.$http.get('/core/public/meta/whoami')
         .then(function (response) {
           if (response.data.type === 'terminal') {
             component.$router.replace('/')
           }
         });
 
-    this.$http.get('/core/identity_handler/public/meta/whoareyou')
+    this.$http.get('/core/public/meta/whoareyou')
         .then(response => (component.portal_id = response.data.id))
   }
 }

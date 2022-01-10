@@ -27,7 +27,7 @@ export default {
   },
   computed: {
     iconSrc() {
-      return `/core/app_controller/protected/apps/${this.app.name}/icon`
+      return `/core/protected/apps/${this.app.name}/icon`
     },
     title() {
       return this.app.name.toLowerCase().trim().replace(/^\w/, (c) => c.toUpperCase())

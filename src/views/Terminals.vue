@@ -85,7 +85,7 @@ export default {
     newPairingCode() {
       let component = this;
       this.pairing.loading = true;
-      this.$http.get('/core/identity_handler/protected/terminals/pairing-code')
+      this.$http.get('/core/protected/terminals/pairing-code')
           .then(function (response) {
             component.pairing.code = response.data;
             component.pairing.loading = false;
@@ -98,7 +98,7 @@ export default {
 
     deleteTerminal(id) {
       let component = this;
-      this.$http.delete(`/core/identity_handler/protected/terminals/id/${id}`)
+      this.$http.delete(`/core/protected/terminals/id/${id}`)
           .then(function () {
             component.refreshTerminals();
           })
@@ -109,7 +109,7 @@ export default {
 
     refreshTerminals() {
       let component = this;
-      this.$http.get('/core/identity_handler/protected/terminals')
+      this.$http.get('/core/protected/terminals')
           .then(function (response) {
             component.terminals = response.data;
           })

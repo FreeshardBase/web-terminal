@@ -14,7 +14,7 @@ export default {
   mounted() {
     const component = this;
     this.$store.dispatch('query_meta')
-    this.$http.get('/core/identity_handler/public/meta/whoami')
+    this.$http.get('/core/public/meta/whoami')
         .then(function (response) {
           if (response.data.type === 'anonymous') {
             component.$router.replace('/helloworld');

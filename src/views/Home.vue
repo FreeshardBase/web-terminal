@@ -26,7 +26,7 @@ export default {
 
   async mounted() {
     await this.$store.dispatch('query_meta');
-    this.apps = (await this.$http.get('/core/app_controller/protected/apps')).data
+    this.apps = (await this.$http.get('/core/protected/apps')).data
   }
 }
 </script>
