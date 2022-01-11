@@ -41,7 +41,7 @@ export default {
         },
         {
           target: '#nav-settings',
-          content: 'Access misc functions here: e.g. restart/update your Portal.'
+          content: 'Access misc functions here: e.g. restart/update your Portal or look at this tour again.'
         }
       ]
 

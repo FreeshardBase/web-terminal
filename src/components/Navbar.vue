@@ -38,6 +38,7 @@
           <b-nav-item-dropdown right>
             <template #button-content>Settings</template>
             <b-dropdown-item @click="restart">Restart</b-dropdown-item>
+            <b-dropdown-item @click="resetTour">Reset Tour</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
 
@@ -59,7 +60,13 @@ export default {
       .catch(function (response) {
         console.log(`Error during restart: ${response}`)
       })
-    }
+    },
+    resetTour() {
+      this.$http.delete('/core/protected/help/tours')
+      .then(function () {
+        this.$store.dispatch('query_tour_data');
+      })
+    },
   },
 }
 </script>
