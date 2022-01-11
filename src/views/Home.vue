@@ -49,9 +49,12 @@ export default {
   },
 
   async mounted() {
-    await this.$store.dispatch('query_meta');
+    await this.$store.dispatch('query_initial_data');
     this.apps = (await this.$http.get('/core/protected/apps')).data
-    this.$tours['HomeTour'].start();
+    if (!this.$store.getters.tour_seen('home')) {
+      this.$tours['HomeTour'].start();
+      await this.$store.dispatch('mark_tour_as_seen', 'home');
+    }
   }
 }
 </script>
