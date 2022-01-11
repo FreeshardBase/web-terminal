@@ -15,7 +15,7 @@
               :value="pairing.code ? pairing.code.code : ''"
               class="text-monospace"
               readonly></b-form-input>
-          <b-button v-if="!pairing.code" variant="success" @click="newPairingCode">
+          <b-button id="add-button" v-if="!pairing.code" variant="success" @click="newPairingCode">
             <b-spinner small v-if="pairing.loading"></b-spinner>
             <b-icon-plus-circle-fill v-else></b-icon-plus-circle-fill>
             <span> Add</span>
@@ -30,11 +30,12 @@
       <b-row>
 
         <b-col>
-          <b-table :items="terminals" :fields="terminals_fields" hover>
+          <b-table id="terminals-table" :items="terminals" :fields="terminals_fields" hover>
 
             <template #cell(name)="data">
               <span class="text-monospace">{{ data.value }} </span>
               <b-badge
+                  id="this-badge"
                   v-if="isThisTerminal(data.item.id)"
                   variant="primary">
                 This
@@ -55,6 +56,7 @@
       </b-row>
 
     </b-container>
+    <v-tour name="TerminalsTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
   </div>
 </template>
 
@@ -72,6 +74,20 @@ export default {
         code: null,
         loading: false,
       },
+      tourSteps: [
+        {
+          target: '#terminals-table',
+          content: 'Here you can see and manage your terminals. They are the devices from which you can control your Portal.'
+        },
+        {
+          target: '#this-badge',
+          content: 'The terminal that you currently use is marked.'
+        },
+        {
+          target: '#add-button',
+          content: 'It is a good idea to also pair other devices that you own so you may access your Portal through them, too. Click here and follow the steps in to tooltip.'
+        },
+      ],
     }
   },
 
@@ -96,26 +112,16 @@ export default {
           })
     },
 
-    deleteTerminal(id) {
+    async deleteTerminal(id) {
       let component = this;
-      this.$http.delete(`/core/protected/terminals/id/${id}`)
-          .then(function () {
-            component.refreshTerminals();
-          })
-          .catch(function (response) {
-            console.log(response);
-          });
+      await this.$http.delete(`/core/protected/terminals/id/${id}`)
+      await component.refreshTerminals();
     },
 
-    refreshTerminals() {
+    async refreshTerminals() {
       let component = this;
-      this.$http.get('/core/protected/terminals')
-          .then(function (response) {
-            component.terminals = response.data;
-          })
-          .catch(function (response) {
-            console.log(response)
-          })
+      const response = await this.$http.get('/core/protected/terminals')
+      component.terminals = response.data;
     },
 
     isThisTerminal(id) {
@@ -123,8 +129,12 @@ export default {
     }
   },
 
-  mounted: function () {
-    this.refreshTerminals();
+  async mounted() {
+    await this.refreshTerminals();
+    if (!this.$store.getters.tour_seen('terminals')) {
+      this.$tours['TerminalsTour'].start();
+      await this.$store.dispatch('mark_tour_as_seen', 'terminals');
+    }
   }
 }
 </script>

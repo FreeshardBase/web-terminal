@@ -8,6 +8,7 @@
         </b-col>
       </b-row>
     </b-container>
+    <v-tour name="HomeTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
   </div>
 </template>
 
@@ -21,12 +22,39 @@ export default {
   data: function () {
     return {
       apps: [],
+      tourSteps: [
+        {
+          target: '#id-button',
+          content: 'Welcome to your Portal! This is your Portal\'s ID and the name of the Terminal you are using right now. Think of the ID like a phone number. You can tell others, so they can reach you.'
+        },
+        {
+          target: '#filebrowser',
+          content: 'There are apps running on your Portal. Open them by clicking on their icon.'
+        },
+        {
+          target: '#nav-apps',
+          content: 'Install more apps from the app store. Also remove and manage your apps here.'
+        },
+        {
+          target: '#nav-terminals',
+          content: 'To use your Portal from more than one device, pair them here. We call them terminals.'
+        },
+        {
+          target: '#nav-settings',
+          content: 'Access misc functions here: e.g. restart/update your Portal or look at this tour again.'
+        }
+      ]
+
     }
   },
 
   async mounted() {
-    await this.$store.dispatch('query_meta');
+    await this.$store.dispatch('query_initial_data');
     this.apps = (await this.$http.get('/core/protected/apps')).data
+    if (!this.$store.getters.tour_seen('home')) {
+      this.$tours['HomeTour'].start();
+      await this.$store.dispatch('mark_tour_as_seen', 'home');
+    }
   }
 }
 </script>
