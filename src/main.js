@@ -6,10 +6,13 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import router from './router'
 import store from './store'
 import axios from "axios";
-
+import VueTour from 'vue-tour';
+import 'vue-tour/dist/vue-tour.css'
+import './assets/css/main.css'
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
+Vue.use(VueTour)
 Vue.config.productionTip = false
 Vue.prototype.$http = axios.create({
   headers: {
