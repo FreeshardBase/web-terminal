@@ -94,11 +94,9 @@
 
       <template #modal-footer>
         <b-button
-            v-if="detailItem.installation_reason !== 'config'"
             variant="outline-danger"
             @click="removeApp(detailItem.name)">Remove
         </b-button>
-        <span v-else></span>
       </template>
 
       <b-form-textarea rows="18" plaintext :value="detailItem"></b-form-textarea>
