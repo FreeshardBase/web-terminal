@@ -21,7 +21,7 @@
                 <!-- Entries -->
                   <b-row cols="2">
                     <b-col v-for="app in store.apps" :key="app.name" class="p-1">
-                      <AppStoreEntry :app="app" @installed="refreshAll"></AppStoreEntry>
+                      <AppStoreEntry :app="app" @changed="refreshAll"></AppStoreEntry>
                     </b-col>
                   </b-row>
 

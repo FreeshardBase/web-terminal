@@ -46,8 +46,8 @@
         </div>
         <p v-else>{{ app.description }}</p>
       <template #modal-footer>
-        <b-button v-if="app.is_installed" class="m-1" variant="outline-secondary" disabled>
-          Installed
+        <b-button v-if="app.is_installed" class="m-1" variant="outline-danger" @click="removeApp">
+          Remove
         </b-button>
         <b-button v-else class="m-1" variant="outline-success" @click="installApp">
           Install
@@ -67,7 +67,7 @@ export default {
       const this_ = this;
       this.$http.post(`/core/protected/store/apps/${this.app.name}`)
           .then(function () {
-            this_.$emit('installed')
+            this_.$emit('changed')
           })
           .catch(function (response) {
             console.log(response)
@@ -75,6 +75,16 @@ export default {
     },
     showDetails() {
       this.$bvModal.show(`app-details-${this.app.name}`);
+    },
+    removeApp() {
+      let this_ = this;
+      this.$http.delete(`/core/protected/apps/${this.app.name}`)
+          .then(function () {
+            this_.$emit('changed')
+          })
+          .catch(function (response) {
+            console.log(response)
+          })
     },
   }
 }
