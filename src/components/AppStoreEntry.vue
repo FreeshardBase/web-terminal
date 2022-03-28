@@ -14,7 +14,7 @@
             <b-card-title>
               {{ app.name | titlecase }}
             </b-card-title>
-            <b-card-text>{{ app.description }}</b-card-text>
+            <b-card-text>{{ app.store_info.description_short }}</b-card-text>
           </b-card-body>
         </b-col>
       </b-row>
@@ -39,12 +39,13 @@
           </b-row>
         </b-container>
       </template>
-        <div v-if="app.long_description">
-          <p v-for="(paragraph, index) in app.long_description" :key="index">
+        <div v-if="app.store_info.description_long && Array.isArray(app.store_info.description_long)">
+          <p v-for="(paragraph, index) in app.store_info.description_long" :key="index">
             {{ paragraph }}
           </p>
         </div>
-        <p v-else>{{ app.description }}</p>
+        <p v-else-if="app.store_info.description_long">{{ app.store_info.description_long }}</p>
+        <p v-else>{{ app.store_info.description_short }}</p>
       <template #modal-footer>
         <b-button v-if="app.is_installed" class="m-1" variant="outline-danger" @click="removeApp">
           Remove
