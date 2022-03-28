@@ -13,22 +13,8 @@
           <b-tabs align="center" content-class="mt-3">
 
 
-            <!-- Installed -->
-            <b-tab active title="Installed">
-              <b-table :fields="fields" :items="apps" hover primary-key="name">
-                <template #cell(iconname)="data">
-                  <img
-                      :src="`/core/protected/apps/${data.item.name}/icon`"
-                      alt="❓"
-                      class="icon">
-                  <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
-                </template>
-              </b-table>
-            </b-tab>
-
-
             <!-- Store -->
-            <b-tab title="Store">
+            <b-tab active title="Store">
               <b-overlay :show="store.updating" rounded="sm" variant="white" class="w-100 p-1">
               <b-container>
 
@@ -78,6 +64,22 @@
               </b-container>
                 </b-overlay>
             </b-tab>
+
+
+            <!-- Installed -->
+            <b-tab title="Installed">
+              <b-table :fields="fields" :items="apps" hover primary-key="name">
+                <template #cell(iconname)="data">
+                  <img
+                      :src="`/core/protected/apps/${data.item.name}/icon`"
+                      alt="❓"
+                      class="icon">
+                  <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
+                </template>
+              </b-table>
+            </b-tab>
+
+
           </b-tabs>
         </b-col>
       </b-row>
