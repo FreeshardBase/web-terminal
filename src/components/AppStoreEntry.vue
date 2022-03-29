@@ -13,6 +13,7 @@
           <b-card-body>
             <b-card-title>
               {{ app.name | titlecase }}
+              <b-icon-star-fill v-if="app.store_info.is_featured" class="app-star"></b-icon-star-fill>
             </b-card-title>
             <b-card-text>{{ app.store_info.description_short }}</b-card-text>
           </b-card-body>
@@ -35,6 +36,27 @@
               <h2>
                 {{ app.name | titlecase }}
               </h2>
+            </b-col>
+            <!-- Small extra icons -->
+            <b-col sm="auto" md="auto" lg="auto" xl="auto">
+              <div v-if="app.store_info && app.store_info.is_featured">
+              <b-icon-star-fill :id="`star-modal-${app.name}`" class="app-star"></b-icon-star-fill>
+              <b-popover :target="`star-modal-${app.name}`" placement="leftbottom" triggers="click blur">
+                <template #title>Featured App</template>
+                This app is well integrated with Portal and recommended by us.
+              </b-popover>
+              <br>
+                </div>
+              <div v-if="app.store_info && app.store_info.hint">
+              <b-icon-info-square :id="`info-modal-${app.name}`" class="app-info"></b-icon-info-square>
+              <b-popover :target="`info-modal-${app.name}`" placement="leftbottom" triggers="click blur">
+                <template #title>Hints</template>
+                <ul v-if="Array.isArray(app.store_info.hint)">
+                  <li v-for="(item, index) in app.store_info.hint" :key="index">{{ item }}</li>
+                </ul>
+                <p v-else>{{ app.store_info.hint }}</p>
+              </b-popover>
+                </div>
             </b-col>
           </b-row>
         </b-container>
@@ -107,6 +129,16 @@ export default {
 
 .card:hover {
   box-shadow: 0 0 0.6em -0.3em black;
+}
+
+.app-star {
+  color: gold;
+  cursor: pointer;
+}
+
+.app-info {
+  color: dimgrey;
+  cursor: pointer;
 }
 
 </style>
