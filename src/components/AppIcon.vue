@@ -5,13 +5,13 @@
         <div>
           <img :id="app.name" v-show="iconLoaded" :src="iconSrc" alt="🔲" class="app-icon" @load="iconLoaded=true">
           <b-icon-box v-show="!iconLoaded" class="app-icon"></b-icon-box>
-          <p>{{ title }}</p>
+          <p>{{ app.name | titlecase }}</p>
         </div>
       </a>
     </div>
     <div v-else>
       <b-spinner class="app-icon"></b-spinner>
-      <p class="text-secondary">{{ title }}</p>
+      <p class="text-secondary">{{ app.name }}</p>
     </div>
   </div>
 </template>
@@ -28,9 +28,6 @@ export default {
   computed: {
     iconSrc() {
       return `/core/protected/apps/${this.app.name}/icon`
-    },
-    title() {
-      return this.app.name.toLowerCase().trim().replace(/^\w/, (c) => c.toUpperCase())
     },
     href() {
       return `https://${this.app.name}.${window.location.host}`
