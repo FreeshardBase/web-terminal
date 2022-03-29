@@ -68,6 +68,9 @@
         </div>
         <p v-else-if="app.store_info.description_long">{{ app.store_info.description_long }}</p>
         <p v-else>{{ app.store_info.description_short }}</p>
+        <a :href="appJsonUrl" target="_blank" class="small">
+          Full <span class="text-monospace">app.json</span>
+        </a>
       <template #modal-footer>
         <b-button v-if="app.is_installed" class="m-1" variant="outline-danger" @click="removeApp">
           Remove
@@ -84,6 +87,12 @@
 export default {
   name: "AppStoreEntry",
   props: ['app'],
+
+  computed: {
+    appJsonUrl() {
+      return `/core/protected/store/apps/${this.app.name}`;
+    }
+  },
 
   methods: {
     installApp() {
