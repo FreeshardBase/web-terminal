@@ -50,7 +50,7 @@
 
               <!-- Entries -->
               <b-row cols="2">
-                <b-col v-for="app in store.apps" :key="app.name" class="p-1">
+                <b-col v-for="app in sortedApps" :key="app.name" class="p-1">
                   <AppStoreEntry :app="app" @changed="refreshStore"></AppStoreEntry>
                 </b-col>
               </b-row>
@@ -117,6 +117,14 @@ export default {
           },
         },
       },
+    }
+  },
+
+  computed: {
+    sortedApps() {
+      return [...this.store.apps].sort((a, b) => {
+        return a.store_info.is_featured < b.store_info.is_featured
+      })
     }
   },
 
