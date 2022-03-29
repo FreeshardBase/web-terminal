@@ -49,7 +49,6 @@ export default {
   },
 
   async mounted() {
-    await this.$store.dispatch('query_initial_data');
     this.apps = (await this.$http.get('/core/protected/apps')).data
     if (!this.$store.getters.tour_seen('home')) {
       this.$tours['HomeTour'].start();

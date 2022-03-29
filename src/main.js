@@ -20,6 +20,9 @@ Vue.prototype.$http = axios.create({
   }
 });
 
+Vue.filter('titlecase', function (value) {
+  return value.toLowerCase().replace(/(?:^|\s|-)\S/g, x => x.toUpperCase())
+});
 
 new Vue({
   router,

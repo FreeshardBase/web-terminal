@@ -2,107 +2,65 @@
   <div>
     <navbar></navbar>
     <b-container class="mt-4">
+
+      <!-- Title -->
       <b-row>
         <b-col>
           <h1>Apps</h1>
         </b-col>
+        <b-col class="text-right p-1">
+          <!-- Refresh -->
+          <b-button variant="outline-secondary" @click="hardRefreshStore('master')">
+            <b-icon-arrow-repeat></b-icon-arrow-repeat>
+          </b-button>
+
+          <!-- Settings -->
+          <b-dropdown class="m-2" dropup no-caret right text="Drop-Up" variant="outline-secondary">
+            <template #button-content>
+              <b-icon-gear-fill></b-icon-gear-fill>
+            </template>
+            <!-- Custom App -->
+            <b-dropdown-item>
+              <b-button v-b-modal:custom-app variant="outline-success">
+                <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
+                Install Custom App
+              </b-button>
+            </b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
+            <!-- Store Branch -->
+            <b-dropdown-form @submit.prevent="hardRefreshStore(store.customBranch)">
+              <b-input-group>
+                <b-form-input placeholder="Store Branch" v-model="store.customBranch"></b-form-input>
+                <b-input-group-append>
+                  <b-button variant="outline-secondary" type="submit">
+                    <b-icon-arrow-repeat></b-icon-arrow-repeat>
+                  </b-button>
+                </b-input-group-append>
+              </b-input-group>
+            </b-dropdown-form>
+          </b-dropdown>
+        </b-col>
       </b-row>
 
+      <!-- Apps -->
       <b-row align-v="stretch" class="flex-grow-1">
         <b-col>
-          <b-tabs align="center" content-class="mt-3">
+          <b-overlay :show="store.updating" rounded="sm" variant="white" class="w-100 p-1">
+            <b-container>
 
+              <!-- Entries -->
+              <b-row cols="2">
+                <b-col v-for="app in sortedApps" :key="app.name" class="p-1">
+                  <AppStoreEntry :app="app" @changed="refreshStore"></AppStoreEntry>
+                </b-col>
+              </b-row>
 
-            <!-- Installed -->
-            <b-tab active title="Installed">
-              <b-table :fields="fields" :items="apps" hover primary-key="name">
-                <template #cell(iconname)="data">
-                  <img
-                      :src="`/core/protected/apps/${data.item.name}/icon`"
-                      alt="❓"
-                      class="icon">
-                  <a class="text-capitalize pl-1" @click="showDetails(data.item)">{{ data.item.name }}</a>
-                </template>
-              </b-table>
-            </b-tab>
-
-
-            <!-- Store -->
-            <b-tab title="Store">
-              <b-overlay :show="store.updating" rounded="sm" variant="white" class="w-100 p-1">
-              <b-container>
-
-                <!-- Entries -->
-                  <b-row cols="2">
-                    <b-col v-for="app in store.apps" :key="app.name" class="p-1">
-                      <AppStoreEntry :app="app" @installed="refreshAll"></AppStoreEntry>
-                    </b-col>
-                  </b-row>
-
-                <!-- Options -->
-                <b-row align-v="end">
-                  <b-col class="text-right p-1">
-                    <!-- Refresh -->
-                    <b-button variant="outline-secondary" @click="hardRefreshStore('master')">
-                      <b-icon-arrow-repeat></b-icon-arrow-repeat>
-                    </b-button>
-
-                    <!-- Settings -->
-                    <b-dropdown class="m-2" dropup no-caret right text="Drop-Up" variant="outline-secondary">
-                      <template #button-content>
-                        <b-icon-gear-fill></b-icon-gear-fill>
-                      </template>
-                      <!-- Custom App -->
-                      <b-dropdown-item>
-                        <b-button v-b-modal:custom-app variant="outline-success">
-                          <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-                          Install Custom App
-                        </b-button>
-                      </b-dropdown-item>
-                      <b-dropdown-divider></b-dropdown-divider>
-                      <!-- Store Branch -->
-                      <b-dropdown-form @submit.prevent="hardRefreshStore(store.customBranch)">
-                        <b-input-group>
-                          <b-form-input placeholder="Store Branch" v-model="store.customBranch"></b-form-input>
-                          <b-input-group-append>
-                            <b-button variant="outline-secondary" type="submit">
-                              <b-icon-arrow-repeat></b-icon-arrow-repeat>
-                            </b-button>
-                          </b-input-group-append>
-                        </b-input-group>
-                      </b-dropdown-form>
-                    </b-dropdown>
-                  </b-col>
-                </b-row>
-
-              </b-container>
-                </b-overlay>
-            </b-tab>
-          </b-tabs>
+            </b-container>
+          </b-overlay>
         </b-col>
       </b-row>
 
     </b-container>
-
-    <!-- Modal: app details -->
-    <b-modal id="apps-details">
-      <template #modal-header>
-              <span class="text-capitalize">
-                {{ detailItem.name }}
-              </span>
-      </template>
-
-      <template #modal-footer>
-        <b-button
-            v-if="detailItem.installation_reason !== 'config'"
-            variant="outline-danger"
-            @click="removeApp(detailItem.name)">Remove
-        </b-button>
-        <span v-else></span>
-      </template>
-
-      <b-form-textarea rows="18" plaintext :value="detailItem"></b-form-textarea>
-    </b-modal>
 
     <!-- Modal: custom app -->
     <b-modal id="custom-app" title="Install Custom App">
@@ -110,7 +68,8 @@
         <b-form-group>
           <b-form-textarea rows="18" v-model="store.customApp.content"></b-form-textarea>
           <b-form-text>
-            Enter the app definition in JSON format. Take a look at the <a href="https://gitlab.com/ptl-public/app-repository">App Repository</a> for hints.
+            Enter the app definition in JSON format. See the <a
+              href="https://docs.getportal.org/app_json/" target="_blank">documentation</a> for further information.
           </b-form-text>
         </b-form-group>
       </b-form>
@@ -136,16 +95,6 @@ export default {
   components: {AppStoreEntry, Navbar},
   data: function () {
     return {
-      apps: [],
-      fields: [
-        {key: 'iconname', sortable: true, label: 'Name'},
-        {key: 'status', sortable: true},
-        {key: 'image', sortable: true},
-        {key: 'installation_reason', sortable: true},
-      ],
-
-      detailItem: {},
-
       store: {
         apps: [],
         customBranch: '',
@@ -171,18 +120,15 @@ export default {
     }
   },
 
-  methods: {
-    refreshApps() {
-      let component = this;
-      this.$http.get('/core/protected/apps')
-          .then(function (response) {
-            component.apps = response.data;
-          })
-          .catch(function (response) {
-            console.log(response)
-          })
-    },
+  computed: {
+    sortedApps() {
+      return [...this.store.apps].sort((a, b) => {
+        return a.store_info.is_featured < b.store_info.is_featured
+      })
+    }
+  },
 
+  methods: {
     refreshStore() {
       let component = this;
       return this.$http.get('/core/protected/store/apps')
@@ -194,26 +140,11 @@ export default {
           })
     },
 
-    showDetails(item) {
-      this.detailItem = item;
-      this.$bvModal.show('apps-details');
-    },
-
-    removeApp(name) {
-      this.$bvModal.hide('apps-details');
-      let component = this;
-      this.$http.delete(`/core/protected/apps/${name}`)
-          .then(function () {
-            component.refreshApps();
-          })
-    },
-
     addCustomApp() {
       this.store.customApp.updating = true;
       let component = this;
       this.$http.post(`/core/protected/apps`, this.store.customApp.content)
           .then(function () {
-            component.refreshApps();
             component.refreshStore();
             component.$bvModal.hide('custom-app');
             component.store.customApp.updating = false;
@@ -231,20 +162,14 @@ export default {
     hardRefreshStore(branchName) {
       this.store.updating = true;
       this.$http.post(`/core/protected/store/ref?ref=${branchName}`)
-      .then(() => this.refreshStore()
-          .then(this.store.updating = false))
-      .catch(() => this.hardRefreshStore('master'))
+          .then(() => this.refreshStore()
+              .then(this.store.updating = false))
+          .catch(() => this.hardRefreshStore('master'))
     },
-
-    refreshAll() {
-      this.refreshStore();
-      this.refreshApps();
-    }
-
   },
 
   mounted() {
-    this.refreshAll();
+    this.refreshStore();
   }
 }
 </script>
