@@ -80,21 +80,21 @@ export default {
   },
 
   methods: {
-    pair: function () {
+    pair: async function () {
       let component = this;
       this.pairing_in_progress = true;
       this.show_error = false;
-      this.$http.post('/core/public/pair/terminal?code=' + this.pairing_code, {
-        name: this.terminal_name,
-      })
-          .then(function () {
-            component.$router.replace('/')
-          })
-          .catch(function (response) {
-            component.pairing_in_progress = false;
-            component.pairing_error = response;
-            component.show_error = true;
-          });
+      try {
+        await this.$http.post('/core/public/pair/terminal?code=' + this.pairing_code, {
+          name: this.terminal_name,
+        });
+      } catch (response) {
+        component.pairing_in_progress = false;
+        component.pairing_error = response;
+        component.show_error = true;
+      }
+      await this.$store.dispatch('query_initial_data')
+      await component.$router.replace('/');
     }
   },
 

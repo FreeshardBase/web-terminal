@@ -13,7 +13,6 @@ export default {
 
   async mounted() {
     const component = this;
-    await this.$store.dispatch('query_initial_data')
     this.$http.get('/core/public/meta/whoami')
         .then(function (response) {
           if (response.data.type === 'anonymous') {
@@ -21,6 +20,7 @@ export default {
           }
           component.loading = false;
         });
+    await this.$store.dispatch('query_initial_data')
   }
 }
 </script>
