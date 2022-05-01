@@ -3,7 +3,6 @@
     <img :id="app.name" v-show="iconLoaded" :src="iconSrc" alt="🔲" class="app-icon" @load="iconLoaded=true">
     <b-icon-box v-show="!iconLoaded" class="app-icon"></b-icon-box>
     <p>{{ app.name | titlecase }}</p>
-    <b-icon-dot v-if="app.status === 'running'"></b-icon-dot>
   </div>
 </template>
 
