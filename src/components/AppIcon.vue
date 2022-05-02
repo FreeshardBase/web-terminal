@@ -1,18 +1,8 @@
 <template>
-  <div>
-    <div v-if="app.status === 'running'">
-      <a :href="href" target="_blank">
-        <div>
-          <img :id="app.name" v-show="iconLoaded" :src="iconSrc" alt="🔲" class="app-icon" @load="iconLoaded=true">
-          <b-icon-box v-show="!iconLoaded" class="app-icon"></b-icon-box>
-          <p>{{ app.name | titlecase }}</p>
-        </div>
-      </a>
-    </div>
-    <div v-else>
-      <b-spinner class="app-icon"></b-spinner>
-      <p class="text-secondary">{{ app.name }}</p>
-    </div>
+  <div @click="open">
+    <img :id="app.name" v-show="iconLoaded" :src="iconSrc" alt="🔲" class="app-icon" @load="iconLoaded=true">
+    <b-icon-box v-show="!iconLoaded" class="app-icon"></b-icon-box>
+    <p>{{ app.name | titlecase }}</p>
   </div>
 </template>
 
@@ -29,10 +19,12 @@ export default {
     iconSrc() {
       return `/core/protected/apps/${this.app.name}/icon`
     },
-    href() {
-      return `https://${this.app.name}.${window.location.host}`
-    },
   },
+  methods: {
+    open() {
+      window.open(`https://${this.app.name}.${window.location.host}`, '_blank');
+    }
+  }
 }
 </script>
 
@@ -44,14 +36,14 @@ export default {
 
 div {
   text-align: center;
-  margin: 2em;
+  padding-top: 2em;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
 }
 
 p {
   margin-top: 0.5em;
 }
 
-a {
-  color: inherit;
-}
 </style>
