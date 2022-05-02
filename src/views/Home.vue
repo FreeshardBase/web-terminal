@@ -2,8 +2,8 @@
   <div>
     <navbar></navbar>
     <b-container fluid>
-      <b-row align-h="start">
-        <b-col v-for="app in apps" :key="app.name" cols="6" md="2">
+      <b-row align-h="start" no-gutters>
+        <b-col v-for="app in apps" :key="app.name" cols="3" lg="2" xl="1">
           <AppIcon :app="app"></AppIcon>
         </b-col>
       </b-row>
