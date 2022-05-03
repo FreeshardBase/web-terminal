@@ -49,6 +49,7 @@ export default {
   },
 
   async mounted() {
+    document.title = `Portal [${this.$store.getters.short_portal_id}] - Home`;
     this.apps = (await this.$http.get('/core/protected/apps')).data
     if (!this.$store.getters.tour_seen('home')) {
       this.$tours['HomeTour'].start();

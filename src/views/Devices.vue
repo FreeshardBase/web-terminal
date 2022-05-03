@@ -130,6 +130,7 @@ export default {
   },
 
   async mounted() {
+    document.title = `Portal [${this.$store.getters.short_portal_id}] - Devices`;
     await this.refreshDevices();
     if (!this.$store.getters.tour_seen('devices')) {
       this.$tours['DevicesTour'].start();

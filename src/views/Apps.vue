@@ -169,6 +169,7 @@ export default {
   },
 
   mounted() {
+    document.title = `Portal [${this.$store.getters.short_portal_id}] - Apps`;
     this.refreshStore();
   }
 }

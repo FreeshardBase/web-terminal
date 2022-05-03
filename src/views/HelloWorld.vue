@@ -99,6 +99,7 @@ export default {
   },
 
   mounted: function () {
+    document.title = `Portal [${this.$store.getters.short_portal_id}] - Hello`;
     let component = this;
     this.$http.get('/core/public/meta/whoami')
         .then(function (response) {
