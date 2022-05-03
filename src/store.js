@@ -7,8 +7,8 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     meta: {
-      terminal_id: 'unknown',
-      terminal_name: 'unknown',
+      device_id: 'unknown',
+      device_name: 'unknown',
       portal_id: 'unknown'
     },
     tours: [],
@@ -30,8 +30,8 @@ const store = new Vuex.Store({
   },
   mutations: {
     set_meta (state, meta) {
-      state.meta.terminal_id = meta.terminal_id;
-      state.meta.terminal_name = meta.terminal_name;
+      state.meta.device_id = meta.device_id;
+      state.meta.device_name = meta.device_name;
       state.meta.portal_id = meta.portal_id;
     },
     set_tours(state, tours) {
@@ -43,8 +43,8 @@ const store = new Vuex.Store({
       let meta = {}
       let whoami = await this._vm.$http.get('/core/public/meta/whoami')
       if (whoami.data.type !== 'anonymous') {
-        meta.terminal_id = whoami.data.id;
-        meta.terminal_name = whoami.data.name;
+        meta.device_id = whoami.data.id;
+        meta.device_name = whoami.data.name;
       }
 
       const whoareyou = await this._vm.$http.get('/core/public/meta/whoareyou')

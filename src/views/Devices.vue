@@ -5,7 +5,7 @@
       <b-row>
 
         <b-col>
-          <h1>Terminals</h1>
+          <h1>Devices</h1>
         </b-col>
 
         <b-col class="text-right">
@@ -30,13 +30,13 @@
       <b-row>
 
         <b-col>
-          <b-table id="terminals-table" :items="terminals" :fields="terminals_fields" hover>
+          <b-table id="devices-table" :items="devices" :fields="devices_fields" hover>
 
             <template #cell(name)="data">
               <span class="text-monospace">{{ data.value }} </span>
               <b-badge
                   id="this-badge"
-                  v-if="isThisTerminal(data.item.id)"
+                  v-if="isThisDevice(data.item.id)"
                   variant="primary">
                 This
               </b-badge>
@@ -45,8 +45,8 @@
             <template #cell(actions)="data">
               <b-button
                   variant="danger" size="sm"
-                  v-if="!isThisTerminal(data.item.id)"
-                  @click="deleteTerminal(data.item.id)">
+                  v-if="!isThisDevice(data.item.id)"
+                  @click="deleteDevice(data.item.id)">
                 <b-icon-trash></b-icon-trash>
               </b-button>
             </template>
@@ -56,7 +56,7 @@
       </b-row>
 
     </b-container>
-    <v-tour name="TerminalsTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
+    <v-tour name="DevicesTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
   </div>
 </template>
 
@@ -64,24 +64,24 @@
 import Navbar from "@/components/Navbar";
 
 export default {
-  name: "Terminals",
+  name: "Devices",
   components: {Navbar},
   data: function () {
     return {
-      terminals: [],
-      terminals_fields: ['name', {key: 'actions', label: '', class: 'text-right'}],
+      devices: [],
+      devices_fields: ['name', {key: 'actions', label: '', class: 'text-right'}],
       pairing: {
         code: null,
         loading: false,
       },
       tourSteps: [
         {
-          target: '#terminals-table',
-          content: 'Here you can see and manage your terminals. They are the devices from which you can control your Portal.'
+          target: '#devices-table',
+          content: 'Here you can see and manage your paired devices. They are the devices from which you can control your Portal.'
         },
         {
           target: '#this-badge',
-          content: 'The terminal that you currently use is marked.'
+          content: 'The device that you currently use is marked.'
         },
         {
           target: '#add-button',
@@ -112,28 +112,28 @@ export default {
           })
     },
 
-    async deleteTerminal(id) {
+    async deleteDevice(id) {
       let component = this;
       await this.$http.delete(`/core/protected/terminals/id/${id}`)
-      await component.refreshTerminals();
+      await component.refreshDevices();
     },
 
-    async refreshTerminals() {
+    async refreshDevices() {
       let component = this;
       const response = await this.$http.get('/core/protected/terminals')
-      component.terminals = response.data;
+      component.devices = response.data;
     },
 
-    isThisTerminal(id) {
-      return this.$store.state.meta.terminal_id.substring(0, 6) === id;
+    isThisDevice(id) {
+      return this.$store.state.meta.device_id.substring(0, 6) === id;
     }
   },
 
   async mounted() {
-    await this.refreshTerminals();
-    if (!this.$store.getters.tour_seen('terminals')) {
-      this.$tours['TerminalsTour'].start();
-      await this.$store.dispatch('mark_tour_as_seen', 'terminals');
+    await this.refreshDevices();
+    if (!this.$store.getters.tour_seen('devices')) {
+      this.$tours['DevicesTour'].start();
+      await this.$store.dispatch('mark_tour_as_seen', 'devices');
     }
   }
 }

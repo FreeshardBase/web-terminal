@@ -12,7 +12,7 @@
           <b-form-input class="portal-id-input text-monospace" readonly :value="$store.getters.short_portal_id"></b-form-input>
           <b-input-group-append>
             <b-input-group-text>
-              {{ $store.state.meta.terminal_name}}
+              {{ $store.state.meta.device_name }}
             </b-input-group-text>
           </b-input-group-append>
         </b-input-group>
@@ -26,8 +26,8 @@
           <b-nav-item to="/">Home</b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav id="nav-terminals">
-          <b-nav-item to="/terminals">Terminals</b-nav-item>
+        <b-navbar-nav id="nav-devices">
+          <b-nav-item to="/devices">Devices</b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-apps">

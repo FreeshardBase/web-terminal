@@ -25,7 +25,7 @@ export default {
       tourSteps: [
         {
           target: '#id-button',
-          content: 'Welcome to your Portal! This is your Portal\'s ID and the name of the Terminal you are using right now. Think of the ID like a phone number. You can tell others, so they can reach you.'
+          content: 'Welcome to your Portal! This is your Portal\'s ID and the name of the device you are using right now. Think of the ID like a phone number. You can tell others, so they can reach you.'
         },
         {
           target: '#filebrowser',
@@ -36,8 +36,8 @@ export default {
           content: 'Install more apps from the app store. Also remove and manage your apps here.'
         },
         {
-          target: '#nav-terminals',
-          content: 'To use your Portal from more than one device, pair them here. We call them terminals.'
+          target: '#nav-devices',
+          content: 'To use your Portal from more than one device (like your smartphone, notebook, tablet, etc.), pair them here.'
         },
         {
           target: '#nav-settings',
