@@ -26,12 +26,12 @@
           <b-nav-item to="/">Home</b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav id="nav-devices">
-          <b-nav-item to="/devices">Devices</b-nav-item>
-        </b-navbar-nav>
-
         <b-navbar-nav id="nav-apps">
           <b-nav-item to="/apps">Apps</b-nav-item>
+        </b-navbar-nav>
+
+        <b-navbar-nav id="nav-devices">
+          <b-nav-item to="/devices">Devices</b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-settings" class="ml-auto">
