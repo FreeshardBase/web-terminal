@@ -9,12 +9,11 @@
               <img class="h-100" style="max-height: 1.5em" alt="Portal logo" src="../assets/logo.svg">
             </b-input-group-text>
           </b-input-group-prepend>
-          <b-form-input class="portal-id-input text-monospace" readonly :value="$store.getters.short_portal_id"></b-form-input>
-          <b-input-group-append>
-            <b-input-group-text>
-              {{ $store.state.meta.terminal_name}}
-            </b-input-group-text>
-          </b-input-group-append>
+          <b-form-input
+              class="portal-id-input text-monospace"
+              readonly
+              :value="$store.getters.short_portal_id"
+          ></b-form-input>
         </b-input-group>
       </b-navbar-brand>
 
@@ -23,15 +22,18 @@
       <b-collapse id="nav-collapse" is-nav>
 
         <b-navbar-nav id="nav-home">
-          <b-nav-item to="/">Home</b-nav-item>
-        </b-navbar-nav>
-
-        <b-navbar-nav id="nav-terminals">
-          <b-nav-item to="/terminals">Terminals</b-nav-item>
+          <b-nav-item v-if="$route.name==='Portal'"><b>Home</b></b-nav-item>
+          <b-nav-item v-else to="/">Home</b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-apps">
-          <b-nav-item to="/apps">Apps</b-nav-item>
+          <b-nav-item v-if="$route.name==='Apps'"><b>Apps</b></b-nav-item>
+          <b-nav-item v-else to="/apps">Apps</b-nav-item>
+        </b-navbar-nav>
+
+        <b-navbar-nav id="nav-devices">
+          <b-nav-item v-if="$route.name==='Devices'"><b>Devices</b></b-nav-item>
+          <b-nav-item v-else to="/devices">Devices</b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-settings" class="ml-auto">
@@ -74,8 +76,9 @@ export default {
 <style scoped>
 
 .portal-id-input {
-  width: 5em;
+  width: 6em;
   cursor: pointer;
+  text-align: center;
 }
 
 </style>

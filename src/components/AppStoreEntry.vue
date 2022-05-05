@@ -5,9 +5,11 @@
         <b-col md="2" class="text-center">
           <b-img
               :src="`/core/protected/apps/${app.name}/icon`"
+              v-show="iconLoaded"
+              @load="iconLoaded=true"
               alt="Icon"
               class="app-icon m-2"></b-img>
-          <b-badge v-if="app.is_installed" size="xs" pill variant="success">Installed</b-badge>
+          <b-icon-box v-show="!iconLoaded" class="app-icon m-2"></b-icon-box>
         </b-col>
         <b-col md="10">
           <b-card-body>
@@ -87,6 +89,11 @@
 export default {
   name: "AppStoreEntry",
   props: ['app'],
+  data: function () {
+    return {
+      iconLoaded: false,
+    }
+  },
 
   computed: {
     appJsonUrl() {

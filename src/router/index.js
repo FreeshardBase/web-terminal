@@ -2,8 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HelloWorld from "@/views/HelloWorld";
 import Home from "@/views/Home";
-import Terminals from "@/views/Terminals";
 import Apps from "@/views/Apps";
+import Devices from "@/views/Devices";
 
 Vue.use(VueRouter)
 
@@ -19,9 +19,9 @@ const routes = [
     component: HelloWorld
   },
   {
-    path: '/terminals',
-    name: 'Terminals',
-    component: Terminals
+    path: '/devices',
+    name: 'Devices',
+    component: Devices
   },
   {
     path: '/apps',
