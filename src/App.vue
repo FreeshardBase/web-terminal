@@ -15,7 +15,7 @@ export default {
     const component = this;
     this.$http.get('/core/public/meta/whoami')
         .then(function (response) {
-          if (response.data.type === 'anonymous') {
+          if (response.data.type === 'anonymous' && component.$route.name !== 'Hello World') {
             component.$router.replace('/helloworld');
           }
           component.loading = false;

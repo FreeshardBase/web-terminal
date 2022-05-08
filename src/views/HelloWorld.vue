@@ -110,6 +110,20 @@ export default {
 
     this.$http.get('/core/public/meta/whoareyou')
         .then(response => (component.portal_id = response.data.id))
+  },
+
+  beforeMount: async function () {
+    const pairing_code = this.$route.query.code;
+    if (pairing_code !== undefined) {
+      try {
+        await this.$http.post('/core/public/pair/terminal?code=' + pairing_code, {
+          name: 'auto-created device',
+        });
+        window.location.replace('');
+      } catch (response) {
+        console.log('Error during auto-pairing', response);
+      }
+    }
   }
 }
 </script>
