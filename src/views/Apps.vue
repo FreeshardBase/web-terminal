@@ -42,23 +42,41 @@
         </b-col>
       </b-row>
 
-      <!-- Apps -->
-      <b-row align-v="stretch" class="flex-grow-1">
-        <b-col>
-          <b-overlay :show="store.updating" rounded="sm" variant="white" class="w-100 p-1">
-            <b-container>
+      <b-overlay :show="store.updating" rounded="sm" variant="white" class="w-100 p-1">
 
+        <HorizontalSeparator title="Installed"></HorizontalSeparator>
+
+        <!-- Installed Apps -->
+        <b-row align-v="stretch" class="flex-grow-1">
+          <b-col>
+            <b-container>
               <!-- Entries -->
               <b-row cols="2">
-                <b-col v-for="app in sortedApps" :key="app.name" class="p-1">
+                <b-col v-for="app in installedApps" :key="app.name" class="p-1">
                   <AppStoreEntry :app="app" @changed="refreshStore"></AppStoreEntry>
                 </b-col>
               </b-row>
-
             </b-container>
-          </b-overlay>
-        </b-col>
-      </b-row>
+          </b-col>
+        </b-row>
+
+        <HorizontalSeparator title="Available"></HorizontalSeparator>
+
+        <!-- Available Apps -->
+        <b-row align-v="stretch" class="flex-grow-1">
+          <b-col>
+            <b-container>
+              <!-- Entries -->
+              <b-row cols="2">
+                <b-col v-for="app in availableApps" :key="app.name" class="p-1">
+                  <AppStoreEntry :app="app" @changed="refreshStore"></AppStoreEntry>
+                </b-col>
+              </b-row>
+            </b-container>
+          </b-col>
+        </b-row>
+
+      </b-overlay>
 
     </b-container>
 
@@ -89,10 +107,11 @@
 <script>
 import Navbar from "@/components/Navbar";
 import AppStoreEntry from "@/components/AppStoreEntry";
+import HorizontalSeparator from "@/components/HorizontalSeparator";
 
 export default {
   name: "Apps",
-  components: {AppStoreEntry, Navbar},
+  components: {HorizontalSeparator, AppStoreEntry, Navbar},
   data: function () {
     return {
       store: {
@@ -121,10 +140,19 @@ export default {
   },
 
   computed: {
-    sortedApps() {
-      return [...this.store.apps].sort((a, b) => {
-        return a.store_info.is_featured < b.store_info.is_featured
-      })
+    installedApps() {
+      return [...this.store.apps]
+          .filter(a => a.is_installed)
+          .sort((a, b) => {
+            return a.store_info.is_featured < b.store_info.is_featured
+          })
+    },
+    availableApps() {
+      return [...this.store.apps]
+          .filter(a => !a.is_installed)
+          .sort((a, b) => {
+            return a.store_info.is_featured < b.store_info.is_featured
+          })
     }
   },
 
@@ -169,6 +197,7 @@ export default {
   },
 
   mounted() {
+    document.title = `Portal [${this.$store.getters.short_portal_id}] - Apps`;
     this.refreshStore();
   }
 }

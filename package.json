@@ -1,6 +1,6 @@
 {
   "name": "web-terminal",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -13,6 +13,7 @@
     "bootstrap-vue": "^2.21.2",
     "core-js": "^3.6.5",
     "http-proxy-middleware": "^1.0.6",
+    "mobile-device-detect": "^0.4.3",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vue-tour": "^2.0.0",

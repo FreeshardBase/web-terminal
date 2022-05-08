@@ -26,20 +26,20 @@
         </div>
 
         <div class="mt-4">
-          <p>Is this your Portal? Then <b>pair</b> this device with your Portal. It will become a <b>Terminal</b>.</p>
+          <p>Is this your Portal? Then <b>pair</b> it with this device.</p>
           <b-form @submit.prevent="pair">
 
             <b-form-group
-                label="Terminal Name"
+                label="Device Name"
             >
               <b-form-input
-                  v-model="terminal_name"
+                  v-model="device_name"
                   placeholder="E.g. Notebook or Smartphone"
               ></b-form-input>
             </b-form-group>
 
             <b-form-group
-                description="The one-time pairing code was given to you when you claimed your Portal. You can also get a new one by using an existing Terminal."
+                description="The one-time pairing code was given to you when you claimed your Portal. You can also get a new one from a device you paired earlier."
                 label="One-Time Pairing Code"
             >
               <b-form-input
@@ -65,13 +65,15 @@
 </template>
 
 <script>
+import {browserName, isMobile, mobileModel, osName} from "mobile-device-detect";
+
 export default {
   name: 'HelloWorld',
 
   data: function () {
     return {
       portal_id: null,
-      terminal_name: null,
+      device_name: null,
       pairing_code: null,
       pairing_in_progress: false,
       pairing_error: null,
@@ -86,7 +88,7 @@ export default {
       this.show_error = false;
       try {
         await this.$http.post('/core/public/pair/terminal?code=' + this.pairing_code, {
-          name: this.terminal_name,
+          name: this.device_name,
         });
       } catch (response) {
         component.pairing_in_progress = false;
@@ -99,6 +101,7 @@ export default {
   },
 
   mounted: function () {
+    document.title = `Portal [${this.$store.getters.short_portal_id}] - Hello`;
     let component = this;
     this.$http.get('/core/public/meta/whoami')
         .then(function (response) {
@@ -109,6 +112,23 @@ export default {
 
     this.$http.get('/core/public/meta/whoareyou')
         .then(response => (component.portal_id = response.data.id))
+  },
+
+  beforeMount: async function () {
+    const pairing_code = this.$route.query.code;
+    if (pairing_code !== undefined) {
+      const deviceName = isMobile ?
+          `${browserName || "unknown browser"} on ${mobileModel !== 'none' ? mobileModel : "unknown device"}` :
+          `${browserName || "unknown browser"} on ${osName || "unknown device"}`;
+      try {
+        await this.$http.post('/core/public/pair/terminal?code=' + pairing_code, {
+          name: deviceName,
+        });
+        window.location.replace('');
+      } catch (response) {
+        console.log('Error during auto-pairing', response);
+      }
+    }
   }
 }
 </script>

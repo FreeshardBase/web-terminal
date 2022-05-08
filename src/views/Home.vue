@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div id="top-of-page"></div>
     <navbar></navbar>
     <b-container fluid>
       <b-row align-h="start" no-gutters>
@@ -24,8 +25,17 @@ export default {
       apps: [],
       tourSteps: [
         {
+          target: '#top-of-page',
+          header: {
+            title: 'Welcome to your Portal!'
+          },
+          content: 'This Portal is yours and only yours.</br>' +
+              'It has a unique address that you can see right here in the address bar. Better bookmark it!'
+        },
+        {
           target: '#id-button',
-          content: 'Welcome to your Portal! This is your Portal\'s ID and the name of the Terminal you are using right now. Think of the ID like a phone number. You can tell others, so they can reach you.'
+          content: 'Every Portal has an ID. You can see it here. It is also part of its address.<br>' +
+              'Think of the ID like a phone number. You can tell others, so they can reach you.'
         },
         {
           target: '#filebrowser',
@@ -36,8 +46,8 @@ export default {
           content: 'Install more apps from the app store. Also remove and manage your apps here.'
         },
         {
-          target: '#nav-terminals',
-          content: 'To use your Portal from more than one device, pair them here. We call them terminals.'
+          target: '#nav-devices',
+          content: 'To use your Portal from more than one device (like your smartphone, notebook, tablet, etc.), pair them here.'
         },
         {
           target: '#nav-settings',
@@ -49,6 +59,7 @@ export default {
   },
 
   async mounted() {
+    document.title = `Portal [${this.$store.getters.short_portal_id}] - Home`;
     this.apps = (await this.$http.get('/core/protected/apps')).data
     if (!this.$store.getters.tour_seen('home')) {
       this.$tours['HomeTour'].start();
@@ -59,4 +70,9 @@ export default {
 </script>
 
 <style scoped>
+#top-of-page {
+  position: absolute;
+  left: 0;
+  right: 50%;
+}
 </style>
