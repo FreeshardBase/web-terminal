@@ -65,6 +65,8 @@
 </template>
 
 <script>
+import {browserName, isMobile, mobileModel, osName} from "mobile-device-detect";
+
 export default {
   name: 'HelloWorld',
 
@@ -115,9 +117,12 @@ export default {
   beforeMount: async function () {
     const pairing_code = this.$route.query.code;
     if (pairing_code !== undefined) {
+      const deviceName = isMobile ?
+          `${browserName || "unknown browser"} on ${mobileModel !== 'none' ? mobileModel : "unknown device"}` :
+          `${browserName || "unknown browser"} on ${osName || "unknown device"}`;
       try {
         await this.$http.post('/core/public/pair/terminal?code=' + pairing_code, {
-          name: 'auto-created device',
+          name: deviceName,
         });
         window.location.replace('');
       } catch (response) {
