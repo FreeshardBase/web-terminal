@@ -9,15 +9,8 @@
         </b-col>
 
         <b-col class="text-right">
-          <b-form-input
-              id="pairing-code-box"
-              v-show="pairing.code"
-              :value="pairing.code ? pairing.code.code : ''"
-              class="text-monospace"
-              readonly></b-form-input>
-          <b-button id="add-button" v-if="!pairing.code" variant="success" @click="newPairingCode">
-            <b-spinner small v-if="pairing.loading"></b-spinner>
-            <b-icon-plus-circle-fill v-else></b-icon-plus-circle-fill>
+          <b-button id="add-button" variant="success" @click="startPairing">
+            <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
             <span> Add</span>
           </b-button>
         </b-col>
@@ -56,6 +49,18 @@
       </b-row>
 
     </b-container>
+
+    <b-modal id="new-device-modal">
+      <b-spinner v-if="pairing.loading"></b-spinner>
+      <p v-else-if="pairing.error">
+        {{ pairing.error }}
+      </p>
+      <div v-else>
+        <qrcode-vue :value="pairingLink" size="150"></qrcode-vue>
+        {{ pairing.code }}
+      </div>
+    </b-modal>
+
     <v-tour name="DevicesTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
   </div>
 </template>
@@ -73,6 +78,7 @@ export default {
       pairing: {
         code: null,
         loading: false,
+        error: null,
       },
       tourSteps: [
         {
@@ -95,9 +101,29 @@ export default {
     hostname() {
       return document.location.hostname
     },
+    pairingLink() {
+      if (this.pairing.code) {
+        return `https://${this.$store.getters.short_portal_id}.p.getportal.org/#/helloworld?code=${this.pairing.code.code}`;
+      } else {
+        return `https://${this.$store.getters.short_portal_id}.p.getportal.org`;
+      }
+    }
   },
 
   methods: {
+    async startPairing() {
+      this.$bvModal.show('new-device-modal')
+      this.pairing.loading = true;
+      try {
+        const response = await this.$http.get('/core/protected/terminals/pairing-code');
+        this.pairing.code = response.data;
+      } catch (e) {
+        this.pairing.error = e;
+      } finally {
+        this.pairing.loading = false;
+      }
+    },
+
     newPairingCode() {
       let component = this;
       this.pairing.loading = true;
