@@ -15,10 +15,6 @@
           </b-button>
         </b-col>
 
-        <b-tooltip target="pairing-code-box" triggers="hover" placement="leftbottom">
-          Browse to <a :href="$store.getters.portal_href">{{ $store.getters.portal_domain }}</a> on another device and use this <b>one-time pairing code</b> to pair them.
-        </b-tooltip>
-
       </b-row>
       <b-row>
 
@@ -50,14 +46,21 @@
 
     </b-container>
 
-    <b-modal id="new-device-modal">
+    <b-modal id="new-device-modal" title="Pair new Device" hide-footer @hidden="refreshDevices">
       <b-spinner v-if="pairing.loading"></b-spinner>
       <p v-else-if="pairing.error">
         {{ pairing.error }}
       </p>
       <div v-else>
+        <p>Scan this code with another device to pair it</p>
         <qrcode-vue :value="pairingLink" size="150"></qrcode-vue>
-        {{ pairing.code }}
+        <HorizontalSeparator title="or"></HorizontalSeparator>
+        <p>Navigate to <a :href="$store.getters.portal_href">{{ $store.getters.portal_domain }}</a> and use the one-time pairing code</p>
+        <b-form-input
+              id="pairing-code-box"
+              :value="pairingCode"
+              class="text-monospace"
+              readonly></b-form-input>
       </div>
     </b-modal>
 
@@ -67,10 +70,11 @@
 
 <script>
 import Navbar from "@/components/Navbar";
+import HorizontalSeparator from "@/components/HorizontalSeparator";
 
 export default {
   name: "Devices",
-  components: {Navbar},
+  components: {HorizontalSeparator, Navbar},
   data: function () {
     return {
       devices: [],
@@ -101,11 +105,14 @@ export default {
     hostname() {
       return document.location.hostname
     },
+    pairingCode() {
+      return this.pairing.code ? this.pairing.code.code : 'unknown';
+    },
     pairingLink() {
       if (this.pairing.code) {
-        return `https://${this.$store.getters.short_portal_id}.p.getportal.org/#/helloworld?code=${this.pairing.code.code}`;
+        return `https://${this.$store.getters.portal_domain}/#/helloworld?code=${this.pairing.code.code}`;
       } else {
-        return `https://${this.$store.getters.short_portal_id}.p.getportal.org`;
+        return `https://${this.$store.getters.portal_domain}`;
       }
     }
   },
@@ -122,20 +129,6 @@ export default {
       } finally {
         this.pairing.loading = false;
       }
-    },
-
-    newPairingCode() {
-      let component = this;
-      this.pairing.loading = true;
-      this.$http.get('/core/protected/terminals/pairing-code')
-          .then(function (response) {
-            component.pairing.code = response.data;
-            component.pairing.loading = false;
-          })
-          .catch(function (response) {
-            console.log(response)
-            component.pairing.loading = false;
-          })
     },
 
     async deleteDevice(id) {
@@ -168,10 +161,14 @@ export default {
 
 <style scoped>
 
+.modal-body div {
+  text-align: center;
+}
+
 #pairing-code-box {
   width: 6em;
+  display: inline-flex;
   text-align: center;
-  display: inline-block;
 }
 
 </style>
