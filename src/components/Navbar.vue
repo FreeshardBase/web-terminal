@@ -3,18 +3,7 @@
     <b-navbar toggleable="lg" type="dark" variant="dark">
 
       <b-navbar-brand to="/">
-        <b-input-group id="id-button">
-          <b-input-group-prepend>
-            <b-input-group-text>
-              <img class="h-100" style="max-height: 1.5em" alt="Portal logo" src="../assets/logo.svg">
-            </b-input-group-text>
-          </b-input-group-prepend>
-          <b-form-input
-              class="portal-id-input text-monospace"
-              readonly
-              :value="$store.getters.short_portal_id"
-          ></b-form-input>
-        </b-input-group>
+        <PortalIdBadge :portal-id="$store.getters.short_portal_id"/>
       </b-navbar-brand>
 
       <b-nav-toggle target="nav-collapse"></b-nav-toggle>
@@ -50,9 +39,11 @@
 </template>
 
 <script>
+import PortalIdBadge from "@/components/PortalIdBadge";
+
 export default {
   name: "Navbar",
-
+  components: {PortalIdBadge},
   methods: {
     restart() {
       this.$http.post('/core/protected/restart')
@@ -73,12 +64,3 @@ export default {
 }
 </script>
 
-<style scoped>
-
-.portal-id-input {
-  width: 6em;
-  cursor: pointer;
-  text-align: center;
-}
-
-</style>
