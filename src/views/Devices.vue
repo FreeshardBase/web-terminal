@@ -46,21 +46,32 @@
 
     </b-container>
 
-    <b-modal id="new-device-modal" title="Pair new Device" hide-footer @hidden="refreshDevices">
+    <b-modal id="new-device-modal" title="Pair new Device" hide-footer @hidden="stopPairing">
       <b-spinner v-if="pairing.loading"></b-spinner>
       <p v-else-if="pairing.error">
         {{ pairing.error }}
       </p>
+      <div v-else-if="pairingCodeValidityProgress===0">
+        <p>Pairing code expired</p>
+        <b-button @click="startPairing" variant="primary">
+          <b-icon-arrow-clockwise></b-icon-arrow-clockwise>
+          <span> Refresh</span>
+        </b-button>
+      </div>
       <div v-else>
-        <p>Scan this code with another device to pair it</p>
+        <b-progress height="0.2em">
+          <b-progress-bar :value="pairingCodeValidityProgress"></b-progress-bar>
+        </b-progress>
+        <p>Scan this CR-code with another device to pair it</p>
         <qrcode-vue :value="pairingLink" size="150"></qrcode-vue>
         <HorizontalSeparator title="or"></HorizontalSeparator>
-        <p>Navigate to <a :href="$store.getters.portal_href">{{ $store.getters.portal_domain }}</a> and use the one-time pairing code</p>
-        <b-form-input
-              id="pairing-code-box"
-              :value="pairingCode"
-              class="text-monospace"
-              readonly></b-form-input>
+        <p>Navigate to <a :href="$store.getters.portal_href">{{ $store.getters.portal_domain }}</a> and use the one-time
+          pairing code</p>
+        <p><b-form-input
+            id="pairing-code-box"
+            :value="pairingCode"
+            class="text-monospace"
+            readonly></b-form-input></p>
       </div>
     </b-modal>
 
@@ -71,6 +82,7 @@
 <script>
 import Navbar from "@/components/Navbar";
 import HorizontalSeparator from "@/components/HorizontalSeparator";
+import moment from "moment/moment";
 
 export default {
   name: "Devices",
@@ -83,6 +95,8 @@ export default {
         code: null,
         loading: false,
         error: null,
+        updateTimer: null,
+        now: null,
       },
       tourSteps: [
         {
@@ -102,9 +116,6 @@ export default {
   },
 
   computed: {
-    hostname() {
-      return document.location.hostname
-    },
     pairingCode() {
       return this.pairing.code ? this.pairing.code.code : 'unknown';
     },
@@ -114,21 +125,41 @@ export default {
       } else {
         return `https://${this.$store.getters.portal_domain}`;
       }
-    }
+    },
+    pairingCodeValidityProgress() {
+      if (this.pairing.code && this.pairing.now) {
+        const validStart = moment.utc(this.pairing.code.created);
+        const validEnd = moment.utc(this.pairing.code.valid_until);
+        const totalSeconds = moment.duration(validEnd.diff(validStart)).asSeconds();
+        const elapsedSeconds = moment.duration(validEnd.diff(this.pairing.now)).asSeconds();
+        return Math.max(elapsedSeconds / totalSeconds * 100, 0);
+      } else {
+        return 100;
+      }
+
+    },
   },
 
   methods: {
     async startPairing() {
+      await this.stopPairing();
       this.$bvModal.show('new-device-modal')
       this.pairing.loading = true;
       try {
         const response = await this.$http.get('/core/protected/terminals/pairing-code');
         this.pairing.code = response.data;
+        this.pairing.updateTimer = setInterval(() => this.pairing.now = moment(), 1000);
       } catch (e) {
         this.pairing.error = e;
+        return;
       } finally {
         this.pairing.loading = false;
       }
+    },
+
+    async stopPairing() {
+      await this.refreshDevices();
+      clearInterval(this.pairing.updateTimer);
     },
 
     async deleteDevice(id) {
@@ -169,6 +200,12 @@ export default {
   width: 6em;
   display: inline-flex;
   text-align: center;
+}
+
+.progress {
+  margin-top: -1rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
 }
 
 </style>
