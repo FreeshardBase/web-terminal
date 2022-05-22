@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <div v-if="loading">Loading...</div>
+    <div v-if="loading" id="portal-load-splash">
+      <img src="./assets/logo.svg">
+      <h1>Loading</h1>
+    </div>
     <router-view v-else/>
   </div>
 </template>
@@ -12,15 +15,12 @@ export default {
   }),
 
   async mounted() {
-    const component = this;
-    this.$http.get('/core/public/meta/whoami')
-        .then(function (response) {
-          if (response.data.type === 'anonymous' && component.$route.name !== 'Hello World') {
-            component.$router.replace('/helloworld');
-          }
-          component.loading = false;
-        });
-    await this.$store.dispatch('query_initial_data')
+    const whoami = await this.$http.get('/core/public/meta/whoami')
+    if (whoami.data.type === 'anonymous' && this.$route.name !== 'Hello World') {
+      await this.$router.replace('/helloworld');
+    }
+    await this.$store.dispatch('query_initial_data');
+    this.loading = false;
   }
 }
 </script>
@@ -33,6 +33,24 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+}
+
+#portal-load-splash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+#portal-load-splash img {
+    height: 7em;
+    margin: 3em;
+}
+
+#portal-load-splash h1 {
+    font-family: Avenir,Helvetica,Arial,sans-serif;
 }
 
 </style>

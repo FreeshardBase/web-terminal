@@ -9,10 +9,12 @@ import axios from "axios";
 import VueTour from 'vue-tour';
 import 'vue-tour/dist/vue-tour.css'
 import './assets/css/main.css'
+import QrcodeVue from "qrcode.vue";
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
 Vue.use(VueTour)
+Vue.component('qrcode-vue', QrcodeVue);
 Vue.config.productionTip = false
 Vue.prototype.$http = axios.create({
   headers: {
