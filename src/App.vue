@@ -11,16 +11,13 @@ export default {
     loading: true
   }),
 
-  async mounted() {
-    const component = this;
-    this.$http.get('/core/public/meta/whoami')
-        .then(function (response) {
-          if (response.data.type === 'anonymous' && component.$route.name !== 'Hello World') {
-            component.$router.replace('/helloworld');
-          }
-          component.loading = false;
-        });
-    await this.$store.dispatch('query_initial_data')
+  async beforeCreate() {
+    const whoami = await this.$http.get('/core/public/meta/whoami')
+    if (whoami.data.type === 'anonymous' && this.$route.name !== 'Hello World') {
+      await this.$router.replace('/helloworld');
+    }
+    await this.$store.dispatch('query_initial_data');
+    this.loading = false;
   }
 }
 </script>
