@@ -16,10 +16,16 @@ export default {
 
   async mounted() {
     const whoami = await this.$http.get('/core/public/meta/whoami')
-    if (whoami.data.type === 'anonymous' && this.$route.name !== 'Hello World') {
-      await this.$router.replace('/helloworld');
+    if (whoami.data.type === 'anonymous') {
+      if (this.$route.name === 'Hello World') {
+        await this.$store.dispatch('query_meta_data');
+      } else {
+        await this.$router.replace('/helloworld');
+      }
+    } else {
+      await this.$store.dispatch('query_meta_data');
+      await this.$store.dispatch('query_tour_data');
     }
-    await this.$store.dispatch('query_initial_data');
     this.loading = false;
   }
 }

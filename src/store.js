@@ -39,7 +39,7 @@ const store = new Vuex.Store({
     },
   },
   actions: {
-    async query_initial_data (context) {
+    async query_meta_data (context) {
       let meta = {}
       let whoami = await this._vm.$http.get('/core/public/meta/whoami')
       if (whoami.data.type !== 'anonymous') {
@@ -51,8 +51,6 @@ const store = new Vuex.Store({
       meta.portal_id = whoareyou.data.id;
 
       context.commit('set_meta', meta)
-
-      await store.dispatch('query_tour_data');
     },
     async query_tour_data(context) {
       let tours = await this._vm.$http.get('/core/protected/help/tours')

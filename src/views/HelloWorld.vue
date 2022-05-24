@@ -95,7 +95,8 @@ export default {
         component.pairing_error = response;
         component.show_error = true;
       }
-      await this.$store.dispatch('query_initial_data')
+      await this.$store.dispatch('query_meta_data');
+      await this.$store.dispatch('query_tour_data');
       await component.$router.replace('/');
     }
   },
