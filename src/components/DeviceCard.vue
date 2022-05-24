@@ -10,7 +10,7 @@
           <b-icon-tv v-if="device.icon=='desktop'" font-scale="3"></b-icon-tv>
           <b-badge
               id="this-badge"
-              v-if="isThisDevice()"
+              v-if="isThisDevice"
               variant="primary">
             This
           </b-badge>
@@ -20,10 +20,12 @@
             <b-card-title class="text-truncate">
               {{ device.name | titlecase }}
             </b-card-title>
-            <b-row align-v="end">
+            <b-row>
               <b-col><small>{{ lastConnectionString }}</small></b-col>
               <b-col class="text-right">
-                <b-button variant="outline-danger" size="sm">Remove</b-button>
+                <b-col><span class="text-danger delete-button" @click="deleteDevice">
+                  <small>Remove</small>
+                </span></b-col>
               </b-col>
             </b-row>
           </b-card-body>
@@ -47,10 +49,14 @@ export default {
         return 'Last connection: unknown';
       }
     },
-  },
-  methods: {
     isThisDevice() {
       return this.$store.state.meta.device_id.substring(0, 6) === this.device.id;
+    },
+  },
+  methods: {
+    async deleteDevice() {
+      await this.$http.delete(`/core/protected/terminals/id/${this.device.id}`)
+      this.$emit('refresh');
     }
   }
 }
@@ -64,7 +70,11 @@ export default {
 
 .card {
   max-width: 540px;
-  height: 7em;
+  height: 6em;
+}
+
+.delete-button {
+  cursor: pointer;
 }
 
 </style>

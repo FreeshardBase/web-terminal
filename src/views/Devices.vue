@@ -23,7 +23,7 @@
             <!-- Entries -->
             <b-row cols="2">
               <b-col v-for="device in devices" :key="device.name" class="p-1">
-                <DeviceCard :device="device"></DeviceCard>
+                <DeviceCard :device="device" @refresh="refreshDevices"></DeviceCard>
               </b-col>
             </b-row>
           </b-container>
