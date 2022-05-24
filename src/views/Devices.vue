@@ -16,31 +16,17 @@
         </b-col>
 
       </b-row>
-      <b-row>
 
+      <b-row align-v="stretch" class="flex-grow-1">
         <b-col>
-          <b-table id="devices-table" :items="devices" :fields="devices_fields" hover>
-
-            <template #cell(name)="data">
-              <span class="text-monospace">{{ data.value }} </span>
-              <b-badge
-                  id="this-badge"
-                  v-if="isThisDevice(data.item.id)"
-                  variant="primary">
-                This
-              </b-badge>
-            </template>
-
-            <template #cell(actions)="data">
-              <b-button
-                  variant="danger" size="sm"
-                  v-if="!isThisDevice(data.item.id)"
-                  @click="deleteDevice(data.item.id)">
-                <b-icon-trash></b-icon-trash>
-              </b-button>
-            </template>
-
-          </b-table>
+          <b-container>
+            <!-- Entries -->
+            <b-row cols="2">
+              <b-col v-for="device in devices" :key="device.name" class="p-1">
+                <DeviceCard :device="device"></DeviceCard>
+              </b-col>
+            </b-row>
+          </b-container>
         </b-col>
       </b-row>
 
@@ -83,10 +69,11 @@
 import Navbar from "@/components/Navbar";
 import HorizontalSeparator from "@/components/HorizontalSeparator";
 import moment from "moment/moment";
+import DeviceCard from "@/components/DeviceCard";
 
 export default {
   name: "Devices",
-  components: {HorizontalSeparator, Navbar},
+  components: {DeviceCard, HorizontalSeparator, Navbar},
   data: function () {
     return {
       devices: [],
