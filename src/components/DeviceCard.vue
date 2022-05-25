@@ -33,6 +33,7 @@
                   <b-icon-check-circle
                       class="h5 cursor"
                       variant="success"
+                      @click="updateDevice"
                   ></b-icon-check-circle>
                 </div>
                 <div v-else>
@@ -45,7 +46,7 @@
             </b-row>
             <b-row>
               <b-col><small>{{ lastConnectionString }}</small></b-col>
-              <b-col v-if="editMode.isOn" class="text-right">
+              <b-col v-if="editMode.isOn && !isThisDevice" class="text-right">
                   <span class="text-danger cursor" @click="deleteDevice">
                   <small>REMOVE</small>
                 </span>
@@ -88,7 +89,14 @@ export default {
     async deleteDevice() {
       await this.$http.delete(`/core/protected/terminals/id/${this.device.id}`)
       this.$emit('refresh');
-    }
+    },
+    async updateDevice() {
+      await this.$http.put(`/core/protected/terminals/id/${this.device.id}`, {
+        ...this.device,
+        name: this.editMode.name
+      });
+      this.$emit('refresh');
+    },
   }
 }
 </script>
