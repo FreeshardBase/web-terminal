@@ -11,7 +11,7 @@
         <b-col class="text-right">
           <b-button id="add-button" variant="success" @click="startPairing">
             <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-            <span> Add</span>
+            <span> Pair Device</span>
           </b-button>
         </b-col>
 

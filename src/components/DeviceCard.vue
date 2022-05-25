@@ -20,7 +20,7 @@
             <b-row>
               <b-col cols="8">
                 <b-form-input v-if="editMode.isOn" v-model="editMode.name"></b-form-input>
-                <h4 v-else class="text-truncate">{{ device.name | titlecase }}</h4>
+                <h4 v-else class="text-truncate">{{ device.name }}</h4>
               </b-col>
               <b-col class="text-right">
                 <div v-if="editMode.isOn">
