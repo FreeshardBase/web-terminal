@@ -17,15 +17,38 @@
         </b-col>
         <b-col md="10">
           <b-card-body>
-            <b-card-title class="text-truncate">
-              {{ device.name | titlecase }}
-            </b-card-title>
+            <b-row>
+              <b-col cols="8">
+                <b-form-input v-if="editMode.isOn" v-model="editMode.name"></b-form-input>
+                <h4 v-else class="text-truncate">{{ device.name | titlecase }}</h4>
+              </b-col>
+              <b-col class="text-right">
+                <div v-if="editMode.isOn">
+                  <b-icon-x-circle
+                      class="h5 cursor"
+                      variant="secondary"
+                      @click="editMode.isOn=false"
+                  ></b-icon-x-circle>
+                  &nbsp;
+                  <b-icon-check-circle
+                      class="h5 cursor"
+                      variant="success"
+                  ></b-icon-check-circle>
+                </div>
+                <div v-else>
+                  <b-icon-pencil-fill
+                      class="h5 cursor"
+                      variant="secondary"
+                      @click="editMode.isOn=true"></b-icon-pencil-fill>
+                </div>
+              </b-col>
+            </b-row>
             <b-row>
               <b-col><small>{{ lastConnectionString }}</small></b-col>
-              <b-col class="text-right">
-                <b-col><span class="text-danger delete-button" @click="deleteDevice">
-                  <small>Remove</small>
-                </span></b-col>
+              <b-col v-if="editMode.isOn" class="text-right">
+                  <span class="text-danger cursor" @click="deleteDevice">
+                  <small>REMOVE</small>
+                </span>
               </b-col>
             </b-row>
           </b-card-body>
@@ -40,6 +63,14 @@ import moment from "moment/moment";
 
 export default {
   name: "DeviceCard",
+  data: function () {
+    return {
+      editMode: {
+        isOn: false,
+        name: this.device.name,
+      },
+    }
+  },
   props: ['device'],
   computed: {
     lastConnectionString() {
@@ -73,7 +104,7 @@ export default {
   height: 6em;
 }
 
-.delete-button {
+.cursor {
   cursor: pointer;
 }
 
