@@ -9,6 +9,10 @@
         </b-col>
 
         <b-col class="text-right">
+          <b-button variant="outline-secondary">
+            <b-icon-arrow-repeat @click="refreshDevices"></b-icon-arrow-repeat>
+          </b-button>
+          &nbsp;
           <b-button id="add-button" variant="success" @click="startPairing">
             <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
             <span> Pair Device</span>
