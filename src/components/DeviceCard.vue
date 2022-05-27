@@ -85,13 +85,15 @@ export default {
         state: 'off',  // off | on | syncing
         editedDevice: _.cloneDeep(this.device),
       },
+      now: moment.now(),
+      tick: undefined,
     }
   },
   props: ['device'],
   computed: {
     lastConnectionText() {
       if (this.device.last_connection) {
-        return `Last connection: ${moment(this.device.last_connection).fromNow()}`;
+        return `Last connection: ${moment.utc(this.device.last_connection).from(this.now)}`;
       } else {
         return 'Last connection: unknown';
       }
@@ -130,7 +132,16 @@ export default {
       const nextIconIndex = (currentIconIndex + 1) % icons.length;
       this.editMode.editedDevice.icon = icons[nextIconIndex];
     },
-  }
+  },
+  mounted: function () {
+    const this_ = this;
+    this.tick = setInterval(function () {
+      this_.now = moment.now();
+    }, 1000);
+  },
+  destroyed: function () {
+    clearInterval(this.tick);
+  },
 }
 </script>
 

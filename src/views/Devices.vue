@@ -164,10 +164,6 @@ export default {
       const response = await this.$http.get('/core/protected/terminals')
       component.devices = response.data;
     },
-
-    isThisDevice(id) {
-      return this.$store.state.meta.device_id.substring(0, 6) === id;
-    }
   },
 
   async mounted() {
