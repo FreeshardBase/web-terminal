@@ -65,7 +65,13 @@
 </template>
 
 <script>
-import {browserName, isMobile, mobileModel, osName} from "mobile-device-detect";
+import {
+  browserName,
+  isBrowser,
+  isMobileOnly,
+  isTablet,
+  osName
+} from "mobile-device-detect";
 
 export default {
   name: 'HelloWorld',
@@ -98,7 +104,22 @@ export default {
       await this.$store.dispatch('query_meta_data');
       await this.$store.dispatch('query_tour_data');
       await component.$router.replace('/');
-    }
+    },
+    _makeDeviceObject: function () {
+      const result = {
+        name: `${browserName} on ${osName}`,
+      }
+      if (isMobileOnly) {
+        result.icon = 'mobile';
+      } else if (isTablet) {
+        result.icon = 'tablet';
+      } else if (isBrowser) {
+        result.icon = 'notebook';
+      } else {
+        result.icon = 'unknown';
+      }
+      return result;
+    },
   },
 
   mounted: function () {
@@ -118,13 +139,8 @@ export default {
   beforeMount: async function () {
     const pairing_code = this.$route.query.code;
     if (pairing_code !== undefined) {
-      const deviceName = isMobile ?
-          `${browserName || "unknown browser"} on ${mobileModel !== 'none' ? mobileModel : "unknown device"}` :
-          `${browserName || "unknown browser"} on ${osName || "unknown device"}`;
       try {
-        await this.$http.post('/core/public/pair/terminal?code=' + pairing_code, {
-          name: deviceName,
-        });
+        await this.$http.post('/core/public/pair/terminal?code=' + pairing_code, this._makeDeviceObject());
         window.location.replace('');
       } catch (response) {
         console.log('Error during auto-pairing', response);
