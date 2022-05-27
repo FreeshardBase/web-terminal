@@ -13,6 +13,7 @@
     "bootstrap-vue": "^2.21.2",
     "core-js": "^3.6.5",
     "http-proxy-middleware": "^1.0.6",
+    "lodash": "^4.17.21",
     "mobile-device-detect": "^0.4.3",
     "moment": "^2.29.3",
     "qrcode.vue": "^1.7.0",
