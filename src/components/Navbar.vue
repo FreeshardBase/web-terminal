@@ -26,6 +26,10 @@
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-settings" class="ml-auto">
+          <b-nav-item href="https://feedback.getportal.org" target="_blank">
+            <b-icon-chat-right-text-fill></b-icon-chat-right-text-fill>
+            Feedback
+          </b-nav-item>
           <b-nav-item-dropdown right>
             <template #button-content>Settings</template>
             <b-dropdown-item @click="restart">Restart</b-dropdown-item>
