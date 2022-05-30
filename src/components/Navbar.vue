@@ -11,18 +11,30 @@
       <b-collapse id="nav-collapse" is-nav>
 
         <b-navbar-nav id="nav-home">
-          <b-nav-item v-if="$route.name==='Portal'"><b>Home</b></b-nav-item>
-          <b-nav-item v-else to="/">Home</b-nav-item>
+          <b-nav-item v-if="$route.name==='Portal'"><b>
+            <b-icon-house-fill></b-icon-house-fill> Home
+          </b></b-nav-item>
+          <b-nav-item v-else to="/">
+            <b-icon-house-fill></b-icon-house-fill> Home
+          </b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-apps">
-          <b-nav-item v-if="$route.name==='Apps'"><b>Apps</b></b-nav-item>
-          <b-nav-item v-else to="/apps">Apps</b-nav-item>
+          <b-nav-item v-if="$route.name==='Apps'"><b>
+            <b-icon-grid-fill></b-icon-grid-fill> Apps
+          </b></b-nav-item>
+          <b-nav-item v-else to="/apps">
+            <b-icon-grid-fill></b-icon-grid-fill> Apps
+          </b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-devices">
-          <b-nav-item v-if="$route.name==='Devices'"><b>Devices</b></b-nav-item>
-          <b-nav-item v-else to="/devices">Devices</b-nav-item>
+          <b-nav-item v-if="$route.name==='Devices'"><b>
+            <b-icon-laptop-fill></b-icon-laptop-fill> Devices
+          </b></b-nav-item>
+          <b-nav-item v-else to="/devices">
+            <b-icon-laptop-fill></b-icon-laptop-fill> Devices
+          </b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-settings" class="ml-auto">
