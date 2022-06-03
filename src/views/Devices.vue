@@ -23,7 +23,7 @@
 
       <b-row align-v="stretch" class="flex-grow-1">
         <b-col>
-          <b-container>
+          <b-container id="device-container">
             <!-- Entries -->
             <b-row cols="2">
               <b-col v-for="device in devices" :key="device.name" class="p-1">
@@ -91,7 +91,7 @@ export default {
       },
       tourSteps: [
         {
-          target: '#devices-table',
+          target: '#device-container',
           content: 'Here you can see and manage your paired devices. They are the devices from which you can control your Portal.'
         },
         {
@@ -100,7 +100,8 @@ export default {
         },
         {
           target: '#add-button',
-          content: 'It is a good idea to also pair other devices that you own so you may access your Portal through them, too. Click here and follow the steps in to tooltip.'
+          content: 'It is a good idea to also pair other devices that you own so you may access your Portal through them, too. ' +
+              'Click here and follow the steps.'
         },
       ],
     }
