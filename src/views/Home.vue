@@ -33,7 +33,7 @@ export default {
               'It has a unique address that you can see right here in the address bar. Better bookmark it!'
         },
         {
-          target: '#id-button',
+          target: '.portal-id-badge',
           content: 'Every Portal has an ID. You can see it here. It is also part of its address.<br>' +
               'Think of the ID like a phone number. You can tell others, so they can reach you.'
         },
@@ -52,6 +52,10 @@ export default {
         {
           target: '#nav-settings',
           content: 'Access misc functions here: e.g. restart/update your Portal or look at this tour again.'
+        },
+        {
+          target: '#nav-feedback',
+          content: 'Finally, if something does not work or you have an idea for improvement, you can give us feedback here. We would love to hear from you!'
         }
       ]
 
