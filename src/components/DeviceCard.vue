@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-card class="overflow-hidden" no-body>
+    <b-card no-body>
       <b-row>
         <b-col md="2" class="text-center device-icon">
           <b-icon-phone v-if="displayIcon=='smartphone'" font-scale="3"></b-icon-phone>

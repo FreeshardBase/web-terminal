@@ -37,12 +37,12 @@
           </b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav id="nav-settings" class="ml-auto">
-          <b-nav-item href="https://feedback.getportal.org" target="_blank">
+        <b-navbar-nav class="ml-auto">
+          <b-nav-item href="https://feedback.getportal.org" target="_blank" id="nav-feedback">
             <b-icon-chat-right-text-fill></b-icon-chat-right-text-fill>
             Feedback
           </b-nav-item>
-          <b-nav-item-dropdown right>
+          <b-nav-item-dropdown right id="nav-settings">
             <template #button-content>Settings</template>
             <b-dropdown-item @click="restart">Restart</b-dropdown-item>
             <b-dropdown-item @click="resetTour">Reset Tour</b-dropdown-item>
