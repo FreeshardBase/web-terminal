@@ -51,7 +51,7 @@
           <b-col>
             <b-container>
               <!-- Entries -->
-              <b-row cols="2">
+              <b-row cols="1" cols-md="2">
                 <b-col v-for="app in installedApps" :key="app.name" class="p-1">
                   <AppStoreEntry :app="app" @changed="refreshStore"></AppStoreEntry>
                 </b-col>
@@ -67,7 +67,7 @@
           <b-col>
             <b-container>
               <!-- Entries -->
-              <b-row cols="2">
+              <b-row cols="1" cols-md="2">
                 <b-col v-for="app in availableApps" :key="app.name" class="p-1">
                   <AppStoreEntry :app="app" @changed="refreshStore"></AppStoreEntry>
                 </b-col>
