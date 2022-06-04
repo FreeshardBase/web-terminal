@@ -2,7 +2,7 @@
   <div>
     <b-card no-body>
       <b-row>
-        <b-col md="2" class="text-center device-icon">
+        <b-col class="text-center padded" cols="2">
           <b-icon-phone v-if="displayIcon=='smartphone'" font-scale="3"></b-icon-phone>
           <b-icon-tablet v-else-if="displayIcon=='tablet'" font-scale="3"></b-icon-tablet>
           <b-icon-laptop v-else-if="displayIcon=='notebook'" font-scale="3"></b-icon-laptop>
@@ -18,55 +18,59 @@
             This
           </b-badge>
         </b-col>
-        <b-col md="10">
-          <b-card-body>
-            <b-row>
-              <b-col cols="8">
+        <b-col cols="7" class="padded">
+          <b-row>
+            <b-col>
 
-                <h4 v-if="editMode.state==='off'" class="text-truncate">{{ device.name }}</h4>
+              <h4 v-if="editMode.state==='off'" class="text-truncate">{{ device.name }}</h4>
 
-                <b-form-input
-                    v-else
-                    :disabled="editMode.state==='syncing'"
-                    v-model="editMode.editedDevice.name"></b-form-input>
+              <b-form-input
+                  v-else
+                  :disabled="editMode.state==='syncing'"
+                  v-model="editMode.editedDevice.name"></b-form-input>
 
-              </b-col>
-              <b-col class="text-right">
+              <p><small>{{ lastConnectionText }}</small></p>
 
-                <div v-if="editMode.state==='off'">
-                  <b-icon-pencil-fill
-                      class="h5 cursor"
-                      variant="secondary"
-                      @click="startEditing"></b-icon-pencil-fill>
-                </div>
+            </b-col>
 
-                <div v-else>
+          </b-row>
+        </b-col>
+        <b-col cols="3" class="padded">
+          <b-row>
+            <b-col class="text-center">
 
-                  <b-icon-x-circle
-                      class="h5 cursor"
-                      variant="secondary"
-                      @click="cancelEditing"
-                  ></b-icon-x-circle>
-                  &nbsp;
-                  <b-icon-check-circle
-                      class="h5 cursor"
-                      variant="success"
-                      @click="confirmEditing"
-                  ></b-icon-check-circle>
+              <div v-if="editMode.state==='off'">
+                <b-icon-pencil-fill
+                    class="h5 cursor"
+                    variant="secondary"
+                    @click="startEditing"></b-icon-pencil-fill>
+              </div>
 
-                </div>
+              <div v-else>
 
-              </b-col>
-            </b-row>
-            <b-row>
-              <b-col><small>{{ lastConnectionText }}</small></b-col>
-              <b-col v-if="editMode.state!=='off' && !isThisDevice" class="text-right">
+                <b-icon-x-circle
+                    class="h5 cursor"
+                    variant="secondary"
+                    @click="cancelEditing"
+                ></b-icon-x-circle>
+                &nbsp;
+                <b-icon-check-circle
+                    class="h5 cursor"
+                    variant="success"
+                    @click="confirmEditing"
+                ></b-icon-check-circle>
+
+              </div>
+
+            </b-col>
+          </b-row>
+          <b-row>
+            <b-col v-if="editMode.state!=='off' && !isThisDevice" class="text-center">
                   <span class="text-danger cursor" @click="deleteDevice">
                   <small>REMOVE</small>
                 </span>
-              </b-col>
-            </b-row>
-          </b-card-body>
+            </b-col>
+          </b-row>
         </b-col>
       </b-row>
     </b-card>
@@ -147,10 +151,6 @@ export default {
 
 <style scoped>
 
-.device-icon {
-  margin-top: 1em;
-}
-
 .card {
   max-width: 540px;
   height: 6em;
@@ -158,6 +158,10 @@ export default {
 
 .cursor {
   cursor: pointer;
+}
+
+.padded {
+  padding: 1em;
 }
 
 </style>
