@@ -98,7 +98,7 @@ export default {
         name: `${browserName} on ${osName}`,
       }
       if (isMobileOnly) {
-        result.icon = 'mobile';
+        result.icon = 'smartphone';
       } else if (isTablet) {
         result.icon = 'tablet';
       } else if (isBrowser) {
