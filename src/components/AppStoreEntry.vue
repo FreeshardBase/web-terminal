@@ -1,8 +1,8 @@
 <template>
   <div>
     <b-card class="overflow-hidden" @click="showDetails()" no-body>
-      <b-row no-gutters>
-        <b-col md="2" class="text-center">
+      <b-row>
+        <b-col cols="2" class="text-center">
           <b-img
               :src="`/core/protected/apps/${app.name}/icon`"
               v-show="iconLoaded"
@@ -11,7 +11,7 @@
               class="app-icon m-2"></b-img>
           <b-icon-box v-show="!iconLoaded" class="app-icon m-2"></b-icon-box>
         </b-col>
-        <b-col md="10">
+        <b-col cols="10">
           <b-card-body>
             <b-card-title>
               {{ app.name | titlecase }}

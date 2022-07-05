@@ -25,7 +25,7 @@
         <b-col>
           <b-container id="device-container">
             <!-- Entries -->
-            <b-row cols="2">
+            <b-row cols="1" cols-md="2">
               <b-col v-for="device in devices" :key="device.name" class="p-1">
                 <DeviceCard :device="device" @refresh="refreshDevices"></DeviceCard>
               </b-col>

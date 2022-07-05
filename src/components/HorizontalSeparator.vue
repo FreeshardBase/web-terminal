@@ -1,10 +1,10 @@
 <template>
   <b-row align-v="stretch">
-    <b-col>
+    <b-col class="text-center">
       <hr>
     </b-col>
-    <b-col md="auto"><h3>{{ title }}</h3></b-col>
-    <b-col>
+    <b-col cols="auto" class="text-center"><h3>{{ title }}</h3></b-col>
+    <b-col class="text-center">
       <hr>
     </b-col>
   </b-row>

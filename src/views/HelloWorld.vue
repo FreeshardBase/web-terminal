@@ -9,43 +9,22 @@
 
         <div class="mt-4">
           <p>This Portal is <br>
-            <b-skeleton-wrapper :loading="!portal_id">
-              <template #loading>
-                <b-skeleton width="3em"></b-skeleton>
-              </template>
-              <b-input-group class="portal-id-input">
-                <b-input-group-prepend>
-                  <b-input-group-text>
-                    <img class="h-100" style="max-height: 1.5em" alt="Portal logo" src="../assets/logo.svg">
-                  </b-input-group-text>
-                </b-input-group-prepend>
-                <b-form-input class="text-monospace" readonly :value="portal_id.substring(0, 6)"></b-form-input>
-              </b-input-group>
-            </b-skeleton-wrapper>
+            <PortalIdBadge :portal-id="short_id"></PortalIdBadge>
           </p>
         </div>
 
         <div class="mt-4">
-          <p>Is this your Portal? Then <b>pair</b> it with this device.</p>
           <b-form @submit.prevent="pair">
 
             <b-form-group
-                label="Device Name"
-            >
-              <b-form-input
-                  v-model="device_name"
-                  placeholder="E.g. Notebook or Smartphone"
-              ></b-form-input>
-            </b-form-group>
-
-            <b-form-group
-                description="The one-time pairing code was given to you when you claimed your Portal. You can also get a new one from a device you paired earlier."
-                label="One-Time Pairing Code"
+                label="Enter a Pairing Code"
             >
               <b-form-input
                   v-model="pairing_code"
-                  class="text-monospace"
-                  placeholder="*** ***"
+                  class="text-monospace text-center"
+                  placeholder="******"
+                  size="lg"
+                  autofocus
               ></b-form-input>
             </b-form-group>
 
@@ -72,10 +51,11 @@ import {
   isTablet,
   osName
 } from "mobile-device-detect";
+import PortalIdBadge from "@/components/PortalIdBadge";
 
 export default {
   name: 'HelloWorld',
-
+  components: {PortalIdBadge},
   data: function () {
     return {
       portal_id: null,
@@ -87,15 +67,23 @@ export default {
     }
   },
 
+  computed: {
+    short_id: function () {
+      if (this.portal_id) {
+        return this.portal_id.substring(0, 6);
+      } else {
+        return 'unknown';
+      }
+    },
+  },
+
   methods: {
     pair: async function () {
       let component = this;
       this.pairing_in_progress = true;
       this.show_error = false;
       try {
-        await this.$http.post('/core/public/pair/terminal?code=' + this.pairing_code, {
-          name: this.device_name,
-        });
+        await this.$http.post('/core/public/pair/terminal?code=' + this.pairing_code, this._makeDeviceObject());
       } catch (response) {
         component.pairing_in_progress = false;
         component.pairing_error = response;
@@ -110,7 +98,7 @@ export default {
         name: `${browserName} on ${osName}`,
       }
       if (isMobileOnly) {
-        result.icon = 'mobile';
+        result.icon = 'smartphone';
       } else if (isTablet) {
         result.icon = 'tablet';
       } else if (isBrowser) {
@@ -122,18 +110,15 @@ export default {
     },
   },
 
-  mounted: function () {
-    document.title = `Portal [${this.$store.getters.short_portal_id}] - Hello`;
-    let component = this;
-    this.$http.get('/core/public/meta/whoami')
-        .then(function (response) {
-          if (response.data.type === 'terminal') {
-            component.$router.replace('/')
-          }
-        });
+  mounted: async function () {
+    const whoami = await this.$http.get('/core/public/meta/whoami');
+    if (whoami.data.type === 'terminal') {
+      await this.$router.replace('/')
+    }
 
-    this.$http.get('/core/public/meta/whoareyou')
-        .then(response => (component.portal_id = response.data.id))
+    const whoareyou = await this.$http.get('/core/public/meta/whoareyou');
+    this.portal_id = whoareyou.data.id;
+    document.title = `Portal [${this.short_id}] - Hello`;
   },
 
   beforeMount: async function () {
@@ -162,4 +147,14 @@ export default {
 div {
   text-align: center;
 }
+
+input {
+  max-width: 8em;
+  margin: auto;
+}
+
+.alert {
+  margin-top: 1em;
+}
+
 </style>
