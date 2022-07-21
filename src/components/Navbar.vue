@@ -42,8 +42,8 @@
             <b-icon-chat-right-text-fill></b-icon-chat-right-text-fill>
             Feedback
           </b-nav-item>
-          <b-nav-item-dropdown right id="nav-settings">
-            <template #button-content>Settings</template>
+          <b-nav-item-dropdown right id="nav-more">
+            <template #button-content>More</template>
             <b-dropdown-item @click="restart">Restart</b-dropdown-item>
             <b-dropdown-item href="/core/protected/backup/export">Download Backup</b-dropdown-item>
             <b-dropdown-item @click="resetTour">Reset Tour</b-dropdown-item>

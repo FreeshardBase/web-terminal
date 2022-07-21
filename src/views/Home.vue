@@ -50,8 +50,8 @@ export default {
           content: 'To use your Portal from more than one device (like your smartphone, notebook, tablet, etc.), pair them here.'
         },
         {
-          target: '#nav-settings',
-          content: 'Access misc functions here: e.g. restart/update your Portal or look at this tour again.'
+          target: '#nav-more',
+          content: 'Access more functions here: e.g. restart/update your Portal, download a full backup, or look at this tour again.'
         },
         {
           target: '#nav-feedback',
