@@ -4,6 +4,7 @@ import HelloWorld from "@/views/HelloWorld";
 import Home from "@/views/Home";
 import Apps from "@/views/Apps";
 import Devices from "@/views/Devices";
+import Profile from "@/views/Profile";
 
 Vue.use(VueRouter)
 
@@ -27,6 +28,11 @@ const routes = [
     path: '/apps',
     name: 'Apps',
     component: Apps
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile
   },
 ]
 
