@@ -7,6 +7,11 @@
         <b-col>
           <h1>Profile</h1>
 
+          <p>
+            <b-icon-exclamation-triangle></b-icon-exclamation-triangle>
+            This information about yourself if publicly visible.
+          </p>
+
           <EditableText title="Name" :value="identity.name"
                         @edited="updateField('name', $event)"></EditableText>
           <EditableText title="Email" :value="identity.email"
