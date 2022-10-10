@@ -4,12 +4,21 @@
       <b-col cols="10">
 
         <span><small>{{ title }}</small></span>
-        <p v-if="editMode.state==='off'">{{ value || '[empty]'}}</p>
-        <b-form-input
-            v-else
-            :disabled="editMode.state==='syncing'"
-            v-model="editMode.editedValue"
-        ></b-form-input>
+        <p style="white-space: pre-wrap" v-if="editMode.state==='off'">{{ value || '[empty]'}}</p>
+        <div v-else>
+          <b-form-input
+              v-if="no_or_rows == 1"
+              :disabled="editMode.state==='syncing'"
+              v-model="editMode.editedValue"
+          ></b-form-input>
+          <b-form-textarea
+              v-else
+              :disabled="editMode.state==='syncing'"
+              v-model="editMode.editedValue"
+              :rows="no_or_rows"
+          ></b-form-textarea>
+        </div>
+
 
       </b-col>
       <b-col cols="2">
@@ -59,7 +68,14 @@ export default {
   props: [
       'title',
       'value',
+      'rows',
   ],
+
+  computed: {
+    no_or_rows() {
+      return this.rows || 1;
+    }
+  },
 
   methods: {
     startEditing() {

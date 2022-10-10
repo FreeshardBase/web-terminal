@@ -21,7 +21,7 @@
 
           <h1>{{ $store.state.meta.portal_identity.name }}</h1>
           <p><a :href="mailto">{{ $store.state.meta.portal_identity.email }}</a></p>
-          <p>{{ $store.state.meta.portal_identity.description }}</p>
+          <p style="white-space: pre-wrap">{{ $store.state.meta.portal_identity.description }}</p>
 
         </b-col>
       </b-row>
