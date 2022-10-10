@@ -2,9 +2,9 @@
   <b-container>
     <b-row>
       <b-col></b-col>
-      <b-col class="pb-3">
+      <b-col cols="8" class="pb-3">
         <div>
-          <h1 class="mt-5">Welcome</h1>
+          <h1 class="mt-5">Pair this browser</h1>
         </div>
 
         <div class="mt-4">
@@ -54,7 +54,7 @@ import {
 import PortalIdBadge from "@/components/PortalIdBadge";
 
 export default {
-  name: 'HelloWorld',
+  name: 'Pair',
   components: {PortalIdBadge},
   data: function () {
     return {
