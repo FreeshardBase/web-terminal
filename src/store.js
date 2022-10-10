@@ -7,6 +7,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     meta: {
+      is_anonymous: true,
       device_id: 'unknown',
       device_name: 'unknown',
       portal_identity: {
@@ -34,9 +35,9 @@ const store = new Vuex.Store({
   },
   mutations: {
     set_meta (state, meta) {
-      state.meta.device_id = meta.device_id;
-      state.meta.device_name = meta.device_name;
-      state.meta.portal_identity = meta.portal_identity;
+      for (const [k, v] of Object.entries(meta)) {
+        state.meta[k] = v;
+      }
     },
     set_tours(state, tours) {
       state.tours = tours;
@@ -47,6 +48,7 @@ const store = new Vuex.Store({
       let meta = {}
       let whoami = await this._vm.$http.get('/core/public/meta/whoami')
       if (whoami.data.type !== 'anonymous') {
+        meta.is_anonymous = false;
         meta.device_id = whoami.data.id;
         meta.device_name = whoami.data.name;
       }

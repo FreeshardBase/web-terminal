@@ -8,8 +8,8 @@
           <h1>Profile</h1>
 
           <p>
-            <b-icon-exclamation-triangle></b-icon-exclamation-triangle>
-            This information about yourself if publicly visible.
+            <b-icon-exclamation-triangle variant="warning"></b-icon-exclamation-triangle>
+            This information about yourself is publicly visible at your <router-link to="/welcome">welcome screen</router-link>.
           </p>
 
           <EditableText title="Name" :value="identity.name"

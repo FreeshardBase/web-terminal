@@ -7,7 +7,12 @@
           <PortalIdBadge :portal-id="$store.getters.short_portal_id"></PortalIdBadge>
         </b-col>
         <b-col class="text-right">
-          <b-button variant="outline-primary" to="/pair">Pair</b-button>
+          <b-button v-if="$store.state.meta.is_anonymous" variant="outline-primary" to="/pair">
+            <b-icon-link45deg></b-icon-link45deg> Pair
+          </b-button>
+          <b-button v-else variant="outline-primary" to="/profile">
+            <b-icon-person></b-icon-person> Profile
+          </b-button>
         </b-col>
       </b-row>
 
@@ -15,7 +20,7 @@
         <b-col class="text-center">
 
           <h1>{{ $store.state.meta.portal_identity.name }}</h1>
-          <p>{{ $store.state.meta.portal_identity.email }}</p>
+          <p><a :href="mailto">{{ $store.state.meta.portal_identity.email }}</a></p>
           <p>{{ $store.state.meta.portal_identity.description }}</p>
 
         </b-col>
@@ -34,6 +39,12 @@ export default {
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Welcome`;
   },
+
+  computed: {
+    mailto() {
+      return `mailto:${this.$store.state.meta.portal_identity.email}`
+    }
+  }
 
 }
 </script>
