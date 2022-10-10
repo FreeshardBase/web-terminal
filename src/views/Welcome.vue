@@ -21,7 +21,7 @@
 
           <h1>{{ $store.state.meta.portal_identity.name }}</h1>
           <p><a :href="mailto">{{ $store.state.meta.portal_identity.email }}</a></p>
-          <p style="white-space: pre-wrap">{{ $store.state.meta.portal_identity.description }}</p>
+          <div v-html="markdownToHtml($store.state.meta.portal_identity.description)"></div>
 
         </b-col>
       </b-row>
@@ -31,6 +31,7 @@
 
 <script>
 import PortalIdBadge from "@/components/PortalIdBadge";
+import {marked} from "marked";
 
 export default {
   name: "Profile",
@@ -44,7 +45,13 @@ export default {
     mailto() {
       return `mailto:${this.$store.state.meta.portal_identity.email}`
     }
-  }
+  },
+
+  methods: {
+    markdownToHtml(md) {
+      return marked(md);
+    },
+  },
 
 }
 </script>

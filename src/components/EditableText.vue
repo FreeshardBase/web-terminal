@@ -4,13 +4,18 @@
       <b-col cols="10">
 
         <span><small>{{ title }}</small></span>
-        <p style="white-space: pre-wrap" v-if="editMode.state==='off'">{{ value || '[empty]'}}</p>
-        <div v-else>
+
+        <div v-if="no_or_rows === 1">
+          <p style="white-space: pre-wrap" v-if="editMode.state==='off'">{{ value || '[empty]'}}</p>
           <b-form-input
-              v-if="no_or_rows == 1"
+              v-else
               :disabled="editMode.state==='syncing'"
               v-model="editMode.editedValue"
           ></b-form-input>
+        </div>
+
+        <div v-else>
+          <div v-if="editMode.state==='off'" v-html="markdownToHtml(value)"></div>
           <b-form-textarea
               v-else
               :disabled="editMode.state==='syncing'"
@@ -52,6 +57,7 @@
 
 <script>
 import _ from "lodash";
+import { marked } from "marked";
 
 export default {
   name: 'EditableText',
@@ -104,6 +110,9 @@ export default {
         state: 'off',
         editedValue: _.cloneDeep(this.value)
       };
+    },
+    markdownToHtml(md) {
+      return marked(md);
     },
   },
 }
