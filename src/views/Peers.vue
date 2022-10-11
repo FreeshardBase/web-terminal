@@ -34,12 +34,26 @@
 
       <b-row>
         <b-col>
-          <b-table :items="peers" :fields="peerFields">
+          <b-table :items="peers" :fields="peerFields" hover>
             <template #cell(id)="data">
               <a :href="`https://${data.value}.p.getportal.org`" target="_blank">{{ data.value }}</a>
             </template>
             <template #cell(name)="data">
               {{ data.value || '[Unknown]' }}
+            </template>
+            <template #cell(actions)="data">
+              <b-button-group>
+                <b-button
+                    variant="outline-secondary" size="sm"
+                    @click="refreshPeer(data.item.id)">
+                  <b-icon-arrow-clockwise></b-icon-arrow-clockwise>
+                </b-button>
+                <b-button
+                    variant="outline-danger" size="sm"
+                    @click="deletePeer(data.item.id)">
+                  <b-icon-trash></b-icon-trash>
+                </b-button>
+              </b-button-group>
             </template>
           </b-table>
         </b-col>
@@ -55,7 +69,7 @@ import Navbar from "@/components/Navbar";
 
 export default {
   name: "Peers",
-  components: { Navbar},
+  components: {Navbar},
   data: function () {
     return {
       addPeer: {
@@ -63,7 +77,7 @@ export default {
         peerId: '',
       },
       peers: [],
-      peerFields: ['name', 'id'],
+      peerFields: ['name', 'id', {key: 'actions', label: '', class: 'text-right'}],
     }
   },
 
@@ -80,6 +94,14 @@ export default {
       }
       await this.refresh();
       this.addPeer = {state: 'off', peerId: ''};
+    },
+    async deletePeer(id) {
+      await this.$http.delete(`/core/protected/peers/${id}`);
+      await this.refresh();
+    },
+    async refreshPeer(id) {
+      await this.$http.put('/core/protected/peers', {id});
+      await this.refresh();
     },
   },
 
