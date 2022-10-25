@@ -37,6 +37,15 @@
           </b-nav-item>
         </b-navbar-nav>
 
+        <b-navbar-nav id="nav-peers">
+          <b-nav-item v-if="$route.name==='Peers'">
+            <b><b-icon-people-fill></b-icon-people-fill> Peers</b>
+          </b-nav-item>
+          <b-nav-item v-else to="/peers">
+            <b-icon-people></b-icon-people> Peers
+          </b-nav-item>
+        </b-navbar-nav>
+
         <b-navbar-nav id="nav-feedback" class="ml-auto">
           <b-nav-item href="https://feedback.getportal.org" target="_blank" id="nav-feedback">
             <b-icon-chat-right-text></b-icon-chat-right-text>

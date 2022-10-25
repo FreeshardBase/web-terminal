@@ -88,6 +88,7 @@ export default {
         component.pairing_in_progress = false;
         component.pairing_error = response;
         component.show_error = true;
+        return;
       }
       await this.$store.dispatch('query_meta_data');
       await this.$store.dispatch('query_tour_data');
