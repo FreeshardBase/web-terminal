@@ -77,7 +77,10 @@ export default {
         peerId: '',
       },
       peers: [],
-      peerFields: ['name', 'id', {key: 'actions', label: '', class: 'text-right'}],
+      peerFields: [
+        'name',
+        {key: 'id', formatter: value => value.substring(0, 6)},
+        {key: 'actions', label: '', class: 'text-right'}],
     }
   },
 
