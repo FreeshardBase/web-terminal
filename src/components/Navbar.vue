@@ -11,39 +11,60 @@
       <b-collapse id="nav-collapse" is-nav>
 
         <b-navbar-nav id="nav-home">
-          <b-nav-item v-if="$route.name==='Portal'"><b>
-            <b-icon-house-fill></b-icon-house-fill> Home
-          </b></b-nav-item>
+          <b-nav-item v-if="$route.name==='Portal'">
+            <b><b-icon-house-fill></b-icon-house-fill> Home</b>
+          </b-nav-item>
           <b-nav-item v-else to="/">
-            <b-icon-house-fill></b-icon-house-fill> Home
+            <b-icon-house></b-icon-house> Home
           </b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-apps">
-          <b-nav-item v-if="$route.name==='Apps'"><b>
-            <b-icon-grid-fill></b-icon-grid-fill> Apps
-          </b></b-nav-item>
+          <b-nav-item v-if="$route.name==='Apps'">
+            <b><b-icon-grid-fill></b-icon-grid-fill> Apps</b>
+          </b-nav-item>
           <b-nav-item v-else to="/apps">
-            <b-icon-grid-fill></b-icon-grid-fill> Apps
+            <b-icon-grid></b-icon-grid> Apps
           </b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-devices">
-          <b-nav-item v-if="$route.name==='Devices'"><b>
-            <b-icon-laptop-fill></b-icon-laptop-fill> Devices
-          </b></b-nav-item>
+          <b-nav-item v-if="$route.name==='Devices'">
+            <b><b-icon-laptop-fill></b-icon-laptop-fill> Devices</b>
+          </b-nav-item>
           <b-nav-item v-else to="/devices">
-            <b-icon-laptop-fill></b-icon-laptop-fill> Devices
+            <b-icon-laptop></b-icon-laptop> Devices
           </b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav class="ml-auto">
+        <b-navbar-nav id="nav-peers">
+          <b-nav-item v-if="$route.name==='Peers'">
+            <b><b-icon-people-fill></b-icon-people-fill> Peers</b>
+          </b-nav-item>
+          <b-nav-item v-else to="/peers">
+            <b-icon-people></b-icon-people> Peers
+          </b-nav-item>
+        </b-navbar-nav>
+
+        <b-navbar-nav id="nav-feedback" class="ml-auto">
           <b-nav-item href="https://feedback.getportal.org" target="_blank" id="nav-feedback">
-            <b-icon-chat-right-text-fill></b-icon-chat-right-text-fill>
+            <b-icon-chat-right-text></b-icon-chat-right-text>
             Feedback
           </b-nav-item>
+        </b-navbar-nav>
+
+        <b-navbar-nav id="nav-profile">
+          <b-nav-item v-if="$route.name==='Profile'">
+            <b><b-icon-person-fill></b-icon-person-fill> Profile</b>
+          </b-nav-item>
+          <b-nav-item v-else to="/profile">
+            <b-icon-person></b-icon-person> Profile
+          </b-nav-item>
+        </b-navbar-nav>
+
+        <b-navbar-nav id="nav-more">
           <b-nav-item-dropdown right id="nav-more">
-            <template #button-content>More</template>
+            <template #button-content><b-icon-gear></b-icon-gear> More</template>
             <b-dropdown-item @click="restart">Restart</b-dropdown-item>
             <b-dropdown-item href="/core/protected/backup/export">Download Backup</b-dropdown-item>
             <b-dropdown-item @click="resetTour">Reset Tour</b-dropdown-item>

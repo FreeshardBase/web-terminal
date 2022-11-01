@@ -55,7 +55,7 @@
         <p>Scan this CR-code with another device to pair it</p>
         <qrcode-vue :value="pairingLink" size="150"></qrcode-vue>
         <HorizontalSeparator title="or"></HorizontalSeparator>
-        <p>Navigate to <a :href="$store.getters.portal_href">{{ $store.getters.portal_domain }}</a> and use the one-time
+        <p>Navigate to <a :href="$store.getters.portal_href">{{ $store.state.meta.portal_identity.domain }}</a> and use the one-time
           pairing code</p>
         <p><b-form-input
             id="pairing-code-box"
@@ -113,9 +113,9 @@ export default {
     },
     pairingLink() {
       if (this.pairing.code) {
-        return `https://${this.$store.getters.portal_domain}/#/helloworld?code=${this.pairing.code.code}`;
+        return `https://${this.$store.state.meta.portal_identity.domain}/#/pair?code=${this.pairing.code.code}`;
       } else {
-        return `https://${this.$store.getters.portal_domain}`;
+        return `https://${this.$store.state.meta.portal_identity.domain}`;
       }
     },
     pairingCodeValidityProgress() {

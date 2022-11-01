@@ -1,6 +1,6 @@
 {
   "name": "web-terminal",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -14,6 +14,7 @@
     "core-js": "^3.6.5",
     "http-proxy-middleware": "^1.0.6",
     "lodash": "^4.17.21",
+    "marked": "^4.1.1",
     "mobile-device-detect": "^0.4.3",
     "moment": "^2.29.3",
     "qrcode.vue": "^1.7.0",

@@ -16,14 +16,12 @@ export default {
 
   async mounted() {
     const whoami = await this.$http.get('/core/public/meta/whoami')
+    await this.$store.dispatch('query_meta_data');
     if (whoami.data.type === 'anonymous') {
-      if (this.$route.name === 'Hello World') {
-        await this.$store.dispatch('query_meta_data');
-      } else {
-        await this.$router.replace('/helloworld');
+      if (!['Pair', 'Welcome'].includes(this.$route.name)) {
+        await this.$router.replace('/welcome');
       }
     } else {
-      await this.$store.dispatch('query_meta_data');
       await this.$store.dispatch('query_tour_data');
     }
     this.loading = false;
