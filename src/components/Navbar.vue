@@ -47,7 +47,7 @@
         </b-navbar-nav>
 
         <b-navbar-nav id="nav-feedback" class="ml-auto">
-          <b-nav-item href="https://feedback.getportal.org" target="_blank" id="nav-feedback">
+          <b-nav-item id="nav-feedback" v-b-modal.feedback-modal>
             <b-icon-chat-right-text></b-icon-chat-right-text>
             Feedback
           </b-nav-item>
@@ -73,6 +73,31 @@
 
       </b-collapse>
     </b-navbar>
+
+    <b-modal id="feedback-modal" title="Quick Feedback" cancel-disabled>
+      <b-form-textarea
+          v-model="feedback.text"
+          rows="3"
+          max-rows="9"
+          :disabled="feedback.isSending || feedback.sendConfirmed || feedback.sendError"
+      ></b-form-textarea>
+      <p class="text-muted"><small>For more elaborate feedback, you can use our
+        <a href="https://feedback.getportal.org" target="_blank">feedback platform</a>
+        or <a href="mailto:contact@getportal.org">write us</a>.</small></p>
+      <template #modal-footer>
+        <b-button
+            :variant="feedback.sendConfirmed ? 'success' : feedback.sendError ? 'danger' : 'primary'"
+            :disabled="feedback.text.length===0 || feedback.isSending || feedback.sendConfirmed || feedback.sendError"
+            @click="sendFeedback"
+        >
+          <span v-if="feedback.sendConfirmed"><b-icon-check></b-icon-check></span>
+          <span v-else-if="feedback.sendError"><b-icon-x></b-icon-x></span>
+          <span v-else-if="feedback.isSending"><b-spinner small></b-spinner></span>
+          <span v-else>Send</span>
+        </b-button>
+      </template>
+    </b-modal>
+
   </div>
 </template>
 
@@ -82,6 +107,16 @@ import PortalIdBadge from "@/components/PortalIdBadge";
 export default {
   name: "Navbar",
   components: {PortalIdBadge},
+  data() {
+    return {
+      feedback: {
+        text: '',
+        isSending: false,
+        sendConfirmed: false,
+        sendError: false,
+      }
+    }
+  },
   methods: {
     restart() {
       this.$http.post('/core/protected/restart')
@@ -97,6 +132,26 @@ export default {
       .then(function () {
         this.$store.dispatch('query_tour_data');
       })
+    },
+    async sendFeedback() {
+      this.feedback.isSending = true;
+      try {
+        await this.$http.post('/core/protected/feedback/quick', {'text': this.feedback.text});
+      } catch (e) {
+        console.log(e);
+        this.feedback.sendError = true;
+        await new Promise(r => setTimeout(r, 1000));
+        this.feedback.isSending = false;
+        this.feedback.sendError = false;
+        return;
+      }
+      this.feedback.sendConfirmed = true;
+      await new Promise(r => setTimeout(r, 1000));
+      this.$bvModal.hide('feedback-modal');
+      await new Promise(r => setTimeout(r, 500));
+      this.feedback.isSending = false;
+      this.feedback.sendConfirmed = false;
+      this.feedback.text = '';
     },
   },
 }
