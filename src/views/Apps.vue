@@ -9,11 +9,6 @@
           <h1>Apps</h1>
         </b-col>
         <b-col class="text-right p-1">
-          <!-- Refresh -->
-          <b-button variant="outline-secondary" @click="hardRefreshStore('master')">
-            <b-icon-arrow-repeat></b-icon-arrow-repeat>
-          </b-button>
-
           <!-- Settings -->
           <b-dropdown class="m-2" dropup no-caret right text="Drop-Up" variant="outline-secondary">
             <template #button-content>
@@ -27,13 +22,20 @@
               </b-button>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
+            <!-- Refresh -->
+            <b-dropdown-item>
+              <b-button @click="hardRefreshStore" variant="outline-secondary">
+                <b-icon-arrow-repeat></b-icon-arrow-repeat>
+                Refresh App Store
+              </b-button>
+            </b-dropdown-item>
             <!-- Store Branch -->
-            <b-dropdown-form @submit.prevent="hardRefreshStore(store.customBranch)">
+            <b-dropdown-form @submit.prevent="setStoreBranch(store.switchBranchInput)">
               <b-input-group>
-                <b-form-input placeholder="Store Branch" v-model="store.customBranch"></b-form-input>
+                <b-form-input placeholder="Switch Branch" v-model="store.switchBranchInput"></b-form-input>
                 <b-input-group-append>
                   <b-button variant="outline-secondary" type="submit">
-                    <b-icon-arrow-repeat></b-icon-arrow-repeat>
+                    <b-icon-arrow-left-right></b-icon-arrow-left-right>
                   </b-button>
                 </b-input-group-append>
               </b-input-group>
@@ -43,6 +45,19 @@
       </b-row>
 
       <b-overlay :show="store.updating" rounded="sm" variant="white" class="w-100 p-1">
+
+        <b-alert show v-if="store.currentBranch !== 'master'">
+          <p>
+            You are viewing the app app store on branch <b>{{ store.currentBranch }}</b>.
+            This is meant for development and testing only.
+            Some apps that should be there might be missing.
+            Apps that are not yet fully functional might be visible.
+            Proceed with caution.
+          </p>
+          <b-button @click="setStoreBranch('master')" variant="outline-info">
+            <b-icon-backspace-fill></b-icon-backspace-fill> Reset App Store
+          </b-button>
+        </b-alert>
 
         <HorizontalSeparator title="Installed"></HorizontalSeparator>
 
@@ -115,8 +130,9 @@ export default {
   data: function () {
     return {
       store: {
+        currentBranch: 'master',
         apps: [],
-        customBranch: '',
+        switchBranchInput: '',
         updating: false,
         customApp: {
           updating: false,
@@ -157,48 +173,68 @@ export default {
   },
 
   methods: {
-    refreshStore() {
-      let component = this;
-      return this.$http.get('/core/protected/store/apps')
-          .then(function (response) {
-            component.store.apps = response.data;
-          })
-          .catch(function (response) {
-            console.log(response)
-          })
-    },
-
-    addCustomApp() {
-      this.store.customApp.updating = true;
-      let component = this;
-      this.$http.post(`/core/protected/apps`, this.store.customApp.content)
-          .then(function () {
-            component.refreshStore();
-            component.$bvModal.hide('custom-app');
-            component.store.customApp.updating = false;
-          })
-          .catch(function (e) {
-            let errorMessage = e.response.data.detail[0].msg;
-            if (errorMessage === 'field required') {
-              errorMessage += `: ${e.response.data.detail[0].loc[1]}`
-            }
-            component.store.customApp.errorMessage = errorMessage;
-            component.store.customApp.updating = false;
-          })
-    },
-
-    hardRefreshStore(branchName) {
+    async refreshStore() {
       this.store.updating = true;
-      this.$http.post(`/core/protected/store/ref?ref=${branchName}`)
-          .then(() => this.refreshStore()
-              .then(this.store.updating = false))
-          .catch(() => this.hardRefreshStore('master'))
+      const response = await this.$http.get('/core/protected/store/apps');
+      this.store.apps = response.data;
+      this.store.updating = false;
+    },
+
+    async hardRefreshStore() {
+      this.store.updating = true;
+      const response = await this.$http.get('/core/protected/store/apps', {params: {refresh: true}});
+      this.store.apps = response.data;
+      this.store.updating = false;
+    },
+
+    async addCustomApp() {
+      this.store.customApp.updating = true;
+      try {
+        await this.$http.post(`/core/protected/apps`, this.store.customApp.content)
+        await this.refreshStore();
+        this.$bvModal.hide('custom-app');
+        this.store.customApp.updating = false;
+      } catch (e) {
+        let errorMessage = e.response.data.detail[0].msg;
+        if (errorMessage === 'field required') {
+          errorMessage += `: ${e.response.data.detail[0].loc[1]}`
+        }
+        this.store.customApp.errorMessage = errorMessage;
+        this.store.customApp.updating = false;
+      }
+    },
+
+    async setStoreBranch(branchName) {
+      this.store.updating = true;
+      try {
+        await this.$http.post('/core/protected/store/branch', {branch: branchName});
+      } catch (e) {
+        console.log(e.response);
+        this.$bvToast.toast(e.response.data.detail, {
+          title: 'Error during app store loading',
+          autoHideDelay: 5000,
+          appendToast: true,
+          solid: true,
+          variant: 'danger',
+        });
+      } finally {
+        await this.refreshStore();
+        await this.getStoreBranch();
+      }
+    },
+
+    async getStoreBranch() {
+      const statusResponse = await this.$http.get('/core/protected/store/branch');
+      console.log(statusResponse.data.current_branch);
+      this.store.currentBranch = statusResponse.data.current_branch;
     },
   },
 
-  mounted() {
+  async mounted() {
+    this.store.updating = true;
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Apps`;
-    this.refreshStore();
+    await this.getStoreBranch();
+    await this.refreshStore();
   }
 }
 </script>
