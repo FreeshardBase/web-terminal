@@ -55,7 +55,8 @@
             Proceed with caution.
           </p>
           <b-button @click="setStoreBranch('master')" variant="outline-info">
-            <b-icon-backspace-fill></b-icon-backspace-fill> Reset App Store
+            <b-icon-backspace-fill></b-icon-backspace-fill>
+            Reset App Store
           </b-button>
         </b-alert>
 
@@ -101,8 +102,9 @@
         <b-form-group>
           <b-form-textarea rows="18" v-model="store.customApp.content"></b-form-textarea>
           <b-form-text>
-            Enter the app definition in JSON format. See the <a
-              href="https://docs.getportal.org/app_json/" target="_blank">documentation</a> for further information.
+            Enter the app definition in JSON format.
+            See the <a href="https://docs.getportal.org/developer_docs/app_json/" target="_blank">documentation</a>
+            for further information.
           </b-form-text>
         </b-form-group>
       </b-form>
