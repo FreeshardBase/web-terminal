@@ -5,19 +5,19 @@
         <b-col cols="2" class="text-center">
           <b-img
               :src="`/core/protected/apps/${app.name}/icon`"
-              v-show="iconLoaded"
-              @load="iconLoaded=true"
+              v-show="iconLoadedCard"
+              @load="iconLoadedCard=true"
               alt="Icon"
               class="app-icon m-2"></b-img>
-          <b-icon-box v-show="!iconLoaded" class="app-icon m-2"></b-icon-box>
+          <b-icon-box v-show="!iconLoadedCard" class="app-icon m-2"></b-icon-box>
         </b-col>
         <b-col cols="10">
           <b-card-body>
             <b-card-title>
               {{ app.name | titlecase }}
-              <b-icon-star-fill v-if="app.store_info.is_featured" class="app-star"></b-icon-star-fill>
+              <b-icon-star-fill v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
             </b-card-title>
-            <b-card-text>{{ app.store_info.description_short }}</b-card-text>
+            <b-card-text>{{ appStoreInfo.description_short }}</b-card-text>
           </b-card-body>
         </b-col>
       </b-row>
@@ -30,9 +30,12 @@
           <b-row align-v="center" align-h="start">
             <b-col sm="auto" md="auto" lg="auto" xl="auto">
               <b-img
-                :src="`/core/protected/apps/${app.name}/icon`"
-                alt="Icon"
-                class="app-icon m-2"></b-img>
+                  :src="`/core/protected/apps/${app.name}/icon`"
+                  v-show="iconLoadedCard"
+                  @load="iconLoadedCard=true"
+                  alt="Icon"
+                  class="app-icon m-2"></b-img>
+              <b-icon-box v-show="!iconLoadedCard" class="app-icon m-2"></b-icon-box>
             </b-col>
             <b-col>
               <h2>
@@ -41,7 +44,7 @@
             </b-col>
             <!-- Small extra icons -->
             <b-col sm="auto" md="auto" lg="auto" xl="auto">
-              <div v-if="app.store_info && app.store_info.is_featured">
+              <div v-if="appStoreInfo.is_featured">
               <b-icon-star-fill :id="`star-modal-${app.name}`" class="app-star"></b-icon-star-fill>
               <b-popover :target="`star-modal-${app.name}`" placement="leftbottom" triggers="click blur">
                 <template #title>Featured App</template>
@@ -49,32 +52,33 @@
               </b-popover>
               <br>
                 </div>
-              <div v-if="app.store_info && app.store_info.hint">
+              <div v-if="appStoreInfo.hint">
               <b-icon-info-square :id="`info-modal-${app.name}`" class="app-info"></b-icon-info-square>
               <b-popover :target="`info-modal-${app.name}`" placement="leftbottom" triggers="click blur">
                 <template #title>Hints</template>
-                <ul v-if="Array.isArray(app.store_info.hint)">
-                  <li v-for="(item, index) in app.store_info.hint" :key="index">{{ item }}</li>
+                <ul v-if="Array.isArray(appStoreInfo.hint)">
+                  <li v-for="(item, index) in appStoreInfo.hint" :key="index">{{ item }}</li>
                 </ul>
-                <p v-else>{{ app.store_info.hint }}</p>
+                <p v-else>{{ appStoreInfo.hint }}</p>
               </b-popover>
                 </div>
             </b-col>
           </b-row>
         </b-container>
       </template>
-        <div v-if="app.store_info.description_long && Array.isArray(app.store_info.description_long)">
-          <p v-for="(paragraph, index) in app.store_info.description_long" :key="index">
+        <div v-if="appStoreInfo.description_long && Array.isArray(appStoreInfo.description_long)">
+          <p v-for="(paragraph, index) in appStoreInfo.description_long" :key="index">
             {{ paragraph }}
           </p>
         </div>
-        <p v-else-if="app.store_info.description_long">{{ app.store_info.description_long }}</p>
-        <p v-else>{{ app.store_info.description_short }}</p>
+        <p v-else-if="appStoreInfo.description_long">{{ appStoreInfo.description_long }}</p>
+        <p v-else>{{ appStoreInfo.description_short }}</p>
         <a :href="appJsonUrl" target="_blank" class="small">
           Full <span class="text-monospace">app.json</span>
         </a>
       <template #modal-footer>
-        <b-button v-if="app.is_installed" class="m-1" variant="outline-danger" @click="removeApp">
+        <!-- Install/Remove Button -->
+        <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
           Remove
         </b-button>
         <b-button v-else class="m-1" variant="outline-success" @click="installApp">
@@ -88,17 +92,26 @@
 <script>
 export default {
   name: "AppStoreEntry",
-  props: ['app'],
+  props: ['app', 'is_installed'],
   data: function () {
     return {
-      iconLoaded: false,
+      iconLoadedCard: false,
+      iconLoadedModal: false,
     }
   },
 
   computed: {
     appJsonUrl() {
-      return `/core/protected/store/apps/${this.app.name}`;
-    }
+      return `/core/protected/apps/${this.app.name}/app.json`;
+    },
+    appStoreInfo() {
+      return this.app.store_info || {
+        description_short: 'A custom app',
+        description_long: undefined,
+        hint: undefined,
+        is_featured: false,
+      }
+    },
   },
 
   methods: {
