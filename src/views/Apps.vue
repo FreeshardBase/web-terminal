@@ -131,6 +131,7 @@ export default {
   components: {HorizontalSeparator, AppStoreEntry, Navbar},
   data: function () {
     return {
+      installedApps: [],
       store: {
         currentBranch: 'master',
         apps: [],
@@ -162,27 +163,21 @@ export default {
   },
 
   computed: {
-    installedApps() {
-      return [...this.store.apps]
-          .filter(a => a.is_installed)
-          .sort((a, b) => {
-            return a.store_info.is_featured < b.store_info.is_featured
-          })
-    },
     availableApps() {
+      const installedAppNames = this.installedApps.map(a => a.name);
       return [...this.store.apps]
-          .filter(a => !a.is_installed)
+          .filter(a => !installedAppNames.includes(a.name))
           .sort((a, b) => {
             return a.store_info.is_featured < b.store_info.is_featured
-          })
+          });
     }
   },
 
   methods: {
     async refreshStore() {
       this.store.updating = true;
-      const response = await this.$http.get('/core/protected/store/apps');
-      this.store.apps = response.data;
+      this.installedApps = (await this.$http.get('/core/protected/apps')).data
+      this.store.apps = (await this.$http.get('/core/protected/store/apps')).data;
       this.store.updating = false;
     },
 
