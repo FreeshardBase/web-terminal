@@ -5,11 +5,11 @@
         <b-col cols="2" class="text-center">
           <b-img
               :src="`/core/protected/apps/${app.name}/icon`"
-              v-show="iconLoaded"
-              @load="iconLoaded=true"
+              v-show="iconLoadedCard"
+              @load="iconLoadedCard=true"
               alt="Icon"
               class="app-icon m-2"></b-img>
-          <b-icon-box v-show="!iconLoaded" class="app-icon m-2"></b-icon-box>
+          <b-icon-box v-show="!iconLoadedCard" class="app-icon m-2"></b-icon-box>
         </b-col>
         <b-col cols="10">
           <b-card-body>
@@ -30,9 +30,12 @@
           <b-row align-v="center" align-h="start">
             <b-col sm="auto" md="auto" lg="auto" xl="auto">
               <b-img
-                :src="`/core/protected/apps/${app.name}/icon`"
-                alt="Icon"
-                class="app-icon m-2"></b-img>
+                  :src="`/core/protected/apps/${app.name}/icon`"
+                  v-show="iconLoadedCard"
+                  @load="iconLoadedCard=true"
+                  alt="Icon"
+                  class="app-icon m-2"></b-img>
+              <b-icon-box v-show="!iconLoadedCard" class="app-icon m-2"></b-icon-box>
             </b-col>
             <b-col>
               <h2>
@@ -74,7 +77,8 @@
           Full <span class="text-monospace">app.json</span>
         </a>
       <template #modal-footer>
-        <b-button v-if="app.is_installed" class="m-1" variant="outline-danger" @click="removeApp">
+        <!-- Install/Remove Button -->
+        <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
           Remove
         </b-button>
         <b-button v-else class="m-1" variant="outline-success" @click="installApp">
@@ -88,10 +92,11 @@
 <script>
 export default {
   name: "AppStoreEntry",
-  props: ['app'],
+  props: ['app', 'is_installed'],
   data: function () {
     return {
-      iconLoaded: false,
+      iconLoadedCard: false,
+      iconLoadedModal: false,
     }
   },
 
