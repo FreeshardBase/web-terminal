@@ -140,18 +140,22 @@ export default {
           updating: false,
           errorMessage: '',
           content: {
-            "name": "foo",
-            "image": "fooapps/foo:1.2.3",
-            "port": 80,
-            "data_dirs": [
-              "/data",
-              "/config"
+            "v": "4.0",
+            "name": "myapp",
+            "image": "myapp:1.2.3",
+            "entrypoints": [
+              {
+                "container_port": 80,
+                "entrypoint_port": "http"
+              }
             ],
-            "env_vars": {
-              "FOO": "bar"
-            },
-            "prefix_public": "/public",
-          },
+            "paths": {
+              "": {
+                "access": "private"
+              }
+            }
+          }
+          ,
         },
       },
     }
