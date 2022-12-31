@@ -176,9 +176,12 @@ export default {
   methods: {
     async refreshStore() {
       this.store.updating = true;
-      this.installedApps = (await this.$http.get('/core/protected/apps')).data
-      this.store.apps = (await this.$http.get('/core/protected/store/apps')).data;
-      this.store.updating = false;
+      try {
+        this.installedApps = (await this.$http.get('/core/protected/apps')).data
+        this.store.apps = (await this.$http.get('/core/protected/store/apps')).data;
+      } finally {
+        this.store.updating = false;
+      }
     },
 
     async hardRefreshStore() {
