@@ -10,6 +10,7 @@ import VueTour from 'vue-tour';
 import 'vue-tour/dist/vue-tour.css'
 import './assets/css/main.css'
 import QrcodeVue from "qrcode.vue";
+import moment from "moment/moment";
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
@@ -25,6 +26,16 @@ Vue.prototype.$http = axios.create({
 Vue.filter('titlecase', function (value) {
   return value.toLowerCase().replace(/(?:^|\s|-)\S/g, x => x.toUpperCase())
 });
+
+Vue.filter('formatDate', function (value) {
+  return moment(String(value)).format('YYYY-MM-DD hh:mm');
+})
+
+Vue.filter('formatDateHumanize', function (value) {
+  const now = new moment();
+  const duration = moment.duration(moment(String(value)).diff(now));
+  return duration.humanize(true);
+})
 
 new Vue({
   router,

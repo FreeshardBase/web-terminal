@@ -62,6 +62,15 @@
           </b-nav-item>
         </b-navbar-nav>
 
+        <b-navbar-nav id="nav-about">
+          <b-nav-item v-if="$route.name==='About'">
+            <b><b-icon-info-circle-fill></b-icon-info-circle-fill> About</b>
+          </b-nav-item>
+          <b-nav-item v-else to="/about">
+            <b-icon-info-circle></b-icon-info-circle> About
+          </b-nav-item>
+        </b-navbar-nav>
+
         <b-navbar-nav id="nav-more">
           <b-nav-item-dropdown right id="nav-more">
             <template #button-content><b-icon-gear></b-icon-gear> More</template>
