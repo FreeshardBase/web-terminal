@@ -7,6 +7,7 @@ import Profile from "@/views/Profile";
 import Pair from "@/views/Pair";
 import Welcome from "@/views/Welcome";
 import Peers from "@/views/Peers";
+import About from "@/views/About.vue";
 
 Vue.use(VueRouter)
 
@@ -45,6 +46,11 @@ const routes = [
     path: '/profile',
     name: 'Profile',
     component: Profile
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: About
   },
 ]
 
