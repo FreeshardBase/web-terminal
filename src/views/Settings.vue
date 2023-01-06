@@ -2,18 +2,64 @@
   <div>
     <navbar></navbar>
     <b-container class="mt-4">
-      <b-row>
 
+      <b-row>
+        <b-col>
+          <h1>Settings</h1>
+        </b-col>
+      </b-row>
+
+      <b-row>
+        <b-col>
+          <b-card title="Backup">
+            <b-card-text>
+              Download a zip archive containing all of your Portal's personal data.
+            </b-card-text>
+            <b-button variant="primary" href="/core/protected/backup/export">
+              <b-icon-download></b-icon-download>
+              Download
+            </b-button>
+          </b-card>
+        </b-col>
+      </b-row>
+
+      <b-row>
+        <b-col>
+          <b-card title="Restart">
+            <b-card-text>
+              Restart this Portal. Download and install a new software version if available.
+            </b-card-text>
+            <b-button @click="restartPortal" variant="primary">
+              <b-icon-arrow-clockwise></b-icon-arrow-clockwise>
+              Restart
+            </b-button>
+          </b-card>
+        </b-col>
+      </b-row>
+
+      <b-row>
+        <b-col>
+          <b-card title="Tour">
+            <b-card-text>
+              Reset the guided tour through your Portal's features so you can look at it again.
+            </b-card-text>
+            <b-button @click="resetTour" variant="primary">
+              <b-icon-caret-left></b-icon-caret-left>
+              Reset
+            </b-button>
+          </b-card>
+        </b-col>
+      </b-row>
+
+      <b-row>
         <b-col>
           <h1>About</h1>
         </b-col>
-
         <b-col class="text-right">
           <b-button variant="outline-secondary">
             <b-icon-arrow-repeat @click="refresh"></b-icon-arrow-repeat>
           </b-button>
         </b-col>
-
       </b-row>
 
       <b-overlay :show="isUpdating" rounded="sm" variant="white" class="w-100 p-1">
@@ -21,6 +67,8 @@
 
           <b-col>
             <TextField title="Machine ID" :content="profile.vm_id || 'unknown'"/>
+            <TextField title="Portal ID" :content="portalIdWithBreaks || 'unknown'"
+                       class="text-monospace"/>
             <TextField title="Owner" :content="profile.owner || 'unknown'"/>
             <TextField title="Owner Email" :content="profile.owner_email || 'unknown'"/>
             <TextField title="Created" :content="profile.time_created | formatDateHumanize"/>
@@ -46,6 +94,10 @@
                 </b-list-group>
               </small>
             </div>
+
+            <TextField title="Public Key" :content="$store.state.meta.portal_identity.public_key_pem || 'unknown'"
+                       class="text-monospace"/>
+
           </b-col>
 
         </b-row>
@@ -59,13 +111,27 @@ import Navbar from "@/components/Navbar";
 import TextField from "@/views/TextField.vue";
 
 export default {
-  name: "About",
+  name: "Settings",
   components: {TextField, Navbar},
 
   data: function () {
     return {
       isUpdating: false,
       profile: {},
+    }
+  },
+
+  computed: {
+    portalIdWithBreaks() {
+      const segmentLength = 16;
+      let pid = this.$store.state.meta.portal_identity.id;
+      let result = '';
+      while (pid.length > segmentLength) {
+        console.log(pid);
+        result = result.concat(pid.slice(0, segmentLength)).concat('\n');
+        pid = pid.slice(segmentLength);
+      }
+      return result;
     }
   },
 
@@ -88,6 +154,16 @@ export default {
         this.isUpdating = false;
       }
     },
+    async resetTour() {
+      try {
+        await this.$http.delete('/core/protected/help/tours');
+      } finally {
+        await this.$store.dispatch('query_tour_data');
+      }
+    },
+    async restartPortal() {
+      await this.$http.post('/core/protected/restart');
+    },
   },
 
   async mounted() {
@@ -97,3 +173,18 @@ export default {
 }
 </script>
 
+<style>
+
+.card {
+  margin-bottom: 1.5em;
+}
+
+.list-group {
+  margin-bottom: 1.5em;
+}
+
+.text-monospace {
+  white-space: pre;
+}
+
+</style>

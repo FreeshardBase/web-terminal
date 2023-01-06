@@ -50,8 +50,19 @@ export default {
           content: 'To use your Portal from more than one device (like your smartphone, notebook, tablet, etc.), pair them here.'
         },
         {
-          target: '#nav-more',
-          content: 'Access more functions here: e.g. restart/update your Portal, download a full backup, or look at this tour again.'
+          target: '#nav-peers',
+          content: 'Enter the ID of your friends\' Portals here in order to pair them with this Portal. ' +
+              'This allows apps to communicate with them for all kinds of purposes.'
+        },
+        {
+          target: '#nav-profile',
+          content: 'The profile is the public face of your Portal and visible to everyone. Shape it here.'
+        },
+        {
+          target: '#nav-settings',
+          content: 'Access less frequently used functions here: ' +
+              'e.g. restart/update your Portal, download a full backup, or look at this tour again. ' +
+              'You can also view more in-depth information about your Portal.'
         },
         {
           target: '#nav-feedback',

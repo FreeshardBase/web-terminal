@@ -62,22 +62,13 @@
           </b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav id="nav-about">
-          <b-nav-item v-if="$route.name==='About'">
-            <b><b-icon-info-circle-fill></b-icon-info-circle-fill> About</b>
+        <b-navbar-nav id="nav-settings">
+          <b-nav-item v-if="$route.name==='Settings'">
+            <b><b-icon-gear-fill></b-icon-gear-fill> Settings</b>
           </b-nav-item>
-          <b-nav-item v-else to="/about">
-            <b-icon-info-circle></b-icon-info-circle> About
+          <b-nav-item v-else to="/settings">
+            <b-icon-gear></b-icon-gear> Settings
           </b-nav-item>
-        </b-navbar-nav>
-
-        <b-navbar-nav id="nav-more">
-          <b-nav-item-dropdown right id="nav-more">
-            <template #button-content><b-icon-gear></b-icon-gear> More</template>
-            <b-dropdown-item @click="restart">Restart</b-dropdown-item>
-            <b-dropdown-item href="/core/protected/backup/export">Download Backup</b-dropdown-item>
-            <b-dropdown-item @click="resetTour">Reset Tour</b-dropdown-item>
-          </b-nav-item-dropdown>
         </b-navbar-nav>
 
       </b-collapse>
@@ -127,21 +118,6 @@ export default {
     }
   },
   methods: {
-    restart() {
-      this.$http.post('/core/protected/restart')
-      .then(function () {
-        console.log('restarting in 1 minute')
-      })
-      .catch(function (response) {
-        console.log(`Error during restart: ${response}`)
-      })
-    },
-    resetTour() {
-      this.$http.delete('/core/protected/help/tours')
-      .then(function () {
-        this.$store.dispatch('query_tour_data');
-      })
-    },
     async sendFeedback() {
       this.feedback.isSending = true;
       try {
