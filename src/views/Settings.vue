@@ -163,6 +163,7 @@ export default {
     },
     async restartPortal() {
       await this.$http.post('/core/protected/restart');
+      await this.$router.replace('/restart');
     },
   },
 
