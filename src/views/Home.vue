@@ -29,7 +29,8 @@ export default {
           header: {
             title: 'Welcome to your Portal!'
           },
-          content: 'This Portal is yours and only yours.</br>' +
+          content: `Welcome ${this.$store.state.meta.portal_identity.name}!<br>` +
+              'This Portal is yours and only yours.</br>' +
               'It has a unique address that you can see right here in the address bar. Better bookmark it!'
         },
         {

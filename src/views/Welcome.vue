@@ -47,6 +47,7 @@ export default {
 
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Welcome`;
+    await this.$store.dispatch('query_meta_data');
   },
 
   computed: {

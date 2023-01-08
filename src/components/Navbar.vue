@@ -81,9 +81,12 @@
           max-rows="9"
           :disabled="feedback.isSending || feedback.sendConfirmed || feedback.sendError"
       ></b-form-textarea>
-      <p class="text-muted"><small>For more elaborate feedback, you can use our
+      <p class="text-muted"><small>What you write here is a one-off message for us
+        and currently we have no way of responding directly to it.
+        For more elaborate feedback or a dialogue, you can use our
         <a href="https://feedback.getportal.org" target="_blank">feedback platform</a>
-        or <a href="mailto:contact@getportal.org">write us</a>.</small></p>
+        or <a href="mailto:contact@getportal.org">write us</a>
+        or visit our <a href="https://discord.gg/ZXQDuTGcCf" target="_blank">Discord</a>.</small></p>
       <template #modal-footer>
         <b-button
             :variant="feedback.sendConfirmed ? 'success' : feedback.sendError ? 'danger' : 'primary'"
