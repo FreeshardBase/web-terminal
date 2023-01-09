@@ -7,6 +7,8 @@ import Profile from "@/views/Profile";
 import Pair from "@/views/Pair";
 import Welcome from "@/views/Welcome";
 import Peers from "@/views/Peers";
+import Settings from "@/views/Settings.vue";
+import Restart from "@/views/Restart.vue";
 
 Vue.use(VueRouter)
 
@@ -46,6 +48,16 @@ const routes = [
     name: 'Profile',
     component: Profile
   },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: Settings
+  },
+  {
+    path: '/restart',
+    name: "Restart",
+    component: Restart
+  }
 ]
 
 const router = new VueRouter({

@@ -52,6 +52,7 @@ export default {
     async refresh() {
       const response = await this.$http.get('/core/protected/identities/default');
       this.identity = response.data;
+      await this.$store.dispatch('query_meta_data');
     },
     async updateField(field, eventBody) {
       const body = {
