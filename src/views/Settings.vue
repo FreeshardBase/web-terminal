@@ -143,7 +143,6 @@ export default {
       let pid = this.$store.state.meta.portal_identity.id;
       let result = '';
       while (pid.length > segmentLength) {
-        console.log(pid);
         result = result.concat(pid.slice(0, segmentLength)).concat('\n');
         pid = pid.slice(segmentLength);
       }
@@ -158,7 +157,6 @@ export default {
         const response = await this.$http.get('/core/protected/management/profile');
         this.profile = response.data;
       } catch (e) {
-        console.log(e.response);
         this.$bvToast.toast(e.response.data.detail, {
           title: 'Error during loading',
           autoHideDelay: 5000,
@@ -198,7 +196,7 @@ export default {
       }
     },
     async resizePortal() {
-      await this.$http.put('/core/protected/management/config', {size: this.resize.selectedSize});
+      await this.$http.post('/core/protected/management/resize', {size: this.resize.selectedSize});
       await this.$router.replace('/restart');
     }
   },
