@@ -52,18 +52,18 @@
                     v-for="size in resize.sizes"
                     :key="size"
                     @click="resize.selectedSize=size"
-                    :disabled="!sizeIsAvailable(size)"
+                    :disabled="!sizeIsAvailable(size) || resize.waitingForRestart"
                     :variant="variantForSize(size)">
                   {{ size | uppercase }}
                 </b-button>
               </b-button-group>
 
               <b-button-group v-if="resize.selectedSize" class="ml-3">
-                <b-button variant="primary" @click="resizePortal">
+                <b-button variant="primary" @click="resizePortal" :disabled="resize.waitingForRestart">
                   <b-icon-arrow-clockwise></b-icon-arrow-clockwise>
                   Resize to {{ resize.selectedSize | uppercase }} and restart
                 </b-button>
-                <b-button variant="danger" @click="resize.selectedSize=null">
+                <b-button variant="danger" @click="resize.selectedSize=null" :disabled="resize.waitingForRestart">
                   <b-icon-x-circle-fill></b-icon-x-circle-fill> Cancel
                 </b-button>
               </b-button-group>
@@ -133,6 +133,7 @@ export default {
       resize: {
         sizes: ['xs', 's', 'm', 'l', 'xl'],
         selectedSize: null,
+        waitingForRestart: false,
       },
     }
   },
@@ -196,6 +197,7 @@ export default {
       }
     },
     async resizePortal() {
+      this.resize.waitingForRestart = true;
       await this.$http.post('/core/protected/management/resize', {size: this.resize.selectedSize});
       await this.$router.replace('/restart');
     }
