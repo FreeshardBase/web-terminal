@@ -3,12 +3,12 @@ import VueRouter from 'vue-router'
 import Home from "@/views/Home";
 import Apps from "@/views/Apps";
 import Devices from "@/views/Devices";
-import Profile from "@/views/Profile";
 import Pair from "@/views/Pair";
 import Welcome from "@/views/Welcome";
 import Peers from "@/views/Peers";
 import Settings from "@/views/Settings.vue";
 import Restart from "@/views/Restart.vue";
+import Public from "@/views/Public.vue";
 
 Vue.use(VueRouter)
 
@@ -44,9 +44,9 @@ const routes = [
     component: Peers
   },
   {
-    path: '/profile',
-    name: 'Profile',
-    component: Profile
+    path: '/public',
+    name: 'Public',
+    component: Public
   },
   {
     path: '/settings',

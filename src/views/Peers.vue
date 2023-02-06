@@ -12,7 +12,7 @@
 
           <b-button v-if="addPeer.state === 'off'" variant="success" @click="addPeer.state='on'" id="add-peer-button">
             <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-            <span> Add Peer</span>
+            <span> Add peer</span>
           </b-button>
 
           <b-input-group v-else class="peer-id-input">

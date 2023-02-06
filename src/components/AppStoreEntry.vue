@@ -45,39 +45,42 @@
             <!-- Small extra icons -->
             <b-col sm="auto" md="auto" lg="auto" xl="auto">
               <div v-if="appStoreInfo.is_featured">
-              <b-icon-star-fill :id="`star-modal-${app.name}`" class="app-star"></b-icon-star-fill>
-              <b-popover :target="`star-modal-${app.name}`" placement="leftbottom" triggers="click blur">
-                <template #title>Featured App</template>
-                This app is well integrated with Portal and recommended by us.
-              </b-popover>
-              <br>
-                </div>
+                <b-icon-star-fill :id="`star-modal-${app.name}`" class="app-star"></b-icon-star-fill>
+                <b-popover :target="`star-modal-${app.name}`" placement="leftbottom" triggers="click blur">
+                  <template #title>Featured App</template>
+                  This app is well integrated with Portal and recommended by us.
+                </b-popover>
+                <br>
+              </div>
               <div v-if="appStoreInfo.hint">
-              <b-icon-info-square :id="`info-modal-${app.name}`" class="app-info"></b-icon-info-square>
-              <b-popover :target="`info-modal-${app.name}`" placement="leftbottom" triggers="click blur">
-                <template #title>Hints</template>
-                <ul v-if="Array.isArray(appStoreInfo.hint)">
-                  <li v-for="(item, index) in appStoreInfo.hint" :key="index">{{ item }}</li>
-                </ul>
-                <p v-else>{{ appStoreInfo.hint }}</p>
-              </b-popover>
-                </div>
+                <b-icon-info-square :id="`info-modal-${app.name}`" class="app-info"></b-icon-info-square>
+                <b-popover :target="`info-modal-${app.name}`" placement="leftbottom" triggers="click blur">
+                  <template #title>Hints</template>
+                  <ul v-if="Array.isArray(appStoreInfo.hint)">
+                    <li v-for="(item, index) in appStoreInfo.hint" :key="index">{{ item }}</li>
+                  </ul>
+                  <p v-else>{{ appStoreInfo.hint }}</p>
+                </b-popover>
+              </div>
             </b-col>
           </b-row>
         </b-container>
       </template>
-        <div v-if="appStoreInfo.description_long && Array.isArray(appStoreInfo.description_long)">
-          <p v-for="(paragraph, index) in appStoreInfo.description_long" :key="index">
-            {{ paragraph }}
-          </p>
-        </div>
-        <p v-else-if="appStoreInfo.description_long">{{ appStoreInfo.description_long }}</p>
-        <p v-else>{{ appStoreInfo.description_short }}</p>
-        <a :href="appJsonUrl" target="_blank" class="small">
-          Full <span class="text-monospace">app.json</span>
-        </a>
+      <div v-if="appStoreInfo.description_long && Array.isArray(appStoreInfo.description_long)">
+        <p v-for="(paragraph, index) in appStoreInfo.description_long" :key="index">
+          {{ paragraph }}
+        </p>
+      </div>
+      <p v-else-if="appStoreInfo.description_long">{{ appStoreInfo.description_long }}</p>
+      <p v-else>{{ appStoreInfo.description_short }}</p>
+      <a :href="appJsonUrl" target="_blank" class="small">
+        Full <span class="text-monospace">app.json</span>
+      </a>
       <template #modal-footer>
-        <!-- Install/Remove Button -->
+        <!-- Install/Remove and Open Button -->
+        <b-button v-if="is_installed" class="m-1" variant="primary" @click="open">
+          Open
+        </b-button>
         <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
           Remove
         </b-button>
@@ -137,6 +140,9 @@ export default {
           .catch(function (response) {
             console.log(response)
           })
+    },
+    open() {
+      window.open(`https://${this.app.name}.${window.location.host}`, '_blank');
     },
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar toggleable="lg" type="dark" variant="dark">
+    <b-navbar toggleable="lg" type="dark" variant="dark" sticky>
 
       <b-navbar-brand to="/">
         <PortalIdBadge :portal-id="$store.getters.short_portal_id"/>
@@ -37,7 +37,16 @@
           </b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav id="nav-peers">
+        <b-navbar-nav id="nav-public">
+          <b-nav-item v-if="$route.name==='Public'">
+            <b><b-icon-person-fill></b-icon-person-fill> Public</b>
+          </b-nav-item>
+          <b-nav-item v-else to="/public">
+            <b-icon-person></b-icon-person> Public
+          </b-nav-item>
+        </b-navbar-nav>
+
+        <b-navbar-nav id="nav-peers" v-if="false">
           <b-nav-item v-if="$route.name==='Peers'">
             <b><b-icon-people-fill></b-icon-people-fill> Peers</b>
           </b-nav-item>
@@ -53,28 +62,19 @@
           </b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav id="nav-profile">
-          <b-nav-item v-if="$route.name==='Profile'">
-            <b><b-icon-person-fill></b-icon-person-fill> Profile</b>
-          </b-nav-item>
-          <b-nav-item v-else to="/profile">
-            <b-icon-person></b-icon-person> Profile
-          </b-nav-item>
-        </b-navbar-nav>
-
         <b-navbar-nav id="nav-settings">
           <b-nav-item v-if="$route.name==='Settings'">
-            <b><b-icon-gear-fill></b-icon-gear-fill> Settings</b>
+            <b><b-icon-gear-fill></b-icon-gear-fill> {{ $store.state.meta.portal_identity.name }}</b>
           </b-nav-item>
           <b-nav-item v-else to="/settings">
-            <b-icon-gear></b-icon-gear> Settings
+            <b-icon-gear></b-icon-gear> {{ $store.state.meta.portal_identity.name }}
           </b-nav-item>
         </b-navbar-nav>
 
       </b-collapse>
     </b-navbar>
 
-    <b-modal id="feedback-modal" title="Quick Feedback" cancel-disabled>
+    <b-modal id="feedback-modal" title="Quick feedback" cancel-disabled>
       <b-form-textarea
           v-model="feedback.text"
           rows="3"

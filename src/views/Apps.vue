@@ -14,25 +14,26 @@
             <template #button-content>
               <b-icon-gear-fill></b-icon-gear-fill>
             </template>
+            <b-dropdown-text>Tools for app developers</b-dropdown-text>
+            <b-dropdown-divider></b-dropdown-divider>
             <!-- Custom App -->
             <b-dropdown-item>
               <b-button v-b-modal:custom-app variant="outline-success">
                 <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-                Install Custom App
+                Install custom app
               </b-button>
             </b-dropdown-item>
-            <b-dropdown-divider></b-dropdown-divider>
             <!-- Refresh -->
             <b-dropdown-item>
               <b-button @click="hardRefreshStore" variant="outline-secondary">
                 <b-icon-arrow-repeat></b-icon-arrow-repeat>
-                Refresh App Store
+                Refresh app store
               </b-button>
             </b-dropdown-item>
             <!-- Store Branch -->
             <b-dropdown-form @submit.prevent="setStoreBranch(store.switchBranchInput)">
               <b-input-group>
-                <b-form-input placeholder="Switch Branch" v-model="store.switchBranchInput"></b-form-input>
+                <b-form-input placeholder="Switch branch" v-model="store.switchBranchInput"></b-form-input>
                 <b-input-group-append>
                   <b-button variant="outline-secondary" type="submit">
                     <b-icon-arrow-left-right></b-icon-arrow-left-right>

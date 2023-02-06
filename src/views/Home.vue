@@ -50,13 +50,13 @@ export default {
           target: '#nav-devices',
           content: 'To use your Portal from more than one device (like your smartphone, notebook, tablet, etc.), pair them here.'
         },
+        // {
+        //   target: '#nav-peers',
+        //   content: 'Enter the ID of your friends\' Portals here in order to pair them with this Portal. ' +
+        //       'This allows apps to communicate with them for all kinds of purposes.'
+        // },
         {
-          target: '#nav-peers',
-          content: 'Enter the ID of your friends\' Portals here in order to pair them with this Portal. ' +
-              'This allows apps to communicate with them for all kinds of purposes.'
-        },
-        {
-          target: '#nav-profile',
+          target: '#nav-public',
           content: 'The profile is the public face of your Portal and visible to everyone. Shape it here.'
         },
         {

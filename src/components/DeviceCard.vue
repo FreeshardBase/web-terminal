@@ -8,8 +8,15 @@
           <b-icon-laptop v-else-if="displayIcon=='notebook'" font-scale="3"></b-icon-laptop>
           <b-icon-tv v-else-if="displayIcon=='desktop'" font-scale="3"></b-icon-tv>
           <b-icon-square v-else font-scale="3"></b-icon-square>
-          <div v-if="editMode.state!=='off'" class="cursor" @click="rotateIcon">
-            <b-icon-arrow-return-right></b-icon-arrow-return-right>
+          <div v-if="editMode.state!=='off'">
+            <b-button-group class="very-small">
+              <b-button @click="rotateIcon(false)" variant="primary">
+                <b-icon-caret-left-fill></b-icon-caret-left-fill>
+              </b-button>
+              <b-button @click="rotateIcon(true)" variant="primary">
+                <b-icon-caret-right-fill></b-icon-caret-right-fill>
+              </b-button>
+            </b-button-group>
           </div>
           <b-badge
               id="this-badge"
@@ -24,10 +31,13 @@
 
               <h4 v-if="editMode.state==='off'" class="text-truncate">{{ device.name }}</h4>
 
-              <b-form-input
-                  v-else
-                  :disabled="editMode.state==='syncing'"
-                  v-model="editMode.editedDevice.name"></b-form-input>
+              <b-form v-else @submit.prevent="confirmEditing">
+                <b-form-input
+                    ref="name-input"
+                    :disabled="editMode.state==='syncing'"
+                    v-model="editMode.editedDevice.name"
+                ></b-form-input>
+              </b-form>
 
               <p><small>{{ lastConnectionText }}</small></p>
 
@@ -116,6 +126,9 @@ export default {
   methods: {
     startEditing() {
       this.editMode.state = 'on';
+      this.$nextTick(() => {
+        this.$refs['name-input'].focus();
+      });
     },
     async confirmEditing() {
       this.editMode.state = 'syncing';
@@ -130,11 +143,16 @@ export default {
       await this.$http.delete(`/core/protected/terminals/id/${this.device.id}`)
       this.$emit('refresh');
     },
-    rotateIcon() {
+    rotateIcon(forward) {
       const icons = ['unknown', 'smartphone', 'tablet', 'notebook', 'desktop'];
       const currentIconIndex = icons.indexOf(this.editMode.editedDevice.icon);
-      const nextIconIndex = (currentIconIndex + 1) % icons.length;
-      this.editMode.editedDevice.icon = icons[nextIconIndex];
+      if (forward) {
+        const nextIconIndex = (currentIconIndex + 1) % icons.length;
+        this.editMode.editedDevice.icon = icons[nextIconIndex];
+      } else {
+        const nextIconIndex = (currentIconIndex - 1 + icons.length) % icons.length;
+        this.editMode.editedDevice.icon = icons[nextIconIndex];
+      }
     },
   },
   mounted: function () {
@@ -162,6 +180,11 @@ export default {
 
 .padded {
   padding: 1em;
+}
+
+.very-small button {
+  padding: 0.15rem 0.3rem;
+  font-size: 0.675rem;
 }
 
 </style>
