@@ -6,18 +6,21 @@
         <span><small>{{ title }}</small></span>
 
         <div v-if="no_or_rows === 1">
-          <p style="white-space: pre-wrap" v-if="editMode.state==='off'">{{ value || '[empty]'}}</p>
-          <b-form-input
-              v-else
-              :disabled="editMode.state==='syncing'"
-              v-model="editMode.editedValue"
-          ></b-form-input>
+          <p style="white-space: pre-wrap" v-if="editMode.state==='off'">{{ value || '[empty]' }}</p>
+          <b-form v-else @submit.prevent="confirmEditing">
+            <b-form-input
+                ref="input"
+                :disabled="editMode.state==='syncing'"
+                v-model="editMode.editedValue"
+            ></b-form-input>
+          </b-form>
         </div>
 
         <div v-else>
           <div v-if="editMode.state==='off'" v-html="markdownToHtml(value)"></div>
           <b-form-textarea
               v-else
+              ref="input"
               :disabled="editMode.state==='syncing'"
               v-model="editMode.editedValue"
               :rows="no_or_rows"
@@ -57,7 +60,7 @@
 
 <script>
 import _ from "lodash";
-import { marked } from "marked";
+import {marked} from "marked";
 
 export default {
   name: 'EditableText',
@@ -72,9 +75,9 @@ export default {
   },
 
   props: [
-      'title',
-      'value',
-      'rows',
+    'title',
+    'value',
+    'rows',
   ],
 
   computed: {
@@ -89,6 +92,9 @@ export default {
         state: 'on',
         editedValue: _.cloneDeep(this.value)
       };
+      this.$nextTick(() => {
+        this.$refs['input'].focus();
+      })
     },
     async confirmEditing() {
       this.editMode.state = 'syncing';

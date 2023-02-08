@@ -2,12 +2,12 @@ module.exports = {
   devServer: {
     proxy: {
       '^/core': {
-        target: 'http://127.0.0.1:8000',
+        target: 'https://c0p3x5.p.getportal.org',
         changeOrigin: true,
         cookieDomainRewrite: {
           "*": "localhost",
         },
-        pathRewrite: {'^/core': ''}
+        //pathRewrite: {'^/core': ''}
       },
     }
   }

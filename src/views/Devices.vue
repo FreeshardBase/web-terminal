@@ -12,11 +12,6 @@
           <b-button variant="outline-secondary">
             <b-icon-arrow-repeat @click="refreshDevices"></b-icon-arrow-repeat>
           </b-button>
-          &nbsp;
-          <b-button id="add-button" variant="success" @click="startPairing">
-            <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-            <span> Pair Device</span>
-          </b-button>
         </b-col>
 
       </b-row>
@@ -30,13 +25,19 @@
                 <DeviceCard :device="device" @refresh="refreshDevices"></DeviceCard>
               </b-col>
             </b-row>
+            <b-row align-h="center">
+              <b-button id="add-button" variant="success" @click="startPairing" size="lg">
+                <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
+                <span> Pair device</span>
+              </b-button>
+            </b-row>
           </b-container>
         </b-col>
       </b-row>
 
     </b-container>
 
-    <b-modal id="new-device-modal" title="Pair new Device" hide-footer @hidden="stopPairing">
+    <b-modal id="new-device-modal" title="Pair new device" hide-footer @hidden="stopPairing">
       <b-spinner v-if="pairing.loading"></b-spinner>
       <p v-else-if="pairing.error">
         {{ pairing.error }}
@@ -52,16 +53,19 @@
         <b-progress height="0.2em">
           <b-progress-bar :value="pairingCodeValidityProgress"></b-progress-bar>
         </b-progress>
-        <p>Scan this CR-code with another device to pair it</p>
+        <p>Scan this QR-code with another device to pair it</p>
         <qrcode-vue :value="pairingLink" size="150"></qrcode-vue>
         <HorizontalSeparator title="or"></HorizontalSeparator>
-        <p>Navigate to <a :href="$store.getters.portal_href">{{ $store.state.meta.portal_identity.domain }}</a> and use the one-time
+        <p>Navigate to <a :href="$store.getters.portal_href">{{ $store.state.meta.portal_identity.domain }}</a> and use
+          the one-time
           pairing code</p>
-        <p><b-form-input
-            id="pairing-code-box"
-            :value="pairingCode"
-            class="text-monospace"
-            readonly></b-form-input></p>
+        <p>
+          <b-form-input
+              id="pairing-code-box"
+              :value="pairingCode"
+              class="text-monospace"
+              readonly></b-form-input>
+        </p>
       </div>
     </b-modal>
 
@@ -143,7 +147,7 @@ export default {
         this.pairing.updateTimer = setInterval(() => this.pairing.now = moment(), 1000);
       } catch (e) {
         this.pairing.error = e;
-        return;
+
       } finally {
         this.pairing.loading = false;
       }

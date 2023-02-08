@@ -40,4 +40,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 2. Make sure that `http://127.0.0.1:8000` is the proxy target in `vue.config.js`
 3. Make sure that the `pathRewrite` option is enabled
 4. Start the proxy together with the hot-reloading server with `npm run serve`
-5. Get a pairing code at `http://127.0.0.1:8000/protected/terminals/pairing-code`
+5. Get a pairing code at http://127.0.0.1:8000/protected/terminals/pairing-code

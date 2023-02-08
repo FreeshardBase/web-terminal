@@ -17,8 +17,8 @@
           <b-button v-if="$store.state.meta.is_anonymous" variant="outline-primary" to="/pair">
             <b-icon-link45deg></b-icon-link45deg> Pair
           </b-button>
-          <b-button v-else variant="outline-primary" to="/profile">
-            <b-icon-person></b-icon-person> Profile
+          <b-button v-else variant="outline-primary" to="/public">
+            <b-icon-person></b-icon-person> Back
           </b-button>
         </b-col>
 
