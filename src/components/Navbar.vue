@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Banner variant="warning">This is banner content</Banner>
     <b-navbar toggleable="lg" type="dark" variant="dark" sticky>
 
       <b-navbar-brand to="/">
@@ -106,10 +107,11 @@
 
 <script>
 import PortalIdBadge from "@/components/PortalIdBadge";
+import Banner from "@/components/Banner.vue";
 
 export default {
   name: "Navbar",
-  components: {PortalIdBadge},
+  components: {Banner, PortalIdBadge},
   data() {
     return {
       feedback: {
