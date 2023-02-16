@@ -12,6 +12,17 @@
 import {marked} from "marked";
 const banners_url = 'https://storageaccountportab0da.blob.core.windows.net/cnc/banners.json'
 
+// link renderer to add target='_blank', see: https://github.com/markedjs/marked/issues/1994
+const renderer = new marked.Renderer();
+renderer.link = function() {
+    const link = marked.Renderer.prototype.link.apply(this, arguments);
+    return link.replace("<a","<a target='_blank'");
+};
+
+marked.setOptions({
+    renderer: renderer
+});
+
 export default {
   name: "Banner",
 
