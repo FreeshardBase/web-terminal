@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <b-row align-v="center">
+    <b-row align-v="start">
       <b-col cols="10">
 
         <span><small>{{ title }}</small></span>
@@ -18,13 +18,28 @@
 
         <div v-else>
           <div v-if="editMode.state==='off'" v-html="markdownToHtml(value)"></div>
-          <b-form-textarea
-              v-else
-              ref="input"
-              :disabled="editMode.state==='syncing'"
-              v-model="editMode.editedValue"
-              :rows="no_or_rows"
-          ></b-form-textarea>
+          <div v-else>
+            <b-form-textarea
+                ref="input"
+                :disabled="editMode.state==='syncing'"
+                v-model="editMode.editedValue"
+                :rows="no_or_rows"
+            ></b-form-textarea>
+            <p class="hint mt-2">
+              <a href="https://www.markdownguide.org/">Markdown</a> is supported:<br>
+              # Heading 1<br>
+              ## Heading 2<br>
+              ### Heading 3<br>
+              **bold text**<br>
+              *italicized text*<br>
+              > blockquote<br>
+              1. ordered list item<br>
+              * unordered list item<br>
+              `code`<br>
+              --- horizontal rule<br>
+              [link](https://example.com)<br>
+            </p>
+          </div>
         </div>
 
 
@@ -128,6 +143,11 @@ export default {
 
 .cursor {
   cursor: pointer;
+}
+
+.hint {
+  color: gray;
+  font-size: small;
 }
 
 </style>
