@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Banner variant="warning">This is banner content</Banner>
+    <Banner></Banner>
     <b-navbar toggleable="lg" type="dark" variant="dark" sticky>
 
       <b-navbar-brand to="/">
