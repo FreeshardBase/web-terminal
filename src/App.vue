@@ -57,4 +57,9 @@ export default {
     font-family: Avenir,Helvetica,Arial,sans-serif;
 }
 
+/* Deactivate elements that are highlighted during tour, see: https://github.com/pulsardev/vue-tour/issues/254 */
+.v-tour__target--highlighted {
+  pointer-events: none !important;
+}
+
 </style>
