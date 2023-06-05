@@ -4,7 +4,7 @@
       <b-row>
         <b-col cols="2" class="text-center">
           <b-img
-              :src="`/core/protected/apps/${app.name}/icon`"
+              :src="appIconUrl"
               v-show="iconLoadedCard"
               @load="iconLoadedCard=true"
               alt="Icon"
@@ -30,7 +30,7 @@
           <b-row align-v="center" align-h="start">
             <b-col sm="auto" md="auto" lg="auto" xl="auto">
               <b-img
-                  :src="`/core/protected/apps/${app.name}/icon`"
+                  :src="appIconUrl"
                   v-show="iconLoadedCard"
                   @load="iconLoadedCard=true"
                   alt="Icon"
@@ -73,9 +73,6 @@
       </div>
       <p v-else-if="appStoreInfo.description_long">{{ appStoreInfo.description_long }}</p>
       <p v-else>{{ appStoreInfo.description_short }}</p>
-      <a :href="appJsonUrl" target="_blank" class="small">
-        Full <span class="text-monospace">app.json</span>
-      </a>
       <template #modal-footer>
         <!-- Install/Remove and Open Button -->
         <b-button v-if="is_installed" class="m-1" variant="primary" @click="open">
@@ -95,7 +92,7 @@
 <script>
 export default {
   name: "AppStoreEntry",
-  props: ['app', 'is_installed'],
+  props: ['app', 'is_installed', 'branch'],
   data: function () {
     return {
       iconLoadedCard: false,
@@ -104,8 +101,13 @@ export default {
   },
 
   computed: {
-    appJsonUrl() {
-      return `/core/protected/apps/${this.app.name}/app.json`;
+    appIconUrl() {
+      if (this.is_installed) {
+        return `/core/protected/apps/${this.app.name}/icon`;
+      } else {
+        const iconFilename = this.app.icon;
+        return `https://storageaccountportab0da.blob.core.windows.net/app-store/${this.branch}/all_apps/${this.app.name}/${iconFilename}`;
+      }
     },
     appStoreInfo() {
       return this.app.store_info || {
@@ -118,32 +120,24 @@ export default {
   },
 
   methods: {
-    installApp() {
-      const this_ = this;
-      this.$http.post(`/core/protected/store/apps/${this.app.name}`)
-          .then(function () {
-            this_.$emit('changed')
-          })
-          .catch(function (response) {
-            console.log(response)
-          })
+    async installApp() {
+      await this.$http.post(`/core/protected/apps/${this.app.name}`);
+      this.$emit('changed');
     },
+
     showDetails() {
       this.$bvModal.show(`app-details-${this.app.name}`);
     },
-    removeApp() {
-      let this_ = this;
-      this.$http.delete(`/core/protected/apps/${this.app.name}`)
-          .then(function () {
-            this_.$emit('changed')
-          })
-          .catch(function (response) {
-            console.log(response)
-          })
+
+    async removeApp() {
+      await this.$http.delete(`/core/protected/apps/${this.app.name}`);
+      this.$emit('changed');
     },
+
     open() {
       window.open(`https://${this.app.name}.${window.location.host}`, '_blank');
     },
+
   }
 }
 </script>
