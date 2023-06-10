@@ -75,15 +75,25 @@
       <p v-else>{{ appStoreInfo.description_short }}</p>
       <template #modal-footer>
         <!-- Install/Remove and Open Button -->
-        <b-button v-if="is_installed" class="m-1" variant="primary" @click="open">
-          Open
-        </b-button>
-        <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
-          Remove
-        </b-button>
-        <b-button v-else class="m-1" variant="outline-success" @click="installApp">
-          Install
-        </b-button>
+        <div v-if="busyMessage" class="w-100">
+          <b-progress-bar
+              value="100"
+              variant="info"
+              class="mt-3"
+              :label="busyMessage"
+              striped animated></b-progress-bar>
+        </div>
+        <div v-else>
+          <b-button v-if="is_installed" class="m-1" variant="primary" @click="open">
+            Open
+          </b-button>
+          <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
+            Remove
+          </b-button>
+          <b-button v-else class="m-1" variant="outline-success" @click="installApp">
+            Install
+          </b-button>
+        </div>
       </template>
     </b-modal>
   </div>
@@ -97,6 +107,7 @@ export default {
     return {
       iconLoadedCard: false,
       iconLoadedModal: false,
+      busyMessage: null,
     }
   },
 
@@ -121,8 +132,10 @@ export default {
 
   methods: {
     async installApp() {
+      this.busyMessage = `Installing ${this.app.name}...`;
       await this.$http.post(`/core/protected/apps/${this.app.name}`);
       this.$emit('changed');
+      this.busyMessage = null;
     },
 
     showDetails() {
@@ -130,8 +143,10 @@ export default {
     },
 
     async removeApp() {
+      this.busyMessage = `Removing ${this.app.name}...`;
       await this.$http.delete(`/core/protected/apps/${this.app.name}`);
       this.$emit('changed');
+      this.busyMessage = null;
     },
 
     open() {
