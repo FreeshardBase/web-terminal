@@ -6,6 +6,10 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
+    websocket: {
+      isConnected: false,
+      lastHeartbeat: null,
+    },
     meta: {
       is_anonymous: true,
       device_id: 'unknown',
@@ -19,6 +23,7 @@ const store = new Vuex.Store({
         domain: '',
       }
     },
+    terminals: [],
     tours: [],
   },
   getters: {
@@ -42,6 +47,15 @@ const store = new Vuex.Store({
     set_tours(state, tours) {
       state.tours = tours;
     },
+    websocket_connect(state) {
+      state.websocket.isConnected = true;
+    },
+    websocket_disconnect(state) {
+      state.websocket.isConnected = false;
+    },
+    set_terminals(state, terminals) {
+        state.terminals = terminals;
+    }
   },
   actions: {
     async query_meta_data (context) {
@@ -65,6 +79,15 @@ const store = new Vuex.Store({
     async mark_tour_as_seen(context, tourName) {
       await this._vm.$http.put('/core/protected/help/tours', {name: tourName, status: 'seen'})
       await store.dispatch('query_tour_data');
+    },
+    async handle_websocket_message(context, message) {
+      if (message.message_type === 'terminals') {
+        context.commit('set_terminals', message.message);
+      }
+    },
+    async refresh_terminals(context) {
+      const response = await this._vm.$http.get('/core/protected/terminals');
+      context.commit("set_terminals", response.data);
     },
   }
 })

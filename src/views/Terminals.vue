@@ -5,30 +5,24 @@
       <b-row>
 
         <b-col>
-          <h1>Devices</h1>
-        </b-col>
-
-        <b-col class="text-right">
-          <b-button variant="outline-secondary">
-            <b-icon-arrow-repeat @click="refreshDevices"></b-icon-arrow-repeat>
-          </b-button>
+          <h1>Terminals</h1>
         </b-col>
 
       </b-row>
 
       <b-row align-v="stretch" class="flex-grow-1">
         <b-col>
-          <b-container id="device-container">
+          <b-container id="terminal-container">
             <!-- Entries -->
             <b-row cols="1" cols-md="2">
-              <b-col v-for="device in devices" :key="device.name" class="p-1">
-                <DeviceCard :device="device" @refresh="refreshDevices"></DeviceCard>
+              <b-col v-for="terminal in $store.state.terminals" :key="terminal.id" class="p-1">
+                <TerminalCard :terminal="terminal"></TerminalCard>
               </b-col>
             </b-row>
             <b-row align-h="center">
               <b-button id="add-button" variant="success" @click="startPairing" size="lg">
                 <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-                <span> Pair device</span>
+                <span> Pair terminal</span>
               </b-button>
             </b-row>
           </b-container>
@@ -37,7 +31,7 @@
 
     </b-container>
 
-    <b-modal id="new-device-modal" title="Pair new device" hide-footer @hidden="stopPairing">
+    <b-modal id="new-terminal-modal" title="Pair new terminal" hide-footer @hidden="stopPairing">
       <b-spinner v-if="pairing.loading"></b-spinner>
       <p v-else-if="pairing.error">
         {{ pairing.error }}
@@ -53,7 +47,7 @@
         <b-progress height="0.2em">
           <b-progress-bar :value="pairingCodeValidityProgress"></b-progress-bar>
         </b-progress>
-        <p>Scan this QR-code with another device to pair it</p>
+        <p>Scan this QR-code with another terminal to pair it</p>
         <qrcode-vue :value="pairingLink" size="150"></qrcode-vue>
         <HorizontalSeparator title="or"></HorizontalSeparator>
         <p>Navigate to <a :href="$store.getters.portal_href">{{ $store.state.meta.portal_identity.domain }}</a> and use
@@ -69,7 +63,7 @@
       </div>
     </b-modal>
 
-    <v-tour name="DevicesTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
+    <v-tour name="TerminalsTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
   </div>
 </template>
 
@@ -77,15 +71,13 @@
 import Navbar from "@/components/Navbar";
 import HorizontalSeparator from "@/components/HorizontalSeparator";
 import moment from "moment/moment";
-import DeviceCard from "@/components/DeviceCard";
+import TerminalCard from "@/components/TerminalCard.vue";
 
 export default {
-  name: "Devices",
-  components: {DeviceCard, HorizontalSeparator, Navbar},
+  name: "Terminals",
+  components: {TerminalCard, HorizontalSeparator, Navbar},
   data: function () {
     return {
-      devices: [],
-      devices_fields: ['name', {key: 'actions', label: '', class: 'text-right'}],
       pairing: {
         code: null,
         loading: false,
@@ -95,16 +87,16 @@ export default {
       },
       tourSteps: [
         {
-          target: '#device-container',
-          content: 'Here you can see and manage your paired devices. They are the devices from which you can control your Portal.'
+          target: '#terminal-container',
+          content: 'Here you can see and manage your paired terminals. They are the terminals from which you can control your Portal.'
         },
         {
           target: '#this-badge',
-          content: 'The device that you currently use is marked.'
+          content: 'The terminal that you currently use is marked.'
         },
         {
           target: '#add-button',
-          content: 'It is a good idea to also pair other devices that you own so you may access your Portal through them, too. ' +
+          content: 'It is a good idea to also pair other terminals that you own so you may access your Portal through them, too. ' +
               'Click here and follow the steps.'
         },
       ],
@@ -139,7 +131,7 @@ export default {
   methods: {
     async startPairing() {
       await this.stopPairing();
-      this.$bvModal.show('new-device-modal')
+      this.$bvModal.show('new-terminal-modal')
       this.pairing.loading = true;
       try {
         const response = await this.$http.get('/core/protected/terminals/pairing-code');
@@ -154,29 +146,21 @@ export default {
     },
 
     async stopPairing() {
-      await this.refreshDevices();
       clearInterval(this.pairing.updateTimer);
     },
 
-    async deleteDevice(id) {
-      let component = this;
-      await this.$http.delete(`/core/protected/terminals/id/${id}`)
-      await component.refreshDevices();
+    async deleteTerminal(id) {
+      await this.$http.delete(`/core/protected/terminals/id/${id}`);
     },
 
-    async refreshDevices() {
-      let component = this;
-      const response = await this.$http.get('/core/protected/terminals')
-      component.devices = response.data;
-    },
   },
 
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Devices`;
-    await this.refreshDevices();
-    if (!this.$store.getters.tour_seen('devices')) {
-      this.$tours['DevicesTour'].start();
-      await this.$store.dispatch('mark_tour_as_seen', 'devices');
+    await this.$store.dispatch("refresh_terminals");
+    if (!this.$store.getters.tour_seen('terminals')) {
+      this.$tours['TerminalsTour'].start();
+      await this.$store.dispatch('mark_tour_as_seen', 'terminals');
     }
   }
 }

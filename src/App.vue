@@ -11,8 +11,31 @@
 <script>
 export default {
   data: () => ({
-    loading: true
+    loading: true,
+    websocket: null,
   }),
+
+  methods: {
+    connectWS() {
+      this.websocket = new WebSocket(`ws://${window.location.host}/core/protected/ws/updates`);
+      this.websocket.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        this.$store.dispatch('handle_websocket_message', message);
+      };
+      this.websocket.onerror = () => {
+        this.websocket.close();
+        this.websocket = null;
+      }
+      this.websocket.onclose = () => {
+        this.$store.commit('websocket_disconnect');
+        this.websocket = null;
+        setTimeout(this.connectWS, 3000);
+      };
+      this.websocket.onopen = () => {
+        this.$store.commit('websocket_connect');
+      };
+    },
+  },
 
   async mounted() {
     const whoami = await this.$http.get('/core/public/meta/whoami')
@@ -23,6 +46,7 @@ export default {
       }
     } else {
       await this.$store.dispatch('query_tour_data');
+      this.connectWS();
     }
     this.loading = false;
   }
@@ -40,21 +64,21 @@ export default {
 }
 
 #portal-load-splash {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
 
 #portal-load-splash img {
-    height: 7em;
-    margin: 3em;
+  height: 7em;
+  margin: 3em;
 }
 
 #portal-load-splash h1 {
-    font-family: Avenir,Helvetica,Arial,sans-serif;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
 /* Deactivate elements that are highlighted during tour, see: https://github.com/pulsardev/vue-tour/issues/254 */
