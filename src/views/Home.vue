@@ -4,7 +4,7 @@
     <navbar></navbar>
     <b-container fluid>
       <b-row align-h="start" no-gutters>
-        <b-col v-for="app in apps" :key="app.name" cols="3" lg="2" xl="1">
+        <b-col v-for="app in $store.state.apps" :key="app.name" cols="3" lg="2" xl="1">
           <AppIcon :app="app"></AppIcon>
         </b-col>
       </b-row>
@@ -22,7 +22,6 @@ export default {
   components: {AppIcon, navbar},
   data: function () {
     return {
-      apps: [],
       tourSteps: [
         {
           target: '#top-of-page',
@@ -76,7 +75,7 @@ export default {
 
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Home`;
-    this.apps = (await this.$http.get('/core/protected/apps')).data
+    await this.$store.dispatch("refresh_apps")
     if (!this.$store.getters.tour_seen('home')) {
       this.$tours['HomeTour'].start();
       await this.$store.dispatch('mark_tour_as_seen', 'home');

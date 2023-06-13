@@ -3,13 +3,19 @@
     <b-card class="overflow-hidden" @click="showDetails()" no-body>
       <b-row>
         <b-col cols="2" class="text-center">
-          <b-img
-              :src="appIconUrl"
-              v-show="iconLoadedCard"
-              @load="iconLoadedCard=true"
-              alt="Icon"
-              class="app-icon m-2"></b-img>
-          <b-icon-box v-show="!iconLoadedCard" class="app-icon m-2"></b-icon-box>
+          <b-spinner
+              v-if="['installing', 'installation_queued'].includes(app.status)"
+              class="app-icon m-2">
+          </b-spinner>
+          <div v-else>
+            <b-img
+                :src="appIconUrl"
+                v-show="iconLoadedCard"
+                @load="iconLoadedCard=true"
+                alt="Icon"
+                class="app-icon m-2"></b-img>
+            <b-icon-box v-show="!iconLoadedCard" class="app-icon m-2"></b-icon-box>
+          </div>
         </b-col>
         <b-col cols="10">
           <b-card-body>
@@ -17,6 +23,9 @@
               {{ app.name | titlecase }}
               <b-icon-star-fill v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
             </b-card-title>
+            <b-card-sub-title>
+              {{ app.status }}
+            </b-card-sub-title>
             <b-card-text>{{ appStoreInfo.description_short }}</b-card-text>
           </b-card-body>
         </b-col>

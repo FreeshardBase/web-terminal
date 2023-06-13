@@ -23,6 +23,7 @@ const store = new Vuex.Store({
         domain: '',
       }
     },
+    apps: [],
     terminals: [],
     tours: [],
   },
@@ -52,6 +53,9 @@ const store = new Vuex.Store({
     },
     websocket_disconnect(state) {
       state.websocket.isConnected = false;
+    },
+    set_apps(state, apps) {
+        state.apps = apps;
     },
     set_terminals(state, terminals) {
         state.terminals = terminals;
@@ -84,11 +88,18 @@ const store = new Vuex.Store({
       if (message.message_type === 'terminals_update') {
         context.commit('set_terminals', message.message);
       }
+      if (message.message_type === 'apps_update') {
+        context.commit('set_apps', message.message);
+      }
     },
     async refresh_terminals(context) {
       const response = await this._vm.$http.get('/core/protected/terminals');
       context.commit("set_terminals", response.data);
     },
+    async refresh_apps(context) {
+      const response = await this._vm.$http.get('/core/protected/apps');
+      context.commit("set_apps", response.data);
+    }
   }
 })
 

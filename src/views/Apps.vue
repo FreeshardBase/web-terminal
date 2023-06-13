@@ -51,7 +51,7 @@
             <b-container>
               <!-- Entries -->
               <b-row cols="1" cols-md="2">
-                <b-col v-for="app in installedApps" :key="app.name" class="p-1">
+                <b-col v-for="app in $store.state.apps" :key="app.name" class="p-1">
                   <AppStoreEntry :app="app" is_installed="true" @changed="refresh"></AppStoreEntry>
                 </b-col>
               </b-row>
@@ -93,7 +93,6 @@ export default {
   components: {HorizontalSeparator, AppStoreEntry, Navbar},
   data: function () {
     return {
-      installedApps: [],
       storeApps: [],
       storeBranch: 'feature-docker-compose',
       isUpdating: false,
@@ -120,7 +119,7 @@ export default {
 
   computed: {
     availableApps() {
-      const installedAppNames = this.installedApps.map(a => a.name);
+      const installedAppNames = this.$store.state.apps.map(a => a.name);
       return [...this.storeApps]
           .filter(a => !installedAppNames.includes(a.name))
           .sort((a, b) => {
@@ -134,16 +133,12 @@ export default {
       this.isUpdating = true;
       try {
         await Promise.all([
-          this.fetchInstalledApps(),
+          this.$store.dispatch("refresh_apps"),
           this.fetchStoreApps()
         ]);
       } finally {
         this.isUpdating = false;
       }
-    },
-
-    async fetchInstalledApps() {
-      this.installedApps = (await this.$http.get('/core/protected/apps')).data
     },
 
     async fetchStoreApps() {
