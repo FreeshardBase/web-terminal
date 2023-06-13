@@ -72,6 +72,7 @@ import Navbar from "@/components/Navbar";
 import HorizontalSeparator from "@/components/HorizontalSeparator";
 import moment from "moment/moment";
 import TerminalCard from "@/components/TerminalCard.vue";
+import {EventBus} from "@/event-bus";
 
 export default {
   name: "Terminals",
@@ -139,14 +140,15 @@ export default {
         this.pairing.updateTimer = setInterval(() => this.pairing.now = moment(), 1000);
       } catch (e) {
         this.pairing.error = e;
-
       } finally {
         this.pairing.loading = false;
       }
+      EventBus.$once('terminal_add', this.stopPairing);
     },
 
     async stopPairing() {
       clearInterval(this.pairing.updateTimer);
+      this.$bvModal.hide('new-terminal-modal');
     },
 
     async deleteTerminal(id) {

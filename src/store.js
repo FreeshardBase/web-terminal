@@ -81,7 +81,7 @@ const store = new Vuex.Store({
       await store.dispatch('query_tour_data');
     },
     async handle_websocket_message(context, message) {
-      if (message.message_type === 'terminals') {
+      if (message.message_type === 'terminals_update') {
         context.commit('set_terminals', message.message);
       }
     },

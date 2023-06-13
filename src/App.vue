@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import {EventBus} from "@/event-bus";
+
 export default {
   data: () => ({
     loading: true,
@@ -20,6 +22,7 @@ export default {
       this.websocket = new WebSocket(`ws://${window.location.host}/core/protected/ws/updates`);
       this.websocket.onmessage = (event) => {
         const message = JSON.parse(event.data);
+        EventBus.$emit(message.message_type, message.message);
         this.$store.dispatch('handle_websocket_message', message);
       };
       this.websocket.onerror = () => {
