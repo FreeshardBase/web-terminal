@@ -23,9 +23,6 @@
               {{ app.name | titlecase }}
               <b-icon-star-fill v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
             </b-card-title>
-            <b-card-sub-title>
-              {{ app.status }}
-            </b-card-sub-title>
             <b-card-text>{{ appStoreInfo.description_short }}</b-card-text>
           </b-card-body>
         </b-col>
@@ -50,6 +47,7 @@
               <h2>
                 {{ app.name | titlecase }}
               </h2>
+              <p class="text-secondary"><small>{{ app.status }}</small></p>
             </b-col>
             <!-- Small extra icons -->
             <b-col sm="auto" md="auto" lg="auto" xl="auto">
