@@ -79,7 +79,6 @@
 
     </b-container>
 
-    <v-tour name="AppsTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
   </div>
 </template>
 
@@ -96,24 +95,6 @@ export default {
       storeApps: [],
       storeBranch: 'feature-docker-compose',
       isUpdating: false,
-      tourSteps: [
-        {
-          target: '#all-apps',
-          params: {placement: 'top', enableScrolling: false},
-          content: 'This is the app store.<br>' +
-              'Here you can browse, install, and remove apps.'
-        },
-        {
-          target: '#installed-apps',
-          params: {enableScrolling: false},
-          content: 'These are the apps that are currently installed.'
-        },
-        {
-          target: '#available-apps',
-          params: {enableScrolling: false},
-          content: 'And these are the apps you can install.'
-        }
-      ]
     }
   },
 
@@ -155,10 +136,6 @@ export default {
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Apps`;
     await this.refresh();
-    if (!this.$store.getters.tour_seen('apps')) {
-      this.$tours['AppsTour'].start();
-      await this.$store.dispatch('mark_tour_as_seen', 'apps');
-    }
   }
 }
 </script>

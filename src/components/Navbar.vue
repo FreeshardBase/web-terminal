@@ -44,13 +44,13 @@
           </b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav id="nav-devices">
-          <b-nav-item v-if="$route.name==='Devices'">
+        <b-navbar-nav id="nav-terminals">
+          <b-nav-item v-if="$route.name==='Terminals'">
             <b>
               <b-icon-laptop-fill></b-icon-laptop-fill>
               Devices</b>
           </b-nav-item>
-          <b-nav-item v-else to="/devices">
+          <b-nav-item v-else to="/terminals">
             <b-icon-laptop></b-icon-laptop>
             Devices
           </b-nav-item>

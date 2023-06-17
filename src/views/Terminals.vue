@@ -5,7 +5,7 @@
       <b-row>
 
         <b-col>
-          <h1>Terminals</h1>
+          <h1>Devices</h1>
         </b-col>
 
       </b-row>
@@ -22,7 +22,7 @@
             <b-row align-h="center">
               <b-button id="add-button" variant="success" @click="startPairing" size="lg">
                 <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-                <span> Pair terminal</span>
+                <span> Pair new Device</span>
               </b-button>
             </b-row>
           </b-container>
@@ -63,7 +63,6 @@
       </div>
     </b-modal>
 
-    <v-tour name="TerminalsTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
   </div>
 </template>
 
@@ -86,21 +85,6 @@ export default {
         updateTimer: null,
         now: null,
       },
-      tourSteps: [
-        {
-          target: '#terminal-container',
-          content: 'Here you can see and manage your paired terminals. They are the terminals from which you can control your Portal.'
-        },
-        {
-          target: '#this-badge',
-          content: 'The terminal that you currently use is marked.'
-        },
-        {
-          target: '#add-button',
-          content: 'It is a good idea to also pair other terminals that you own so you may access your Portal through them, too. ' +
-              'Click here and follow the steps.'
-        },
-      ],
     }
   },
 
@@ -160,10 +144,6 @@ export default {
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Devices`;
     await this.$store.dispatch("refresh_terminals");
-    if (!this.$store.getters.tour_seen('terminals')) {
-      this.$tours['TerminalsTour'].start();
-      await this.$store.dispatch('mark_tour_as_seen', 'terminals');
-    }
   }
 }
 </script>

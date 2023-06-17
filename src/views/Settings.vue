@@ -64,7 +64,8 @@
                   Resize to {{ resize.selectedSize | uppercase }} and restart
                 </b-button>
                 <b-button variant="danger" @click="resize.selectedSize=null" :disabled="resize.waitingForRestart">
-                  <b-icon-x-circle-fill></b-icon-x-circle-fill> Cancel
+                  <b-icon-x-circle-fill></b-icon-x-circle-fill>
+                  Cancel
                 </b-button>
               </b-button-group>
 
@@ -172,6 +173,15 @@ export default {
     async resetTour() {
       try {
         await this.$http.delete('/core/protected/help/tours');
+        this.$bvToast.toast('Tours reset.', {
+          variant: 'success',
+        });
+
+      } catch (e) {
+        this.$bvToast.toast(e.response.data.detail, {
+          title: 'Error during resetting',
+          variant: 'danger',
+        });
       } finally {
         await this.$store.dispatch('query_tour_data');
       }

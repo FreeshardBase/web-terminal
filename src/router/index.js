@@ -29,8 +29,8 @@ const routes = [
     component: Pair
   },
   {
-    path: '/devices',
-    name: 'Devices',
+    path: '/terminals',
+    name: 'Terminals',
     component: Terminals
   },
   {
