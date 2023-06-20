@@ -19,7 +19,8 @@ export default {
 
   methods: {
     connectWS() {
-      this.websocket = new WebSocket(`ws://${window.location.host}/core/protected/ws/updates`);
+      const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      this.websocket = new WebSocket(`${wsProtocol}//${window.location.host}/core/protected/ws/updates`);
       this.websocket.onmessage = (event) => {
         const message = JSON.parse(event.data);
         EventBus.$emit(message.message_type, message.message);
