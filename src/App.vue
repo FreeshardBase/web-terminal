@@ -53,7 +53,14 @@ export default {
       this.connectWS();
     }
     this.loading = false;
-  }
+
+    EventBus.$on('app_install_error', (message) => {
+      this.$bvToast.toast(message.error, {
+        title: `Failed to install app ${message.name}`,
+        variant: 'danger',
+      });
+    });
+  },
 }
 </script>
 
