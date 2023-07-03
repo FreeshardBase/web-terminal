@@ -22,6 +22,7 @@
             <b-card-title>
               {{ app.name | titlecase }}
               <b-icon-star-fill v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
+              <b-icon-exclamation-octagon-fill v-if="!canBeInstalled" class="cannot-be-installed"></b-icon-exclamation-octagon-fill>
             </b-card-title>
             <b-card-text>{{ appStoreInfo.description_short }}</b-card-text>
           </b-card-body>
@@ -91,15 +92,23 @@
               striped animated></b-progress-bar>
         </div>
         <div v-else>
-          <b-button v-if="is_installed" class="m-1" variant="primary" @click="open">
-            Open
-          </b-button>
-          <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
-            Remove
-          </b-button>
-          <b-button v-else class="m-1" variant="outline-success" @click="installApp">
-            Install
-          </b-button>
+          <div v-if="is_installed">
+            <b-button v-if="is_installed" class="m-1" variant="primary" @click="open">
+              Open
+            </b-button>
+            <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
+              Remove
+            </b-button>
+          </div>
+          <div v-else>
+            <b-button v-if="canBeInstalled" class="m-1" variant="outline-success" @click="installApp">
+              Install
+            </b-button>
+            <p v-else class="m-1 cannot-be-installed">
+              <b-icon-exclamation-octagon-fill></b-icon-exclamation-octagon-fill>
+              Cannot be installed. Portal size of {{ app.minimum_portal_size | uppercase }} or more required.
+            </p>
+          </div>
         </div>
       </template>
     </b-modal>
@@ -135,6 +144,12 @@ export default {
         is_featured: false,
       }
     },
+    canBeInstalled() {
+      const sizes = ['xs', 's', 'm', 'l', 'xl'];
+      const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
+      const requiredSize = sizes.indexOf(this.app.minimum_portal_size);
+      return currentSize >= requiredSize;
+    }
   },
 
   methods: {
@@ -185,6 +200,10 @@ export default {
 .app-star {
   color: gold;
   cursor: pointer;
+}
+
+.cannot-be-installed {
+  color: orange;
 }
 
 .app-info {

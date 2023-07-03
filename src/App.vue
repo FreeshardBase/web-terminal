@@ -43,6 +43,7 @@ export default {
 
   async mounted() {
     const whoami = await this.$http.get('/core/public/meta/whoami')
+
     await this.$store.dispatch('query_meta_data');
     if (whoami.data.type === 'anonymous') {
       if (!['Pair', 'Welcome'].includes(this.$route.name)) {
@@ -52,6 +53,9 @@ export default {
       await this.$store.dispatch('query_tour_data');
       this.connectWS();
     }
+
+    await this.$store.dispatch("query_profile_data");
+
     this.loading = false;
 
     EventBus.$on('app_install_error', (message) => {

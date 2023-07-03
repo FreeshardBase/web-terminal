@@ -97,15 +97,15 @@
         <b-row>
 
           <b-col>
-            <TextField title="Machine ID" :content="profile.vm_id || 'unknown'"/>
+            <TextField title="Machine ID" :content="$store.state.profile.vm_id || 'unknown'"/>
             <TextField title="Portal ID" :content="portalIdWithBreaks || 'unknown'"
                        class="text-monospace"/>
-            <TextField title="Owner" :content="profile.owner || 'unknown'"/>
-            <TextField title="Owner Email" :content="profile.owner_email || 'unknown'"/>
-            <TextField title="Created" :content="profile.time_created | formatDateHumanize"/>
-            <TextField title="Assigned" :content="profile.time_assigned | formatDateHumanize"/>
-            <TextField v-if="profile.delete_after" title="Scheduled to delete"
-                       :content="profile.delete_after | formatDateHumanize"/>
+            <TextField title="Owner" :content="$store.state.profile.owner || 'unknown'"/>
+            <TextField title="Owner Email" :content="$store.state.profile.owner_email || 'unknown'"/>
+            <TextField title="Created" :content="$store.state.profile.time_created | formatDateHumanize"/>
+            <TextField title="Assigned" :content="$store.state.profile.time_assigned | formatDateHumanize"/>
+            <TextField v-if="$store.state.profile.delete_after" title="Scheduled to delete"
+                       :content="$store.state.profile.delete_after | formatDateHumanize"/>
             <TextField v-else title="Scheduled to delete" content="never"/>
 
             <TextField title="Public Key" :content="$store.state.meta.portal_identity.public_key_pem || 'unknown'"
@@ -130,7 +130,6 @@ export default {
   data: function () {
     return {
       isUpdating: false,
-      profile: {},
       resize: {
         sizes: ['xs', 's', 'm', 'l', 'xl'],
         selectedSize: null,
@@ -156,8 +155,7 @@ export default {
     async refresh() {
       this.isUpdating = true;
       try {
-        const response = await this.$http.get('/core/protected/management/profile');
-        this.profile = response.data;
+        this.$store.dispatch("query_profile_data");
       } catch (e) {
         this.$bvToast.toast(e.response.data.detail, {
           title: 'Error during loading',
@@ -191,14 +189,14 @@ export default {
       await this.$router.replace('/restart');
     },
     sizeIsAvailable(size) {
-      if (this.profile.max_portal_size === undefined) {
+      if (this.$store.state.profile.max_portal_size === undefined) {
         return false;
       }
-      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.profile.max_portal_size)
-          && size !== this.profile.portal_size;
+      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.$store.state.profile.max_portal_size)
+          && size !== this.$store.state.profile.portal_size;
     },
     variantForSize(size) {
-      if (size === this.profile.portal_size) {
+      if (size === this.$store.state.profile.portal_size) {
         return 'info';
       } else if (size === this.resize.selectedSize) {
         return 'primary';
@@ -215,7 +213,6 @@ export default {
 
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - About`;
-    await this.refresh();
   },
 }
 </script>

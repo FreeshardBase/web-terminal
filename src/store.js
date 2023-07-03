@@ -23,6 +23,7 @@ const store = new Vuex.Store({
         domain: '',
       }
     },
+    profile: {},
     apps: [],
     terminals: [],
     tours: [],
@@ -59,6 +60,9 @@ const store = new Vuex.Store({
     },
     set_terminals(state, terminals) {
         state.terminals = terminals;
+    },
+    set_profile(state, profile) {
+        state.profile = profile;
     }
   },
   actions: {
@@ -75,6 +79,10 @@ const store = new Vuex.Store({
       meta.portal_identity = whoareyou.data;
 
       context.commit('set_meta', meta)
+    },
+    async query_profile_data (context) {
+      let profile = await this._vm.$http.get('/core/protected/management/profile');
+      context.commit('set_profile', profile.data);
     },
     async query_tour_data(context) {
       let tours = await this._vm.$http.get('/core/protected/help/tours')
