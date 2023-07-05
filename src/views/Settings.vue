@@ -11,6 +11,11 @@
           </b-col>
         </b-row>
 
+        <b-alert show v-if="$store.state.profile === null" variant="warning">
+          Some of this Portal's metadata could not be loaded,
+          so some settings are not available.
+        </b-alert>
+
         <b-row>
           <b-col>
             <b-card title="Backup">
@@ -25,21 +30,7 @@
           </b-col>
         </b-row>
 
-        <b-row>
-          <b-col>
-            <b-card title="Restart">
-              <b-card-text>
-                Restart this Portal. Download and install a new software version if available.
-              </b-card-text>
-              <b-button @click="restartPortal" variant="primary">
-                <b-icon-arrow-clockwise></b-icon-arrow-clockwise>
-                Restart
-              </b-button>
-            </b-card>
-          </b-col>
-        </b-row>
-
-        <b-row>
+        <b-row v-if="$store.state.profile">
           <b-col>
             <b-card title="Size">
               <b-card-text>
@@ -93,20 +84,21 @@
           </b-col>
         </b-row>
 
-
         <b-row>
 
           <b-col>
-            <TextField title="Machine ID" :content="$store.state.profile.vm_id || 'unknown'"/>
+            <TextField v-if="$store.state.profile" title="Machine ID" :content="$store.state.profile.vm_id || 'unknown'"/>
             <TextField title="Portal ID" :content="portalIdWithBreaks || 'unknown'"
                        class="text-monospace"/>
-            <TextField title="Owner" :content="$store.state.profile.owner || 'unknown'"/>
-            <TextField title="Owner Email" :content="$store.state.profile.owner_email || 'unknown'"/>
-            <TextField title="Created" :content="$store.state.profile.time_created | formatDateHumanize"/>
-            <TextField title="Assigned" :content="$store.state.profile.time_assigned | formatDateHumanize"/>
-            <TextField v-if="$store.state.profile.delete_after" title="Scheduled to delete"
-                       :content="$store.state.profile.delete_after | formatDateHumanize"/>
-            <TextField v-else title="Scheduled to delete" content="never"/>
+            <TextField v-if="$store.state.profile" title="Owner" :content="$store.state.profile.owner || 'unknown'"/>
+            <TextField v-if="$store.state.profile" title="Owner Email" :content="$store.state.profile.owner_email || 'unknown'"/>
+            <TextField v-if="$store.state.profile" title="Created" :content="$store.state.profile.time_created | formatDateHumanize"/>
+            <TextField v-if="$store.state.profile" title="Assigned" :content="$store.state.profile.time_assigned | formatDateHumanize"/>
+            <div v-if="$store.state.profile">
+              <TextField v-if="$store.state.profile.delete_after" title="Scheduled to delete"
+                         :content="$store.state.profile.delete_after | formatDateHumanize"/>
+              <TextField v-else title="Scheduled to delete" content="never"/>
+            </div>
 
             <TextField title="Public Key" :content="$store.state.meta.portal_identity.public_key_pem || 'unknown'"
                        class="text-monospace"/>

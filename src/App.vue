@@ -54,7 +54,11 @@ export default {
       this.connectWS();
     }
 
-    await this.$store.dispatch("query_profile_data");
+    try {
+      await this.$store.dispatch("query_profile_data");
+    } catch (error) {
+      console.log(error);
+    }
 
     this.loading = false;
 

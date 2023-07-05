@@ -23,7 +23,7 @@ const store = new Vuex.Store({
         domain: '',
       }
     },
-    profile: {},
+    profile: null,
     apps: [],
     terminals: [],
     tours: [],

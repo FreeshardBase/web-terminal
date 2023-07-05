@@ -146,9 +146,13 @@ export default {
     },
     canBeInstalled() {
       const sizes = ['xs', 's', 'm', 'l', 'xl'];
-      const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
-      const requiredSize = sizes.indexOf(this.app.minimum_portal_size);
-      return currentSize >= requiredSize;
+      if (this.$store.state.profile) {
+        const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
+        const requiredSize = sizes.indexOf(this.app.minimum_portal_size);
+        return currentSize >= requiredSize;
+      } else {
+        return true;
+      }
     }
   },
 
