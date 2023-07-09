@@ -37,8 +37,8 @@ export default {
               'Think of the ID like your Portal\'s phone number.'
         },
         {
-          target: '#nav-devices',
-          content: 'Your first step should be pairing a second device to your Portal, if you have it at hand.'
+          target: '#nav-terminals',
+          content: 'Your first step should be pairing a second device to your Portal, if you have one at hand.'
         },
       ]
 

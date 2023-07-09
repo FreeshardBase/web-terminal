@@ -33,7 +33,6 @@ export default {
       this.websocket.onclose = () => {
         this.$store.commit('websocket_disconnect');
         this.websocket = null;
-        setTimeout(this.connectWS, 3000);
       };
       this.websocket.onopen = () => {
         this.$store.commit('websocket_connect');
@@ -59,6 +58,12 @@ export default {
     } catch (error) {
       console.log(error);
     }
+
+    setInterval(() => {
+      if (!this.websocket) {
+        this.connectWS();
+      }
+    }, 1000 * 5);
 
     this.loading = false;
 
