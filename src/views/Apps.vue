@@ -104,7 +104,11 @@ export default {
       return [...this.storeApps]
           .filter(a => !installedAppNames.includes(a.name))
           .sort((a, b) => {
-            return a.store_info.is_featured < b.store_info.is_featured
+            if (Boolean(a.store_info.is_featured) === Boolean(b.store_info.is_featured)) {
+              return a.name.localeCompare(b.name);
+            } else {
+              return Number(b.store_info.is_featured || false) - Number(a.store_info.is_featured || false);
+            }
           });
     }
   },

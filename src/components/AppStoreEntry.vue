@@ -137,8 +137,8 @@ export default {
       }
     },
     appStoreInfo() {
-      return this.app.store_info || {
-        description_short: 'A custom app',
+      return this.app.store_info || (this.app.meta && this.app.meta.store_info) || {
+        description_short: 'Unknown App',
         description_long: undefined,
         hint: undefined,
         is_featured: false,
