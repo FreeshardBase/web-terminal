@@ -3,19 +3,26 @@
     <b-card class="overflow-hidden" @click="showDetails()" no-body>
       <b-row>
         <b-col cols="2" class="text-center">
-          <b-img
-              :src="`/core/protected/apps/${app.name}/icon`"
-              v-show="iconLoadedCard"
-              @load="iconLoadedCard=true"
-              alt="Icon"
-              class="app-icon m-2"></b-img>
-          <b-icon-box v-show="!iconLoadedCard" class="app-icon m-2"></b-icon-box>
+          <b-spinner
+              v-if="['installing', 'installation_queued'].includes(app.status)"
+              class="app-icon m-2">
+          </b-spinner>
+          <div v-else>
+            <b-img
+                :src="appIconUrl"
+                v-show="iconLoadedCard"
+                @load="iconLoadedCard=true"
+                alt="Icon"
+                class="app-icon m-2"></b-img>
+            <b-icon-box v-show="!iconLoadedCard" class="app-icon m-2"></b-icon-box>
+          </div>
         </b-col>
         <b-col cols="10">
           <b-card-body>
             <b-card-title>
               {{ app.name | titlecase }}
               <b-icon-star-fill v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
+              <b-icon-exclamation-octagon-fill v-if="!canBeInstalled" class="cannot-be-installed"></b-icon-exclamation-octagon-fill>
             </b-card-title>
             <b-card-text>{{ appStoreInfo.description_short }}</b-card-text>
           </b-card-body>
@@ -30,7 +37,7 @@
           <b-row align-v="center" align-h="start">
             <b-col sm="auto" md="auto" lg="auto" xl="auto">
               <b-img
-                  :src="`/core/protected/apps/${app.name}/icon`"
+                  :src="appIconUrl"
                   v-show="iconLoadedCard"
                   @load="iconLoadedCard=true"
                   alt="Icon"
@@ -41,6 +48,7 @@
               <h2>
                 {{ app.name | titlecase }}
               </h2>
+              <p class="text-secondary"><small>{{ app.status }}</small></p>
             </b-col>
             <!-- Small extra icons -->
             <b-col sm="auto" md="auto" lg="auto" xl="auto">
@@ -73,20 +81,35 @@
       </div>
       <p v-else-if="appStoreInfo.description_long">{{ appStoreInfo.description_long }}</p>
       <p v-else>{{ appStoreInfo.description_short }}</p>
-      <a :href="appJsonUrl" target="_blank" class="small">
-        Full <span class="text-monospace">app.json</span>
-      </a>
       <template #modal-footer>
         <!-- Install/Remove and Open Button -->
-        <b-button v-if="is_installed" class="m-1" variant="primary" @click="open">
-          Open
-        </b-button>
-        <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
-          Remove
-        </b-button>
-        <b-button v-else class="m-1" variant="outline-success" @click="installApp">
-          Install
-        </b-button>
+        <div v-if="busyMessage" class="w-100">
+          <b-progress-bar
+              value="100"
+              variant="info"
+              class="mt-3"
+              :label="busyMessage"
+              striped animated></b-progress-bar>
+        </div>
+        <div v-else>
+          <div v-if="is_installed">
+            <b-button v-if="is_installed" class="m-1" variant="primary" @click="open">
+              Open
+            </b-button>
+            <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
+              Remove
+            </b-button>
+          </div>
+          <div v-else>
+            <b-button v-if="canBeInstalled" class="m-1" variant="outline-success" @click="installApp">
+              Install
+            </b-button>
+            <p v-else class="m-1 cannot-be-installed">
+              <b-icon-exclamation-octagon-fill></b-icon-exclamation-octagon-fill>
+              Cannot be installed. Portal size of {{ app.minimum_portal_size | uppercase }} or more required.
+            </p>
+          </div>
+        </div>
       </template>
     </b-modal>
   </div>
@@ -95,55 +118,67 @@
 <script>
 export default {
   name: "AppStoreEntry",
-  props: ['app', 'is_installed'],
+  props: ['app', 'is_installed', 'branch'],
   data: function () {
     return {
       iconLoadedCard: false,
       iconLoadedModal: false,
+      busyMessage: null,
     }
   },
 
   computed: {
-    appJsonUrl() {
-      return `/core/protected/apps/${this.app.name}/app.json`;
+    appIconUrl() {
+      if (this.is_installed) {
+        return `/core/protected/apps/${this.app.name}/icon`;
+      } else {
+        const iconFilename = this.app.icon;
+        return `https://storageaccountportab0da.blob.core.windows.net/app-store/${this.branch}/all_apps/${this.app.name}/${iconFilename}`;
+      }
     },
     appStoreInfo() {
-      return this.app.store_info || {
-        description_short: 'A custom app',
+      return this.app.store_info || (this.app.meta && this.app.meta.store_info) || {
+        description_short: 'Unknown App',
         description_long: undefined,
         hint: undefined,
         is_featured: false,
       }
     },
+    canBeInstalled() {
+      const sizes = ['xs', 's', 'm', 'l', 'xl'];
+      if (this.$store.state.profile) {
+        const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
+        const requiredSize = sizes.indexOf(this.app.minimum_portal_size);
+        return currentSize >= requiredSize;
+      } else {
+        return true;
+      }
+    }
   },
 
   methods: {
-    installApp() {
-      const this_ = this;
-      this.$http.post(`/core/protected/store/apps/${this.app.name}`)
-          .then(function () {
-            this_.$emit('changed')
-          })
-          .catch(function (response) {
-            console.log(response)
-          })
+    async installApp() {
+      this.busyMessage = `Installing ${this.app.name}...`;
+      await this.$http.post(`/core/protected/apps/${this.app.name}`);
+      this.$emit('changed');
+      this.busyMessage = null;
     },
+
     showDetails() {
       this.$bvModal.show(`app-details-${this.app.name}`);
     },
-    removeApp() {
-      let this_ = this;
-      this.$http.delete(`/core/protected/apps/${this.app.name}`)
-          .then(function () {
-            this_.$emit('changed')
-          })
-          .catch(function (response) {
-            console.log(response)
-          })
+
+    async removeApp() {
+      this.busyMessage = `Removing ${this.app.name}...`;
+      await this.$http.delete(`/core/protected/apps/${this.app.name}`);
+      this.$emit('changed');
+      this.busyMessage = null;
     },
+
     open() {
       window.open(`https://${this.app.name}.${window.location.host}`, '_blank');
     },
+
   }
 }
 </script>
@@ -169,6 +204,10 @@ export default {
 .app-star {
   color: gold;
   cursor: pointer;
+}
+
+.cannot-be-installed {
+  color: orange;
 }
 
 .app-info {
