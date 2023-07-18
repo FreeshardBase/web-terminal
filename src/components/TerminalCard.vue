@@ -20,7 +20,7 @@
           </div>
           <b-badge
               id="this-badge"
-              v-if="isThisDevice && editMode.state==='off'"
+              v-if="isThisTerminal && editMode.state==='off'"
               variant="primary">
             This
           </b-badge>
@@ -29,13 +29,13 @@
           <b-row>
             <b-col>
 
-              <h4 v-if="editMode.state==='off'" class="text-truncate">{{ device.name }}</h4>
+              <h4 v-if="editMode.state==='off'" class="text-truncate">{{ terminal.name }}</h4>
 
               <b-form v-else @submit.prevent="confirmEditing">
                 <b-form-input
                     ref="name-input"
                     :disabled="editMode.state==='syncing'"
-                    v-model="editMode.editedDevice.name"
+                    v-model="editMode.editedTerminal.name"
                 ></b-form-input>
               </b-form>
 
@@ -75,8 +75,8 @@
             </b-col>
           </b-row>
           <b-row>
-            <b-col v-if="editMode.state!=='off' && !isThisDevice" class="text-center">
-                  <span class="text-danger cursor" @click="deleteDevice">
+            <b-col v-if="editMode.state!=='off' && !isThisTerminal" class="text-center">
+                  <span class="text-danger cursor" @click="deleteTerminal">
                   <small>REMOVE</small>
                 </span>
             </b-col>
@@ -92,34 +92,34 @@ import moment from "moment/moment";
 import _ from "lodash";
 
 export default {
-  name: "DeviceCard",
+  name: "TerminalCard",
   data: function () {
     return {
       editMode: {
         state: 'off',  // off | on | syncing
-        editedDevice: _.cloneDeep(this.device),
+        editedTerminal: _.cloneDeep(this.terminal),
       },
       now: moment.now(),
       tick: undefined,
     }
   },
-  props: ['device'],
+  props: ['terminal'],
   computed: {
     lastConnectionText() {
-      if (this.device.last_connection) {
-        return `Last connection: ${moment.utc(this.device.last_connection).from(this.now)}`;
+      if (this.terminal.last_connection) {
+        return `Last connection: ${moment.utc(this.terminal.last_connection).from(this.now)}`;
       } else {
         return 'Last connection: unknown';
       }
     },
-    isThisDevice() {
-      return this.$store.state.meta.device_id.substring(0, 6) === this.device.id;
+    isThisTerminal() {
+      return this.$store.state.meta.device_id.substring(0, 6) === this.terminal.id;
     },
     displayIcon() {
       if (this.editMode.state === 'off') {
-        return this.device.icon;
+        return this.terminal.icon;
       } else {
-        return this.editMode.editedDevice.icon;
+        return this.editMode.editedTerminal.icon;
       }
     },
   },
@@ -132,26 +132,24 @@ export default {
     },
     async confirmEditing() {
       this.editMode.state = 'syncing';
-      await this.$http.put(`/core/protected/terminals/id/${this.device.id}`, this.editMode.editedDevice);
-      await this.$emit('refresh');
+      await this.$http.put(`/core/protected/terminals/id/${this.terminal.id}`, this.editMode.editedTerminal);
       this.editMode.state = 'off';
     },
     cancelEditing() {
       this.editMode.state = 'off';
     },
-    async deleteDevice() {
-      await this.$http.delete(`/core/protected/terminals/id/${this.device.id}`)
-      this.$emit('refresh');
+    async deleteTerminal() {
+      await this.$http.delete(`/core/protected/terminals/id/${this.terminal.id}`)
     },
     rotateIcon(forward) {
       const icons = ['unknown', 'smartphone', 'tablet', 'notebook', 'desktop'];
-      const currentIconIndex = icons.indexOf(this.editMode.editedDevice.icon);
+      const currentIconIndex = icons.indexOf(this.editMode.editedTerminal.icon);
       if (forward) {
         const nextIconIndex = (currentIconIndex + 1) % icons.length;
-        this.editMode.editedDevice.icon = icons[nextIconIndex];
+        this.editMode.editedTerminal.icon = icons[nextIconIndex];
       } else {
         const nextIconIndex = (currentIconIndex - 1 + icons.length) % icons.length;
-        this.editMode.editedDevice.icon = icons[nextIconIndex];
+        this.editMode.editedTerminal.icon = icons[nextIconIndex];
       }
     },
   },

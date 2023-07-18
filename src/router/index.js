@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from "@/views/Home";
 import Apps from "@/views/Apps";
-import Devices from "@/views/Devices";
+import Terminals from "@/views/Terminals.vue";
 import Pair from "@/views/Pair";
 import Welcome from "@/views/Welcome";
 import Peers from "@/views/Peers";
@@ -29,9 +29,9 @@ const routes = [
     component: Pair
   },
   {
-    path: '/devices',
-    name: 'Devices',
-    component: Devices
+    path: '/terminals',
+    name: 'Terminals',
+    component: Terminals
   },
   {
     path: '/apps',

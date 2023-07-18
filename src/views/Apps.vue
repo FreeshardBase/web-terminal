@@ -16,46 +16,28 @@
             </template>
             <b-dropdown-text>Tools for app developers</b-dropdown-text>
             <b-dropdown-divider></b-dropdown-divider>
-            <!-- Custom App -->
-            <b-dropdown-item>
-              <b-button v-b-modal:custom-app variant="outline-success">
-                <b-icon-plus-circle-fill></b-icon-plus-circle-fill>
-                Install custom app
-              </b-button>
-            </b-dropdown-item>
             <!-- Refresh -->
             <b-dropdown-item>
-              <b-button @click="hardRefreshStore" variant="outline-secondary">
+              <b-button @click="refresh" variant="outline-secondary">
                 <b-icon-arrow-repeat></b-icon-arrow-repeat>
                 Refresh app store
               </b-button>
             </b-dropdown-item>
-            <!-- Store Branch -->
-            <b-dropdown-form @submit.prevent="setStoreBranch(store.switchBranchInput)">
-              <b-input-group>
-                <b-form-input placeholder="Switch branch" v-model="store.switchBranchInput"></b-form-input>
-                <b-input-group-append>
-                  <b-button variant="outline-secondary" type="submit">
-                    <b-icon-arrow-left-right></b-icon-arrow-left-right>
-                  </b-button>
-                </b-input-group-append>
-              </b-input-group>
-            </b-dropdown-form>
           </b-dropdown>
         </b-col>
       </b-row>
 
-      <b-overlay :show="store.updating" rounded="sm" variant="white" class="w-100 p-1" id="all-apps">
+      <b-overlay :show="isUpdating" rounded="sm" variant="white" class="w-100 p-1" id="all-apps">
 
-        <b-alert show v-if="store.currentBranch !== 'master'">
+        <b-alert show v-if="storeBranch !== 'feature-docker-compose'">
           <p>
-            You are viewing the app app store on branch <b>{{ store.currentBranch }}</b>.
+            You are viewing the app app store on branch <b>{{ storeBranch }}</b>.
             This is meant for development and testing only.
             Some apps that should be there might be missing.
             Apps that are not yet fully functional might be visible.
             Proceed with caution.
           </p>
-          <b-button @click="setStoreBranch('master')" variant="outline-info">
+          <b-button @click="setBranch('master')" variant="outline-info">
             <b-icon-backspace-fill></b-icon-backspace-fill>
             Reset App Store
           </b-button>
@@ -69,8 +51,8 @@
             <b-container>
               <!-- Entries -->
               <b-row cols="1" cols-md="2">
-                <b-col v-for="app in installedApps" :key="app.name" class="p-1">
-                  <AppStoreEntry :app="app" is_installed="true" @changed="refreshStore"></AppStoreEntry>
+                <b-col v-for="app in $store.state.apps" :key="app.name" class="p-1">
+                  <AppStoreEntry :app="app" is_installed="true" @changed="refresh"></AppStoreEntry>
                 </b-col>
               </b-row>
             </b-container>
@@ -86,7 +68,7 @@
               <!-- Entries -->
               <b-row cols="1" cols-md="2">
                 <b-col v-for="app in availableApps" :key="app.name" class="p-1">
-                  <AppStoreEntry :app="app" @changed="refreshStore"></AppStoreEntry>
+                  <AppStoreEntry :app="app" @changed="refresh" :branch="storeBranch"></AppStoreEntry>
                 </b-col>
               </b-row>
             </b-container>
@@ -97,29 +79,6 @@
 
     </b-container>
 
-    <!-- Modal: custom app -->
-    <b-modal id="custom-app" title="Install Custom App">
-      <b-form>
-        <b-form-group>
-          <b-form-textarea rows="18" v-model="store.customApp.content"></b-form-textarea>
-          <b-form-text>
-            Enter the app definition in JSON format.
-            See the <a href="https://docs.getportal.org/developer_docs/app_json/" target="_blank">documentation</a>
-            for further information.
-          </b-form-text>
-        </b-form-group>
-      </b-form>
-      <span class="text-danger">{{ store.customApp.errorMessage }}</span>
-
-      <template #modal-footer>
-        <b-button variant="outline-success" @click="addCustomApp">
-          <span v-if="store.customApp.updating"><b-spinner small></b-spinner></span>
-          <span v-else>Install</span>
-        </b-button>
-      </template>
-    </b-modal>
-
-    <v-tour name="AppsTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
   </div>
 </template>
 
@@ -133,136 +92,54 @@ export default {
   components: {HorizontalSeparator, AppStoreEntry, Navbar},
   data: function () {
     return {
-      installedApps: [],
-      store: {
-        currentBranch: 'master',
-        apps: [],
-        switchBranchInput: '',
-        updating: false,
-        customApp: {
-          updating: false,
-          errorMessage: '',
-          content: {
-            "v": "4.0",
-            "name": "myapp",
-            "image": "myapp:1.2.3",
-            "entrypoints": [
-              {
-                "container_port": 80,
-                "entrypoint_port": "http"
-              }
-            ],
-            "paths": {
-              "": {
-                "access": "private"
-              }
-            }
-          }
-          ,
-        },
-      },
-      tourSteps: [
-        {
-          target: '#all-apps',
-          params: {placement: 'top', enableScrolling: false},
-          content: 'This is the app store.<br>' +
-              'Here you can browse, install, and remove apps.'
-        },
-        {
-          target: '#installed-apps',
-          params: {enableScrolling: false},
-          content: 'These are the apps that are currently installed.'
-        },
-        {
-          target: '#available-apps',
-          params: {enableScrolling: false},
-          content: 'And these are the apps you can install.'
-        }
-      ]
+      storeApps: [],
+      storeBranch: 'feature-docker-compose',
+      isUpdating: false,
     }
   },
 
   computed: {
     availableApps() {
-      const installedAppNames = this.installedApps.map(a => a.name);
-      return [...this.store.apps]
+      const installedAppNames = this.$store.state.apps.map(a => a.name);
+      return [...this.storeApps]
           .filter(a => !installedAppNames.includes(a.name))
           .sort((a, b) => {
-            return a.store_info.is_featured < b.store_info.is_featured
+            if (Boolean(a.store_info.is_featured) === Boolean(b.store_info.is_featured)) {
+              return a.name.localeCompare(b.name);
+            } else {
+              return Number(b.store_info.is_featured || false) - Number(a.store_info.is_featured || false);
+            }
           });
     }
   },
 
   methods: {
-    async refreshStore() {
-      this.store.updating = true;
+    async refresh() {
+      this.isUpdating = true;
       try {
-        this.installedApps = (await this.$http.get('/core/protected/apps')).data
-        this.store.apps = (await this.$http.get('/core/protected/store/apps')).data;
+        await Promise.all([
+          this.$store.dispatch("refresh_apps"),
+          this.fetchStoreApps()
+        ]);
       } finally {
-        this.store.updating = false;
+        this.isUpdating = false;
       }
     },
 
-    async hardRefreshStore() {
-      this.store.updating = true;
-      const response = await this.$http.get('/core/protected/store/apps', {params: {refresh: true}});
-      this.store.apps = response.data;
-      this.store.updating = false;
+    async fetchStoreApps() {
+      this.storeApps = (await this.$http.get(`https://storageaccountportab0da.blob.core.windows.net/app-store/${this.storeBranch}/all_apps/store_metadata.json`)).data.apps
     },
 
-    async addCustomApp() {
-      this.store.customApp.updating = true;
-      try {
-        await this.$http.post(`/core/protected/apps`, this.store.customApp.content)
-        await this.refreshStore();
-        this.$bvModal.hide('custom-app');
-        this.store.customApp.updating = false;
-      } catch (e) {
-        let errorMessage = e.response.data.detail[0].msg;
-        if (errorMessage === 'field required') {
-          errorMessage += `: ${e.response.data.detail[0].loc[1]}`
-        }
-        this.store.customApp.errorMessage = errorMessage;
-        this.store.customApp.updating = false;
-      }
+    async setBranch(branch) {
+      this.storeBranch = branch;
+      await this.refresh();
     },
 
-    async setStoreBranch(branchName) {
-      this.store.updating = true;
-      try {
-        await this.$http.post('/core/protected/store/branch', {branch: branchName});
-      } catch (e) {
-        console.log(e.response);
-        this.$bvToast.toast(e.response.data.detail, {
-          title: 'Error during app store loading',
-          autoHideDelay: 5000,
-          appendToast: true,
-          solid: true,
-          variant: 'danger',
-        });
-      } finally {
-        await this.refreshStore();
-        await this.getStoreBranch();
-      }
-    },
-
-    async getStoreBranch() {
-      const statusResponse = await this.$http.get('/core/protected/store/branch');
-      console.log(statusResponse.data.current_branch);
-      this.store.currentBranch = statusResponse.data.current_branch;
-    },
   },
 
   async mounted() {
-    this.store.updating = true;
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Apps`;
-    await this.getStoreBranch();
-    await this.refreshStore();
-    if (!this.$store.getters.tour_seen('apps')) {
-      this.$tours['AppsTour'].start();
-      await this.$store.dispatch('mark_tour_as_seen', 'apps');
-    }
+    await this.refresh();
   }
 }
 </script>

@@ -83,20 +83,6 @@ export default {
         {key: 'id', formatter: value => value.substring(0, 6)},
         {key: 'actions', label: '', class: 'text-right'}
       ],
-      tourSteps: [
-        {
-          target: '#peers-table',
-          content: 'This is where your peers are listed. Every Peer is another Portal ' +
-              'and after mutual peering, apps that are installed on both Portals ' +
-              'can use an encrypted channel to exchange data.<br>' +
-              'In addition, your peer list serves as a kind of contact book.'
-        },
-        {
-          target: '#add-peer-button',
-          content: 'To add peers, click here and enter their ID. ' +
-              'Your own ID is displayed in the top left and for others to peer with you, they need to know it.'
-        }
-      ],
     }
   },
 
@@ -127,11 +113,7 @@ export default {
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Peers`;
     await this.refresh();
-    if (!this.$store.getters.tour_seen('peers')) {
-      this.$tours['PeersTour'].start();
-      await this.$store.dispatch('mark_tour_as_seen', 'peers');
-    }
-  }
+  },
 }
 </script>
 

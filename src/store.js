@@ -6,6 +6,10 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
+    websocket: {
+      isConnected: false,
+      lastHeartbeat: null,
+    },
     meta: {
       is_anonymous: true,
       device_id: 'unknown',
@@ -19,6 +23,9 @@ const store = new Vuex.Store({
         domain: '',
       }
     },
+    profile: null,
+    apps: [],
+    terminals: [],
     tours: [],
   },
   getters: {
@@ -42,6 +49,21 @@ const store = new Vuex.Store({
     set_tours(state, tours) {
       state.tours = tours;
     },
+    websocket_connect(state) {
+      state.websocket.isConnected = true;
+    },
+    websocket_disconnect(state) {
+      state.websocket.isConnected = false;
+    },
+    set_apps(state, apps) {
+        state.apps = apps;
+    },
+    set_terminals(state, terminals) {
+        state.terminals = terminals;
+    },
+    set_profile(state, profile) {
+        state.profile = profile;
+    }
   },
   actions: {
     async query_meta_data (context) {
@@ -58,6 +80,10 @@ const store = new Vuex.Store({
 
       context.commit('set_meta', meta)
     },
+    async query_profile_data (context) {
+      let profile = await this._vm.$http.get('/core/protected/management/profile');
+      context.commit('set_profile', profile.data);
+    },
     async query_tour_data(context) {
       let tours = await this._vm.$http.get('/core/protected/help/tours')
       context.commit('set_tours', tours.data)
@@ -66,6 +92,22 @@ const store = new Vuex.Store({
       await this._vm.$http.put('/core/protected/help/tours', {name: tourName, status: 'seen'})
       await store.dispatch('query_tour_data');
     },
+    async handle_websocket_message(context, message) {
+      if (message.message_type === 'terminals_update') {
+        context.commit('set_terminals', message.message);
+      }
+      if (message.message_type === 'apps_update') {
+        context.commit('set_apps', message.message);
+      }
+    },
+    async refresh_terminals(context) {
+      const response = await this._vm.$http.get('/core/protected/terminals');
+      context.commit("set_terminals", response.data);
+    },
+    async refresh_apps(context) {
+      const response = await this._vm.$http.get('/core/protected/apps');
+      context.commit("set_apps", response.data);
+    }
   }
 })
 

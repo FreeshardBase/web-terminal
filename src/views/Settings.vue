@@ -11,6 +11,11 @@
           </b-col>
         </b-row>
 
+        <b-alert show v-if="$store.state.profile === null" variant="warning">
+          Some of this Portal's metadata could not be loaded,
+          so some settings are not available.
+        </b-alert>
+
         <b-row>
           <b-col>
             <b-card title="Backup">
@@ -25,21 +30,7 @@
           </b-col>
         </b-row>
 
-        <b-row>
-          <b-col>
-            <b-card title="Restart">
-              <b-card-text>
-                Restart this Portal. Download and install a new software version if available.
-              </b-card-text>
-              <b-button @click="restartPortal" variant="primary">
-                <b-icon-arrow-clockwise></b-icon-arrow-clockwise>
-                Restart
-              </b-button>
-            </b-card>
-          </b-col>
-        </b-row>
-
-        <b-row>
+        <b-row v-if="$store.state.profile">
           <b-col>
             <b-card title="Size">
               <b-card-text>
@@ -64,7 +55,8 @@
                   Resize to {{ resize.selectedSize | uppercase }} and restart
                 </b-button>
                 <b-button variant="danger" @click="resize.selectedSize=null" :disabled="resize.waitingForRestart">
-                  <b-icon-x-circle-fill></b-icon-x-circle-fill> Cancel
+                  <b-icon-x-circle-fill></b-icon-x-circle-fill>
+                  Cancel
                 </b-button>
               </b-button-group>
 
@@ -92,20 +84,21 @@
           </b-col>
         </b-row>
 
-
         <b-row>
 
           <b-col>
-            <TextField title="Machine ID" :content="profile.vm_id || 'unknown'"/>
+            <TextField v-if="$store.state.profile" title="Machine ID" :content="$store.state.profile.vm_id || 'unknown'"/>
             <TextField title="Portal ID" :content="portalIdWithBreaks || 'unknown'"
                        class="text-monospace"/>
-            <TextField title="Owner" :content="profile.owner || 'unknown'"/>
-            <TextField title="Owner Email" :content="profile.owner_email || 'unknown'"/>
-            <TextField title="Created" :content="profile.time_created | formatDateHumanize"/>
-            <TextField title="Assigned" :content="profile.time_assigned | formatDateHumanize"/>
-            <TextField v-if="profile.delete_after" title="Scheduled to delete"
-                       :content="profile.delete_after | formatDateHumanize"/>
-            <TextField v-else title="Scheduled to delete" content="never"/>
+            <TextField v-if="$store.state.profile" title="Owner" :content="$store.state.profile.owner || 'unknown'"/>
+            <TextField v-if="$store.state.profile" title="Owner Email" :content="$store.state.profile.owner_email || 'unknown'"/>
+            <TextField v-if="$store.state.profile" title="Created" :content="$store.state.profile.time_created | formatDateHumanize"/>
+            <TextField v-if="$store.state.profile" title="Assigned" :content="$store.state.profile.time_assigned | formatDateHumanize"/>
+            <div v-if="$store.state.profile">
+              <TextField v-if="$store.state.profile.delete_after" title="Scheduled to delete"
+                         :content="$store.state.profile.delete_after | formatDateHumanize"/>
+              <TextField v-else title="Scheduled to delete" content="never"/>
+            </div>
 
             <TextField title="Public Key" :content="$store.state.meta.portal_identity.public_key_pem || 'unknown'"
                        class="text-monospace"/>
@@ -129,7 +122,6 @@ export default {
   data: function () {
     return {
       isUpdating: false,
-      profile: {},
       resize: {
         sizes: ['xs', 's', 'm', 'l', 'xl'],
         selectedSize: null,
@@ -155,8 +147,7 @@ export default {
     async refresh() {
       this.isUpdating = true;
       try {
-        const response = await this.$http.get('/core/protected/management/profile');
-        this.profile = response.data;
+        this.$store.dispatch("query_profile_data");
       } catch (e) {
         this.$bvToast.toast(e.response.data.detail, {
           title: 'Error during loading',
@@ -172,6 +163,15 @@ export default {
     async resetTour() {
       try {
         await this.$http.delete('/core/protected/help/tours');
+        this.$bvToast.toast('Tours reset.', {
+          variant: 'success',
+        });
+
+      } catch (e) {
+        this.$bvToast.toast(e.response.data.detail, {
+          title: 'Error during resetting',
+          variant: 'danger',
+        });
       } finally {
         await this.$store.dispatch('query_tour_data');
       }
@@ -181,14 +181,14 @@ export default {
       await this.$router.replace('/restart');
     },
     sizeIsAvailable(size) {
-      if (this.profile.max_portal_size === undefined) {
+      if (this.$store.state.profile.max_portal_size === undefined) {
         return false;
       }
-      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.profile.max_portal_size)
-          && size !== this.profile.portal_size;
+      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.$store.state.profile.max_portal_size)
+          && size !== this.$store.state.profile.portal_size;
     },
     variantForSize(size) {
-      if (size === this.profile.portal_size) {
+      if (size === this.$store.state.profile.portal_size) {
         return 'info';
       } else if (size === this.resize.selectedSize) {
         return 'primary';
@@ -205,7 +205,6 @@ export default {
 
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - About`;
-    await this.refresh();
   },
 }
 </script>
