@@ -23,13 +23,24 @@
                 Refresh app store
               </b-button>
             </b-dropdown-item>
+            <!-- Store Branch -->
+            <b-dropdown-form @submit.prevent="setBranch(storeSwitchBranchInput)">
+              <b-input-group>
+                <b-form-input placeholder="Switch branch" v-model="storeSwitchBranchInput"></b-form-input>
+                <b-input-group-append>
+                  <b-button variant="outline-secondary" type="submit">
+                    <b-icon-arrow-left-right></b-icon-arrow-left-right>
+                  </b-button>
+                </b-input-group-append>
+              </b-input-group>
+            </b-dropdown-form>
           </b-dropdown>
         </b-col>
       </b-row>
 
       <b-overlay :show="isUpdating" rounded="sm" variant="white" class="w-100 p-1" id="all-apps">
 
-        <b-alert show v-if="storeBranch !== 'feature-docker-compose'">
+        <b-alert show v-if="storeBranch !== 'master'">
           <p>
             You are viewing the app app store on branch <b>{{ storeBranch }}</b>.
             This is meant for development and testing only.
@@ -93,7 +104,8 @@ export default {
   data: function () {
     return {
       storeApps: [],
-      storeBranch: 'feature-docker-compose',
+      storeBranch: 'master',
+      storeSwitchBranchInput: '',
       isUpdating: false,
     }
   },
@@ -132,7 +144,8 @@ export default {
 
     async setBranch(branch) {
       this.storeBranch = branch;
-      await this.refresh();
+      await this.fetchStoreApps();
+      this.storeSwitchBranchInput = '';
     },
 
   },

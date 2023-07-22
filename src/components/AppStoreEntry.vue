@@ -22,7 +22,8 @@
             <b-card-title>
               {{ app.name | titlecase }}
               <b-icon-star-fill v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
-              <b-icon-exclamation-octagon-fill v-if="!canBeInstalled" class="cannot-be-installed"></b-icon-exclamation-octagon-fill>
+              <b-icon-exclamation-octagon-fill v-if="!canBeInstalled" variant="warning"></b-icon-exclamation-octagon-fill>
+              <b-icon-exclamation-triangle-fill v-if="app.status === 'error'" variant="danger"></b-icon-exclamation-triangle-fill>
             </b-card-title>
             <b-card-text>{{ appStoreInfo.description_short }}</b-card-text>
           </b-card-body>
@@ -48,7 +49,10 @@
               <h2>
                 {{ app.name | titlecase }}
               </h2>
-              <p class="text-secondary"><small>{{ app.status }}</small></p>
+              <p class="text-secondary" v-if="is_installed"><small>
+                {{ app.status }}<br>
+                <div v-if="app.from_branch !== 'master'">From branch: {{ app.from_branch }}</div>
+              </small></p>
             </b-col>
             <!-- Small extra icons -->
             <b-col sm="auto" md="auto" lg="auto" xl="auto">
@@ -104,7 +108,7 @@
             <b-button v-if="canBeInstalled" class="m-1" variant="outline-success" @click="installApp">
               Install
             </b-button>
-            <p v-else class="m-1 cannot-be-installed">
+            <p v-else class="m-1 text-warning">
               <b-icon-exclamation-octagon-fill></b-icon-exclamation-octagon-fill>
               Cannot be installed. Portal size of {{ app.minimum_portal_size | uppercase }} or more required.
             </p>
@@ -159,7 +163,7 @@ export default {
   methods: {
     async installApp() {
       this.busyMessage = `Installing ${this.app.name}...`;
-      await this.$http.post(`/core/protected/apps/${this.app.name}`);
+      await this.$http.post(`/core/protected/apps/${this.app.name}?branch=${this.branch}`);
       this.$emit('changed');
       this.busyMessage = null;
     },
@@ -204,10 +208,6 @@ export default {
 .app-star {
   color: gold;
   cursor: pointer;
-}
-
-.cannot-be-installed {
-  color: orange;
 }
 
 .app-info {
