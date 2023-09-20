@@ -84,10 +84,12 @@
               <b-card-text>
                 Prune unused data in order to free up disk space.
               </b-card-text>
-              <b-button @click="pruneImages" variant="primary">
+              <b-button @click="pruneImages" variant="primary" :disabled="prune.inProgress">
                 <b-icon-trash></b-icon-trash>
                 Prune
               </b-button>
+              &nbsp;<b-spinner v-if="prune.inProgress" small></b-spinner>
+              {{ prune.result }}
             </b-card>
           </b-col>
         </b-row>
@@ -141,6 +143,10 @@ export default {
         selectedSize: null,
         waitingForRestart: false,
       },
+      prune: {
+        inProgress: false,
+        result: '',
+      }
     }
   },
 
@@ -191,10 +197,15 @@ export default {
       }
     },
     async pruneImages() {
-      const response = await this.$http.post('/core/protected/settings/prune-images');
-      this.$bvToast.toast(`Images pruned: ${response.data.message}`, {
-        variant: 'success',
-      });
+      this.prune.inProgress = true;
+      try {
+        const response = await this.$http.post('/core/protected/settings/prune-images');
+        this.prune.result = response.data.message;
+      } catch (e) {
+        this.prune.result = 'Error during pruning';
+      } finally {
+        this.prune.inProgress = false;
+      }
     },
     sizeIsAvailable(size) {
       if (this.$store.state.profile.max_portal_size === undefined) {
