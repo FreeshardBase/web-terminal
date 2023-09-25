@@ -80,6 +80,22 @@
 
         <b-row>
           <b-col>
+            <b-card title="Prune">
+              <b-card-text>
+                Prune unused data in order to free up disk space.
+              </b-card-text>
+              <b-button @click="pruneImages" variant="primary" :disabled="prune.inProgress">
+                <b-icon-trash></b-icon-trash>
+                Prune
+              </b-button>
+              &nbsp;<b-spinner v-if="prune.inProgress" small></b-spinner>
+              {{ prune.result }}
+            </b-card>
+          </b-col>
+        </b-row>
+
+        <b-row>
+          <b-col>
             <h1>About</h1>
           </b-col>
         </b-row>
@@ -127,6 +143,10 @@ export default {
         selectedSize: null,
         waitingForRestart: false,
       },
+      prune: {
+        inProgress: false,
+        result: '',
+      }
     }
   },
 
@@ -147,7 +167,7 @@ export default {
     async refresh() {
       this.isUpdating = true;
       try {
-        this.$store.dispatch("query_profile_data");
+        await this.$store.dispatch("query_profile_data");
       } catch (e) {
         this.$bvToast.toast(e.response.data.detail, {
           title: 'Error during loading',
@@ -176,9 +196,16 @@ export default {
         await this.$store.dispatch('query_tour_data');
       }
     },
-    async restartPortal() {
-      await this.$http.post('/core/protected/restart');
-      await this.$router.replace('/restart');
+    async pruneImages() {
+      this.prune.inProgress = true;
+      try {
+        const response = await this.$http.post('/core/protected/settings/prune-images');
+        this.prune.result = response.data.message;
+      } catch (e) {
+        this.prune.result = 'Error during pruning';
+      } finally {
+        this.prune.inProgress = false;
+      }
     },
     sizeIsAvailable(size) {
       if (this.$store.state.profile.max_portal_size === undefined) {
