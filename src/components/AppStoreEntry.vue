@@ -51,7 +51,9 @@
               </h2>
               <p class="text-secondary" v-if="is_installed"><small>
                 {{ app.status }}<br>
-                <div v-if="app.from_branch !== 'master'">From branch: {{ app.from_branch }}</div>
+                <div v-if="Boolean(app.from_branch) && app.from_branch !== 'master'">From branch: {{ app.from_branch }}</div>
+                <div v-if="app.installation_reason === 'custom'">Custom App</div>
+                <div v-if="app.installation_reason === 'config'">Preconfigured App</div>
               </small></p>
             </b-col>
             <!-- Small extra icons -->

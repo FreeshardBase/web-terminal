@@ -34,6 +34,13 @@
                 </b-input-group-append>
               </b-input-group>
             </b-dropdown-form>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item>
+              <b-button v-b-modal.install-custom-app>
+                <b-icon-box-arrow-in-up></b-icon-box-arrow-in-up>
+                Install Custom App
+              </b-button>
+            </b-dropdown-item>
           </b-dropdown>
         </b-col>
       </b-row>
@@ -90,6 +97,34 @@
 
     </b-container>
 
+    <!-- Modal: Install Custom App -->
+    <b-modal id="install-custom-app">
+      <template #modal-header>
+        <h2>Install Custom App</h2>
+      </template>
+      <p>
+        Custom apps are apps that are not in the app store.
+        See the documentation on how to <a href="https://docs.getportal.org/developer_docs/overview/" target="_blank">create</a>
+        and <a href="https://docs.getportal.org/developer_docs/testing/" target="_blank">package</a> one.
+      </p>
+      <b-alert variant="danger" show>
+        Custom apps are not not verified by us.
+        They can cause serious harm to your Portal instance.
+        Make sure, you trust the source of the app.
+      </b-alert>
+      <b-form-file
+          v-model="customAppFile"
+          placeholder="Choose a file or drop it here..."
+          drop-placeholder="Drop file here..."
+      ></b-form-file>
+      <template #modal-footer>
+        <b-button variant="success" :disabled="!Boolean(customAppFile)" @click="uploadCustomApp">
+          <b-icon-box-arrow-in-up></b-icon-box-arrow-in-up>
+          Install
+        </b-button>
+      </template>
+    </b-modal>
+
   </div>
 </template>
 
@@ -107,6 +142,7 @@ export default {
       storeBranch: 'master',
       storeSwitchBranchInput: '',
       isUpdating: false,
+      customAppFile: null,
     }
   },
 
@@ -147,6 +183,14 @@ export default {
       await this.fetchStoreApps();
       this.storeSwitchBranchInput = '';
     },
+
+    async uploadCustomApp() {
+      const formData = new FormData();
+      formData.append('file', this.customAppFile);
+      await this.$http.post(`/core/protected/apps`, formData);
+      this.$bvModal.hide('install-custom-app');
+      await this.refresh();
+    }
 
   },
 
