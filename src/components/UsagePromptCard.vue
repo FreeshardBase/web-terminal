@@ -13,7 +13,12 @@
           <b-card-title class="title">
             <span>{{ title }}</span>
             <span>
-              <b-form-checkbox switch size="lg" v-model="checked" :state="checked ? true : null">
+              <b-form-checkbox
+                  switch
+                  size="lg"
+                  :state="checked ? true : null"
+                  v-model="checked"
+                  @input="$emit('change', $event)">
               </b-form-checkbox>
             </span>
           </b-card-title>
@@ -31,11 +36,10 @@
 
 export default {
   name: "UsagePromptCard",
-  props: ['appName', 'title', 'image'],
-  data() {
-    return {
-      checked: false,
-    }
+  props: ['appName', 'title', 'image', 'checked'],
+  model: {
+    prop: 'checked',
+    event: 'change',
   },
 }
 

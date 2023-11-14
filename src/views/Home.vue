@@ -30,8 +30,8 @@ export default {
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Home`;
     await this.$store.dispatch("refresh_apps")
-    this.$refs['usage-prompt-modal'].show();
     if (!this.$store.getters.tour_seen('usage prompt')) {
+      this.$refs['usage-prompt-modal'].show();
       await this.$store.dispatch('mark_tour_as_seen', 'usage prompt');
     }
   }
