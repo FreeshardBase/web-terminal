@@ -66,9 +66,9 @@
 
         <b-row>
           <b-col>
-            <b-card title="Tour">
+            <b-card title="Reset Tour">
               <b-card-text>
-                Reset the guided tour through your Portal's features so you can look at it again.
+                Reset the welcome screen and all guided tours through your Portal's features so you can look at it again.
               </b-card-text>
               <b-button @click="resetTour" variant="primary">
                 <b-icon-caret-left></b-icon-caret-left>

@@ -9,38 +9,20 @@
         </b-col>
       </b-row>
     </b-container>
-    <v-tour name="HomeTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
+    <usage-prompt-modal ref="usage-prompt-modal"></usage-prompt-modal>
   </div>
 </template>
 
 <script>
 import navbar from "@/components/Navbar";
 import AppIcon from "@/components/AppIcon";
+import UsagePromptModal from "@/components/UsagePromptModal.vue";
 
 export default {
   name: 'Home',
-  components: {AppIcon, navbar},
+  components: {UsagePromptModal, AppIcon, navbar},
   data: function () {
     return {
-      tourSteps: [
-        {
-          target: '#top-of-page',
-          header: {
-            title: 'Welcome to your Portal!'
-          },
-          content: `Welcome ${this.$store.state.meta.portal_identity.name} to your personal Portal!<br>` +
-              'It has a unique address that you can see right here in the address bar. Better bookmark it!'
-        },
-        {
-          target: '.portal-id-badge',
-          content: 'Every Portal has an ID. You can see it here. It is also part of its address.<br>' +
-              'Think of the ID like your Portal\'s phone number.'
-        },
-        {
-          target: '#nav-terminals',
-          content: 'Your first step should be pairing a second device to your Portal, if you have one at hand.'
-        },
-      ]
 
     }
   },
@@ -48,9 +30,9 @@ export default {
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Home`;
     await this.$store.dispatch("refresh_apps")
-    if (!this.$store.getters.tour_seen('home')) {
-      this.$tours['HomeTour'].start();
-      await this.$store.dispatch('mark_tour_as_seen', 'home');
+    if (!this.$store.getters.tour_seen('usage prompt')) {
+      this.$refs['usage-prompt-modal'].show();
+      await this.$store.dispatch('mark_tour_as_seen', 'usage prompt');
     }
   }
 }
