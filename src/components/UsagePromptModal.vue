@@ -10,12 +10,13 @@
     <p>
       Portal offers a variety of apps for many different use cases.
       Here are a few that are particularly useful.
-      Later, you can install more from the app store.
+      You can also install these and more from the app store.
     </p>
 
     <usage-prompt-card
         app-name="vaultwarden"
         v-model="apps.vaultwarden"
+        :disabled="installedApps.includes('vaultwarden')"
         title="Manage Passwords"
         image="../assets/usage-prompt/vaultwarden.jpg">
       Keep your passwords on Portal, securely encrypted with your master password.
@@ -26,12 +27,56 @@
     <usage-prompt-card
         app-name="paperless-ngx"
         v-model="apps['paperless-ngx']"
+        :disabled="installedApps.includes('paperless-ngx')"
         title="Digitize Physical Documents"
         image="../assets/usage-prompt/paperless.jpg">
       Replace your filing cabinet with Portal.
       Store your scanned physical documents and access them from anywhere.
       Sort and organize them by correspondent, type, date, tags, and other metadata.
       Search for text inside your documents.
+    </usage-prompt-card>
+
+    <usage-prompt-card
+        app-name="navidrome"
+        v-model="apps.navidrome"
+        :disabled="installedApps.includes('navidrome')"
+        title="Listen to Your MP3 Collection"
+        image="../assets/usage-prompt/navidrome.jpg">
+      Upload your MP3 collection to Portal and listen to it from anywhere.
+      Use the browser-based music player or any Subsonic client.
+    </usage-prompt-card>
+
+    <usage-prompt-card
+        app-name="linkding"
+        v-model="apps.linkding"
+        :disabled="installedApps.includes('linkding')"
+        title="Organize Bookmarks"
+        image="../assets/usage-prompt/linkding.jpg">
+      Store and organize your bookmarks on Portal.
+      Tag them for easy search and retrieval.
+      Use the browser extension to access them and easily add new ones.
+    </usage-prompt-card>
+
+    <usage-prompt-card
+        app-name="immich"
+        v-model="apps.immich"
+        :disabled="installedApps.includes('immich')"
+        title="Keep Photos and Videos"
+        image="../assets/usage-prompt/immich.jpg">
+      Backup and organize the photos from your phone.
+      View them in a timeline, by location, or by tags.
+      Share galleries with others and allow them to upload their photos as well.
+    </usage-prompt-card>
+
+    <usage-prompt-card
+        app-name="actual"
+        v-model="apps.actual"
+        :disabled="installedApps.includes('actual')"
+        title="Get a Handle on Your Finances"
+        image="../assets/usage-prompt/actual.jpg">
+      Save real money by tracking your expenses and income.
+      Import your bank statements, categorize your transactions, and create net worth and cash flow reports.
+      Plan ahead by setting budgets and goals using the envelope budgeting method.
     </usage-prompt-card>
 
     <template #modal-footer="{ ok, cancel }">
@@ -59,7 +104,17 @@ export default {
       apps: {
         vaultwarden: false,
         'paperless-ngx': false,
+        linkding: false,
+        navidrome: false,
+        immich: false,
+        actual: false,
       }
+    }
+  },
+
+  computed: {
+    installedApps() {
+      return this.$store.state.apps.map(a => a.name);
     }
   },
 
