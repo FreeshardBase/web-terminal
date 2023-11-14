@@ -9,16 +9,18 @@
         </b-col>
       </b-row>
     </b-container>
+    <usage-prompt-modal ref="usage-prompt-modal"></usage-prompt-modal>
   </div>
 </template>
 
 <script>
 import navbar from "@/components/Navbar";
 import AppIcon from "@/components/AppIcon";
+import UsagePromptModal from "@/components/UsagePromptModal.vue";
 
 export default {
   name: 'Home',
-  components: {AppIcon, navbar},
+  components: {UsagePromptModal, AppIcon, navbar},
   data: function () {
     return {
 
@@ -28,8 +30,8 @@ export default {
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Home`;
     await this.$store.dispatch("refresh_apps")
+    this.$refs['usage-prompt-modal'].show();
     if (!this.$store.getters.tour_seen('usage prompt')) {
-      // show modal
       await this.$store.dispatch('mark_tour_as_seen', 'usage prompt');
     }
   }
