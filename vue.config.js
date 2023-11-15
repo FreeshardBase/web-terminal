@@ -11,5 +11,23 @@ module.exports = {
         pathRewrite: {'^/core': ''}
       },
     }
+  },
+  chainWebpack: (config) => {
+    // Add a rule to handle b-card as a module dependency
+    config.module
+      .rule('vue')
+      .use('vue-loader')
+      .loader('vue-loader')
+      .tap((options) => {
+        // Extend or modify the loader options
+        options.transformAssetUrls = {
+          // Add the tags and attributes you want to handle as module dependencies
+          'b-card': ['img-src', 'img-srcset', 'source', 'src', 'srcset'],
+          'b-card-img': ['img-src', 'img-srcset', 'source', 'src', 'srcset'],
+          'usage-prompt-card': ['image'],
+          // Add more as needed
+        };
+        return options;
+      });
   }
 }

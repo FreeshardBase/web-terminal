@@ -60,8 +60,6 @@
       </b-row>
 
     </b-container>
-
-    <v-tour name="PeersTour" :steps="tourSteps" :options="{highlight: true}"></v-tour>
   </div>
 </template>
 
