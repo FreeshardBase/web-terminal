@@ -14,8 +14,8 @@
     </p>
 
     <usage-prompt-card
-        app-name="vaultwarden"
-        v-model="apps.vaultwarden"
+        :app="apps.vaultwarden"
+        v-model="apps.vaultwarden.selected"
         :disabled="installedApps.includes('vaultwarden')"
         title="Manage Passwords"
         image="../assets/usage-prompt/vaultwarden.jpg">
@@ -25,8 +25,8 @@
     </usage-prompt-card>
 
     <usage-prompt-card
-        app-name="paperless-ngx"
-        v-model="apps['paperless-ngx']"
+        :app="apps['paperless-ngx']"
+        v-model="apps['paperless-ngx'].selected"
         :disabled="installedApps.includes('paperless-ngx')"
         title="Digitize Physical Documents"
         image="../assets/usage-prompt/paperless.jpg">
@@ -37,8 +37,8 @@
     </usage-prompt-card>
 
     <usage-prompt-card
-        app-name="navidrome"
-        v-model="apps.navidrome"
+        :app="apps.navidrome"
+        v-model="apps.navidrome.selected"
         :disabled="installedApps.includes('navidrome')"
         title="Listen to Your MP3 Collection"
         image="../assets/usage-prompt/navidrome.jpg">
@@ -47,8 +47,8 @@
     </usage-prompt-card>
 
     <usage-prompt-card
-        app-name="linkding"
-        v-model="apps.linkding"
+        :app="apps.linkding"
+        v-model="apps.linkding.selected"
         :disabled="installedApps.includes('linkding')"
         title="Organize Bookmarks"
         image="../assets/usage-prompt/linkding.jpg">
@@ -58,8 +58,8 @@
     </usage-prompt-card>
 
     <usage-prompt-card
-        app-name="immich"
-        v-model="apps.immich"
+        :app="apps.immich"
+        v-model="apps.immich.selected"
         :disabled="installedApps.includes('immich')"
         title="Keep Photos and Videos"
         image="../assets/usage-prompt/immich.jpg">
@@ -69,8 +69,8 @@
     </usage-prompt-card>
 
     <usage-prompt-card
-        app-name="actual"
-        v-model="apps.actual"
+        :app="apps.actual"
+        v-model="apps.actual.selected"
         :disabled="installedApps.includes('actual')"
         title="Get a Handle on Your Finances"
         image="../assets/usage-prompt/actual.jpg">
@@ -83,7 +83,7 @@
       <b-button variant="outline-secondary" @click="cancel()">
         Nevermind
       </b-button>
-      <b-button variant="success" @click="ok()" :disabled="Object.values(apps).every(item => !item)">
+      <b-button variant="success" @click="ok()" :disabled="Object.values(apps).every(item => !item.selected)">
         Install Selected Apps
       </b-button>
     </template>
@@ -101,21 +101,19 @@ export default {
   data: function () {
     return {
       visible: false,
-      apps: {
-        vaultwarden: false,
-        'paperless-ngx': false,
-        linkding: false,
-        navidrome: false,
-        immich: false,
-        actual: false,
-      }
+      apps: {}
     }
+  },
+
+  async beforeMount() {
+    const storeApps = (await this.$http.get(`https://storageaccountportab0da.blob.core.windows.net/app-store/master/all_apps/store_metadata.json`)).data.apps
+    this.apps = Object.fromEntries(storeApps.map(a => [a.name, {...a, selected: false}]));
   },
 
   computed: {
     installedApps() {
       return this.$store.state.apps.map(a => a.name);
-    }
+    },
   },
 
   methods: {
@@ -124,8 +122,8 @@ export default {
     },
 
     async installSelectedApps() {
-      const apps = Object.entries(this.apps).filter((value) => value[1]).map((value) => value[0]);
-      await Promise.all(apps.map((app) => this.$http.post(`/core/protected/apps/${app}`)));
+      const appsToInstall = Object.values(this.apps).filter((app) => app.selected).map((app) => app.name);
+      await Promise.all(appsToInstall.map((app) => this.$http.post(`/core/protected/apps/${app}`)));
     }
   }
 }

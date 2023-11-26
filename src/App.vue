@@ -40,7 +40,7 @@ export default {
     },
   },
 
-  async mounted() {
+  async beforeMount() {
     const whoami = await this.$http.get('/core/public/meta/whoami')
 
     await this.$store.dispatch('query_meta_data');

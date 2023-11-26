@@ -1,5 +1,5 @@
 <template>
-  <div @click="open" id="main" class="grid" :class="{'active': isActive}">
+  <div @click="open" id="main" ref="main" class="grid" :class="{'active': isActive, 'blocked': !canBeStarted}">
     <div v-if="!isActive">
       <b-spinner class="app-icon"></b-spinner>
     </div>
@@ -18,6 +18,11 @@
       <div v-else></div>
     </div>
     <div>{{ app.name | titlecase }}</div>
+
+    <b-popover :target="this.$refs.main" ref="popover" placement="bottom">
+      This app requires a Portal of size <b>{{ app.meta.minimum_portal_size | uppercase }}</b> or larger -
+      Current size: <b>{{ $store.state.profile.portal_size | uppercase }}</b>
+    </b-popover>
   </div>
 </template>
 
@@ -37,10 +42,27 @@ export default {
     isActive() {
       return !['installing', 'installation_queued'].includes(this.app.status);
     },
+    canBeStarted() {
+      const sizes = ['xs', 's', 'm', 'l', 'xl'];
+      if (this.$store.state.profile) {
+        const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
+        const requiredSize = sizes.indexOf(this.app.meta.minimum_portal_size);
+        return currentSize >= requiredSize;
+      } else {
+        return true;
+      }
+    }
   },
   methods: {
     open() {
       if (!this.isActive) {
+        return;
+      }
+      if (!this.canBeStarted) {
+        this.$refs.popover.$emit('open');
+        setTimeout(() => {
+          this.$refs.popover.$emit('close');
+        }, 4000);
         return;
       }
       window.open(`https://${this.app.name}.${window.location.host}`, '_blank');
@@ -65,6 +87,11 @@ export default {
 
 #main:not(.active) {
   cursor: progress;
+}
+
+#main.blocked {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 p {
