@@ -2,28 +2,6 @@
   <div>
     <b-container class="mt-4" fluid>
 
-      <b-row align-v="center" align-h="start">
-
-        <b-col cols="auto">
-          <PortalIdBadge :portal-id="$store.getters.short_portal_id"></PortalIdBadge>
-        </b-col>
-
-        <b-col>
-          <small class="align-center text-muted">This Portal is owned and controlled by {{ $store.state.meta.portal_identity.name }}
-            - <a href="https://getportal.org" target="_blank">learn more</a></small>
-        </b-col>
-
-        <b-col class="text-right">
-          <b-button v-if="$store.state.meta.is_anonymous" variant="outline-primary" to="/pair">
-            <b-icon-link45deg></b-icon-link45deg> Pair
-          </b-button>
-          <b-button v-else variant="outline-primary" to="/public">
-            <b-icon-person></b-icon-person> Back
-          </b-button>
-        </b-col>
-
-      </b-row>
-
       <b-row class="mt-5">
         <b-col class="text-center">
 
@@ -33,6 +11,31 @@
 
         </b-col>
       </b-row>
+
+      <b-row align-v="center" align-h="start">
+
+        <b-col cols="auto">
+          <PortalIdBadge :portal-id="$store.getters.short_portal_id"></PortalIdBadge>
+        </b-col>
+
+        <b-col class="text-right">
+          <b-button v-if="$store.state.meta.is_anonymous" variant="outline-secondary" to="/pair">
+            <b-icon-link45deg></b-icon-link45deg> Pair
+          </b-button>
+          <b-button v-else variant="outline-secondary" to="/public">
+            <b-icon-person></b-icon-person> Edit
+          </b-button>
+        </b-col>
+
+      </b-row>
+
+      <b-row>
+        <b-col class="text-center mt-2">
+          <small class="text-muted">This Portal is owned and controlled by {{ $store.state.meta.portal_identity.name }}
+            - <a href="https://getportal.org" target="_blank">learn more</a></small>
+        </b-col>
+      </b-row>
+
     </b-container>
   </div>
 </template>
