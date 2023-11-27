@@ -20,7 +20,7 @@
     <div>{{ app.name | titlecase }}</div>
 
     <b-popover :target="this.$refs.main" ref="popover" placement="bottom">
-      This app requires a Portal of size <b>{{ app.meta.minimum_portal_size | uppercase }}</b> or larger -
+      This app requires a Portal of size <b>{{ minimumPortalSize | uppercase }}</b> or larger -
       Current size: <b>{{ $store.state.profile.portal_size | uppercase }}</b>
     </b-popover>
   </div>
@@ -44,14 +44,21 @@ export default {
     },
     canBeStarted() {
       const sizes = ['xs', 's', 'm', 'l', 'xl'];
-      if (this.$store.state.profile) {
+      if (this.$store.state.profile && this.app.meta) {
         const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
         const requiredSize = sizes.indexOf(this.app.meta.minimum_portal_size);
         return currentSize >= requiredSize;
       } else {
         return true;
       }
-    }
+    },
+    minimumPortalSize() {
+      if (this.app.meta) {
+        return this.app.meta.minimum_portal_size;
+      } else {
+        return 'unknown';
+      }
+    },
   },
   methods: {
     open() {
@@ -98,7 +105,7 @@ p {
   margin-top: 0.2em;
 }
 
-.status>* {
+.status > * {
   height: 0.5em;
   width: 0.5em;
 }
