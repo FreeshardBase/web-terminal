@@ -29,8 +29,14 @@
               <slot></slot>
             </p>
             <p>
-              <small v-if="disabled" class="text-muted">{{ appName | titlecase }} is already installed</small>
-              <small v-else class="text-muted">Installs {{ appName | titlecase }}</small>
+              <small v-if="disabled" class="text-muted">{{ app.name | titlecase }} is already installed</small>
+              <small v-else class="text-muted">Installs {{ app.name | titlecase }}</small>
+              <small v-if="!canBeStarted" class="text-muted">
+                <br>
+                <b-icon-exclamation-triangle-fill variant="warning"></b-icon-exclamation-triangle-fill>
+                Starting the app requires a Portal of size <b>{{ app.minimum_portal_size | uppercase }}</b> or larger -
+                Current size: <b>{{ $store.state.profile.portal_size | uppercase }}</b>
+              </small>
             </p>
           </b-card-text>
         </b-card-body>
@@ -43,10 +49,23 @@
 
 export default {
   name: "UsagePromptCard",
-  props: ['appName', 'title', 'image', 'checked', 'disabled'],
+  props: ['app', 'title', 'image', 'checked', 'disabled'],
   model: {
     prop: 'checked',
     event: 'change',
+  },
+
+  computed: {
+    canBeStarted() {
+      const sizes = ['xs', 's', 'm', 'l', 'xl'];
+      if (this.$store.state.profile) {
+        const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
+        const requiredSize = sizes.indexOf(this.app.minimum_portal_size);
+        return currentSize >= requiredSize;
+      } else {
+        return true;
+      }
+    }
   },
 
   methods: {
