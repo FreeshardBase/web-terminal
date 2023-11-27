@@ -91,11 +91,11 @@
           <b-nav-item v-if="$route.name==='Settings'">
             <b>
               <b-icon-gear-fill></b-icon-gear-fill>
-              {{ $store.state.meta.portal_identity.name }}</b>
+              Settings</b>
           </b-nav-item>
           <b-nav-item v-else to="/settings">
             <b-icon-gear></b-icon-gear>
-            {{ $store.state.meta.portal_identity.name }}
+            Settings
           </b-nav-item>
         </b-navbar-nav>
 
