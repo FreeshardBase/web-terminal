@@ -9,7 +9,8 @@
 
           <p>
             <b-icon-exclamation-triangle variant="warning"></b-icon-exclamation-triangle>
-            This information about yourself is visible at your <router-link to="/welcome">public view</router-link>.
+            This information about yourself is visible at your
+            <a href="/#/welcome" target="_blank">public page <b-icon-box-arrow-up-right></b-icon-box-arrow-up-right></a>.
           </p>
 
           <EditableText title="Name" :value="identity.name"
