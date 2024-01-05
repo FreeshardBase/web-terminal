@@ -24,11 +24,11 @@
           </p>
         </div>
         <div v-else-if="phase === 'unresponsive'">
-          <p v-if="seconds < 30">Portal went down, waiting for restart</p>
-          <p v-else-if="seconds < 60">Be patient, sometimes it may take a moment</p>
-          <p v-else-if="seconds < 60*3">Perhaps this time there is a lot to do...</p>
-          <p v-else-if="seconds < 60*5">Something is strange, it usually does not take so long</p>
-          <p v-else-if="seconds < 60*10">
+          <p v-if="seconds < 45">Portal went down, waiting for restart</p>
+          <p v-else-if="seconds < 90">Be patient, sometimes it may take a moment</p>
+          <p v-else-if="seconds < 60*4">Perhaps this time there is a lot to do...</p>
+          <p v-else-if="seconds < 60*7">Something is strange, it usually does not take so long</p>
+          <p v-else-if="seconds < 60*12">
             It seems like something went wrong.
             Better contact support <a href="mailto:contact@getportal.org">here</a>.
           </p>
@@ -80,7 +80,7 @@ export default {
         return;
       }
       if (this.phase === 'unresponsive') {
-        await this.$router.replace('/');
+        window.location.replace('/');
       }
     },
   },
