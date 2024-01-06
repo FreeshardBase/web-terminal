@@ -20,7 +20,7 @@
         <b-col cols="10">
           <b-card-body>
             <b-card-title>
-              {{ app.name | titlecase }}
+              {{ app.pretty_name || app.meta.pretty_name }}
               <b-icon-star-fill v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
               <b-icon-exclamation-octagon-fill v-if="!canBeInstalled" variant="warning"></b-icon-exclamation-octagon-fill>
               <b-icon-exclamation-triangle-fill v-if="app.status === 'error'" variant="danger"></b-icon-exclamation-triangle-fill>
