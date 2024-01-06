@@ -17,7 +17,7 @@
       <b-icon-circle-fill v-if="app.status === 'running'"></b-icon-circle-fill>
       <div v-else></div>
     </div>
-    <div>{{ app.name | titlecase }}</div>
+    <div>{{ app.meta.pretty_name }}</div>
 
     <b-popover :target="this.$refs.main" ref="popover" placement="bottom">
       This app requires a Portal of size <b>{{ minimumPortalSize | uppercase }}</b> or larger -
