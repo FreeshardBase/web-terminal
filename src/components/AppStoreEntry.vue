@@ -47,7 +47,7 @@
             </b-col>
             <b-col>
               <h2>
-                {{ app.name | titlecase }}
+                {{ app.pretty_name || app.meta.pretty_name }}
               </h2>
               <p class="text-secondary" v-if="is_installed"><small>
                 {{ app.status }}<br>
