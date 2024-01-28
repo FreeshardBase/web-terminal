@@ -10,9 +10,13 @@
           <p>
             <b-icon-exclamation-triangle variant="warning"></b-icon-exclamation-triangle>
             This information about yourself is visible at your
-            <a href="/#/welcome" target="_blank">public page <b-icon-box-arrow-up-right></b-icon-box-arrow-up-right></a>.
+            <a href="/#/welcome" target="_blank">public page
+              <b-icon-box-arrow-up-right></b-icon-box-arrow-up-right>
+            </a>.
           </p>
 
+          <EditableAvatar title="Image" :image_ref="avatarRef" :name="identity.name"
+                          @edited="uploadAvatar($event)" @deleted="clearAvatar"></EditableAvatar>
           <EditableText title="Name" :value="identity.name"
                         @edited="updateField('name', $event)"></EditableText>
           <EditableText title="Email" :value="identity.email"
@@ -29,10 +33,11 @@
 <script>
 import Navbar from "@/components/Navbar";
 import EditableText from "@/components/EditableText";
+import EditableAvatar from "@/components/EditableAvatar.vue";
 
 export default {
   name: "Profile",
-  components: {EditableText, Navbar},
+  components: {EditableAvatar, EditableText, Navbar},
   data: function () {
     return {
       identity: {
@@ -40,12 +45,14 @@ export default {
         name: '',
         email: '',
         description: '',
-      }
+      },
+      avatarRef: ''
     }
   },
 
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Profile`;
+    this.refreshAvatar();
     await this.refresh();
   },
 
@@ -63,6 +70,20 @@ export default {
       await this.$http.put('/core/protected/identities', body);
       await this.refresh();
       eventBody.doneCallback();
+    },
+    async uploadAvatar(eventBody) {
+      const formData = new FormData();
+      formData.append('file', eventBody.value);
+      await this.$http.put(`/core/protected/identities/default/avatar`, formData);
+      await eventBody.doneCallback();
+      this.refreshAvatar();
+    },
+    async clearAvatar() {
+      await this.$http.delete(`/core/protected/identities/default/avatar`);
+      this.refreshAvatar();
+    },
+    refreshAvatar() {
+      this.avatarRef = 'core/protected/identities/default/avatar?' + performance.now()
     },
   }
 }

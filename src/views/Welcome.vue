@@ -5,6 +5,12 @@
       <b-row class="mt-5">
         <b-col class="text-center">
 
+          <AvatarWrapper
+              src="core/protected/identities/default/avatar"
+              :name="$store.state.meta.portal_identity.name"
+              size="10rem"
+              class="mb-4"
+          ></AvatarWrapper>
           <h1>{{ $store.state.meta.portal_identity.name }}</h1>
           <p><a :href="mailto">{{ $store.state.meta.portal_identity.email }}</a></p>
           <div v-html="markdownToHtml($store.state.meta.portal_identity.description)"></div>
@@ -43,10 +49,11 @@
 <script>
 import PortalIdBadge from "@/components/PortalIdBadge";
 import {marked} from "marked";
+import AvatarWrapper from "@/components/AvatarWrapper.vue";
 
 export default {
   name: "Profile",
-  components: {PortalIdBadge},
+  components: {AvatarWrapper, PortalIdBadge},
 
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - Welcome`;
