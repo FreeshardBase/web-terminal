@@ -29,8 +29,8 @@
               <slot></slot>
             </p>
             <p>
-              <small v-if="disabled" class="text-muted">{{ app.name | titlecase }} is already installed</small>
-              <small v-else class="text-muted">Installs {{ app.name | titlecase }}</small>
+              <small v-if="disabled" class="text-muted">{{ app.pretty_name }} is already installed</small>
+              <small v-else class="text-muted">Installs {{ app.pretty_name }}</small>
               <small v-if="!canBeStarted" class="text-muted">
                 <br>
                 <b-icon-exclamation-triangle-fill variant="warning"></b-icon-exclamation-triangle-fill>
