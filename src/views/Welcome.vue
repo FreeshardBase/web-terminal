@@ -6,7 +6,7 @@
         <b-col class="text-center">
 
           <AvatarWrapper
-              src="core/protected/identities/default/avatar"
+              src="core/public/meta/avatar"
               :name="$store.state.meta.portal_identity.name"
               size="10rem"
               class="mb-4"
@@ -37,8 +37,10 @@
 
       <b-row>
         <b-col class="text-center mt-2">
-          <small class="text-muted">This Portal is owned and controlled by {{ $store.state.meta.portal_identity.name }}
-            - <a href="https://getportal.org" target="_blank">learn more</a></small>
+          <small class="text-muted">
+            <a href="https://getportal.org" target="_blank">Learn more</a>
+            about Portal
+          </small>
         </b-col>
       </b-row>
 
