@@ -61,6 +61,26 @@
           </b-button>
         </b-alert>
 
+        <!-- Apps with updates -->
+        <b-row v-if="appsWithUpdates.length > 0">
+          <b-col>
+            <b-alert show variant="warning" v-if="appsWithUpdates.length === 1">
+              There is one app with updates available.
+              <b-button @click="refresh" variant="warning">
+                <b-icon-arrow-up-circle></b-icon-arrow-up-circle>
+                Update
+              </b-button>
+            </b-alert>
+            <b-alert show variant="warning" v-else>
+              There are {{ appsWithUpdates.length }} apps with updates available.
+              <b-button @click="refresh" variant="warning">
+                <b-icon-arrow-up-circle></b-icon-arrow-up-circle>
+                Update All
+              </b-button>
+            </b-alert>
+          </b-col>
+        </b-row>
+
         <HorizontalSeparator title="Installed"></HorizontalSeparator>
 
         <!-- Installed Apps -->
@@ -69,8 +89,8 @@
             <b-container>
               <!-- Entries -->
               <b-row cols="1" cols-md="2">
-                <b-col v-for="app in $store.state.apps" :key="app.name" class="p-1">
-                  <AppStoreEntry :app="app" is_installed="true" @changed="refresh"></AppStoreEntry>
+                <b-col v-for="app in installedApps" :key="app.name" class="p-1">
+                  <AppStoreEntry :app="app" is_installed="true" @changed="refresh" :update_available="app.update_available"></AppStoreEntry>
                 </b-col>
               </b-row>
             </b-container>
@@ -157,6 +177,26 @@ export default {
               return Number(b.store_info.is_featured || false) - Number(a.store_info.is_featured || false);
             }
           });
+    },
+
+    installedApps() {
+      const this_ = this;
+      return this.$store.state.apps
+          .map(app => {
+            const storeApp = this_.storeApps.find(sa => sa.name === app.name);
+            return {
+              ...app,
+              update_available: storeApp !== undefined && app.meta.app_version !== storeApp.app_version,
+            }
+          })
+    },
+
+    appsWithUpdates() {
+      const this_ = this;
+      return this.$store.state.apps.filter(app => {
+        const storeApp = this_.storeApps.find(a => a.name === app.name);
+        return storeApp !== undefined && app.meta.app_version !== storeApp.app_version;
+      })
     }
   },
 
@@ -174,7 +214,7 @@ export default {
     },
 
     async fetchStoreApps() {
-      this.storeApps = (await this.$http.get(`https://storageaccountportab0da.blob.core.windows.net/app-store/${this.storeBranch}/all_apps/store_metadata.json`)).data.apps
+      this.storeApps = (await this.$http.get(`https://storageaccountportab0da.blob.core.windows.net/app-store/${this.storeBranch}/all_apps/store_metadata.json?c=${Date.now()}`)).data.apps
     },
 
     async setBranch(branch) {
