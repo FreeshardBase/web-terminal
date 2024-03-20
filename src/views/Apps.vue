@@ -66,14 +66,14 @@
           <b-col>
             <b-alert show variant="warning" v-if="appsWithUpdates.length === 1">
               There is one app with updates available.
-              <b-button @click="refresh" variant="warning">
+              <b-button @click="updateAllApps" variant="warning">
                 <b-icon-arrow-up-circle></b-icon-arrow-up-circle>
                 Update
               </b-button>
             </b-alert>
             <b-alert show variant="warning" v-else>
               There are {{ appsWithUpdates.length }} apps with updates available.
-              <b-button @click="refresh" variant="warning">
+              <b-button @click="updateAllApps" variant="warning">
                 <b-icon-arrow-up-circle></b-icon-arrow-up-circle>
                 Update All
               </b-button>
@@ -186,7 +186,7 @@ export default {
             const storeApp = this_.storeApps.find(sa => sa.name === app.name);
             return {
               ...app,
-              update_available: storeApp !== undefined && app.meta.app_version !== storeApp.app_version,
+              update_available: storeApp !== undefined && (app.meta && app.meta.app_version !== storeApp.app_version),
             }
           })
     },
@@ -195,7 +195,7 @@ export default {
       const this_ = this;
       return this.$store.state.apps.filter(app => {
         const storeApp = this_.storeApps.find(a => a.name === app.name);
-        return storeApp !== undefined && app.meta.app_version !== storeApp.app_version;
+        return storeApp !== undefined && app.meta && app.meta.app_version !== storeApp.app_version && app.status !== 'uninstalling';
       })
     }
   },
@@ -229,6 +229,10 @@ export default {
       await this.$http.post(`/core/protected/apps`, formData);
       this.$bvModal.hide('install-custom-app');
       await this.refresh();
+    },
+
+    async updateAllApps() {
+      await Promise.all(this.installedApps.map(app => this.$http.post(`/core/protected/apps/${app.name}/reinstall`)));
     }
 
   },

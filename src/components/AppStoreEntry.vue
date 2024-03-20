@@ -4,7 +4,7 @@
       <b-row>
         <b-col cols="2" class="text-center">
           <b-spinner
-              v-if="['installing', 'installation_queued'].includes(app.status)"
+              v-if="['installing', 'installation_queued', 'uninstalling'].includes(app.status)"
               class="app-icon m-2">
           </b-spinner>
           <div v-else>
@@ -20,7 +20,7 @@
         <b-col cols="10">
           <b-card-body>
             <b-card-title>
-              {{ app.pretty_name || app.meta.pretty_name }}
+              {{ app.pretty_name || (app.meta && app.meta.pretty_name) || app.name }}
               <b-icon-arrow-up-circle
                   variant="warning" v-if="update_available"></b-icon-arrow-up-circle>
               <b-icon-star-fill
@@ -52,7 +52,7 @@
             </b-col>
             <b-col>
               <h2>
-                {{ app.pretty_name || app.meta.pretty_name }}
+                {{ app.pretty_name || (app.meta && app.meta.pretty_name) || app.name }}
               </h2>
               <p class="text-secondary" v-if="is_installed"><small>
                 {{ app.status }}<br>
@@ -107,7 +107,7 @@
         </div>
         <div v-else>
           <div v-if="is_installed">
-            <b-button class="m-1" variant="warning" @click="updateApp">
+            <b-button class="m-1" variant="warning" @click="updateApp" v-if="update_available">
               <b-icon-arrow-up-circle></b-icon-arrow-up-circle>
               Update
             </b-button>
