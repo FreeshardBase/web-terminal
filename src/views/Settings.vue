@@ -130,10 +130,12 @@
 <script>
 import Navbar from "@/components/Navbar";
 import TextField from "@/components/TextField.vue";
+import {toastMixin} from "@/mixins";
 
 export default {
   name: "Settings",
   components: {TextField, Navbar},
+  mixins: [toastMixin],
 
   data: function () {
     return {
@@ -169,13 +171,7 @@ export default {
       try {
         await this.$store.dispatch("query_profile_data");
       } catch (e) {
-        this.$bvToast.toast(e.response.data.detail, {
-          title: 'Error during loading',
-          autoHideDelay: 5000,
-          appendToast: true,
-          solid: true,
-          variant: 'danger',
-        });
+        this.toastError('Error during loading', e.response.data.detail);
       } finally {
         this.isUpdating = false;
       }
@@ -183,15 +179,9 @@ export default {
     async resetTour() {
       try {
         await this.$http.delete('/core/protected/help/tours');
-        this.$bvToast.toast('Tours reset.', {
-          variant: 'success',
-        });
-
+        this.toastSuccess('Tours reset.');
       } catch (e) {
-        this.$bvToast.toast(e.response.data.detail, {
-          title: 'Error during resetting',
-          variant: 'danger',
-        });
+        this.toastError('Error during resetting', e.response.data.detail);
       } finally {
         await this.$store.dispatch('query_tour_data');
       }

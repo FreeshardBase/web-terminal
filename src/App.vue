@@ -10,12 +10,15 @@
 
 <script>
 import {EventBus} from "@/event-bus";
+import {toastMixin} from "@/mixins";
 
 export default {
   data: () => ({
     loading: true,
     websocket: null,
   }),
+
+  mixins: [toastMixin],
 
   methods: {
     connectWS() {
@@ -68,10 +71,7 @@ export default {
     this.loading = false;
 
     EventBus.$on('app_install_error', (message) => {
-      this.$bvToast.toast(message.error, {
-        title: `Failed to install app ${message.name}`,
-        variant: 'danger',
-      });
+      this.toastError(`Failed to install app ${message.name}`, message.error);
     });
   },
 }

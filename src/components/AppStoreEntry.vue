@@ -4,7 +4,7 @@
       <b-row>
         <b-col cols="2" class="text-center">
           <b-spinner
-              v-if="['installing', 'installation_queued'].includes(app.status)"
+              v-if="['installing', 'installation_queued', 'uninstalling'].includes(app.status)"
               class="app-icon m-2">
           </b-spinner>
           <div v-else>
@@ -20,10 +20,15 @@
         <b-col cols="10">
           <b-card-body>
             <b-card-title>
-              {{ app.pretty_name || app.meta.pretty_name }}
-              <b-icon-star-fill v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
-              <b-icon-exclamation-octagon-fill v-if="!canBeInstalled" variant="warning"></b-icon-exclamation-octagon-fill>
-              <b-icon-exclamation-triangle-fill v-if="app.status === 'error'" variant="danger"></b-icon-exclamation-triangle-fill>
+              {{ app.pretty_name || (app.meta && app.meta.pretty_name) || app.name }}
+              <b-icon-arrow-up-circle
+                  variant="warning" v-if="update_available"></b-icon-arrow-up-circle>
+              <b-icon-star-fill
+                  v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
+              <b-icon-exclamation-octagon-fill
+                  v-if="!canBeInstalled" variant="warning"></b-icon-exclamation-octagon-fill>
+              <b-icon-exclamation-triangle-fill
+                  v-if="app.status === 'error'" variant="danger"></b-icon-exclamation-triangle-fill>
             </b-card-title>
             <b-card-text>{{ appStoreInfo.description_short }}</b-card-text>
           </b-card-body>
@@ -47,11 +52,14 @@
             </b-col>
             <b-col>
               <h2>
-                {{ app.pretty_name || app.meta.pretty_name }}
+                {{ app.pretty_name || (app.meta && app.meta.pretty_name) || app.name }}
               </h2>
               <p class="text-secondary" v-if="is_installed"><small>
                 {{ app.status }}<br>
-                <div v-if="Boolean(app.from_branch) && app.from_branch !== 'master'">From branch: {{ app.from_branch }}</div>
+                <div v-if="Boolean(app.from_branch) && app.from_branch !== 'master'">From branch: {{
+                    app.from_branch
+                  }}
+                </div>
                 <div v-if="app.installation_reason === 'custom'">Custom App</div>
                 <div v-if="app.installation_reason === 'config'">Preconfigured App</div>
               </small></p>
@@ -99,10 +107,14 @@
         </div>
         <div v-else>
           <div v-if="is_installed">
-            <b-button v-if="is_installed" class="m-1" variant="primary" @click="open">
+            <b-button class="m-1" variant="warning" @click="updateApp" v-if="update_available">
+              <b-icon-arrow-up-circle></b-icon-arrow-up-circle>
+              Update
+            </b-button>
+            <b-button class="m-1" variant="primary" @click="open">
               Open
             </b-button>
-            <b-button v-if="is_installed" class="m-1" variant="outline-danger" @click="removeApp">
+            <b-button class="m-1" variant="outline-danger" @click="removeApp">
               Remove
             </b-button>
           </div>
@@ -122,9 +134,12 @@
 </template>
 
 <script>
+import {toastMixin} from "@/mixins";
+
 export default {
   name: "AppStoreEntry",
-  props: ['app', 'is_installed', 'branch'],
+  mixins: [toastMixin],
+  props: ['app', 'is_installed', 'branch', 'update_available'],
   data: function () {
     return {
       iconLoadedCard: false,
@@ -181,6 +196,18 @@ export default {
       this.busyMessage = null;
     },
 
+    async updateApp() {
+      this.busyMessage = `Updating ${this.app.name}...`;
+      try {
+        await this.$http.post(`/core/protected/apps/${this.app.name}/reinstall`);
+      } catch (e) {
+        this.toastError(`Failed to update ${this.app.name}`, e.message);
+      } finally {
+        this.$emit('changed');
+        this.busyMessage = null;
+      }
+    },
+
     open() {
       window.open(`https://${this.app.name}.${window.location.host}`, '_blank');
     },
@@ -210,6 +237,7 @@ export default {
 .app-star {
   color: gold;
   cursor: pointer;
+  margin-left: 0.5em;
 }
 
 .app-info {
