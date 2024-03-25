@@ -13,9 +13,10 @@ variables:
 build:
   stage: build
   script:
-    - apk add --update nodejs nodejs-npm
+    - apk add --update nodejs nodejs-npm jq
     - npm install
     - npm run build
+    - 'echo "{\"version\": \"$(jq .version -r package.json)\"}" > dist/version.json'
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build --pull -t $IMAGE_TAG_REF .
     - docker push $IMAGE_TAG_REF
