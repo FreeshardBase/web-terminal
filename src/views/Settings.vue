@@ -115,7 +115,7 @@
                          :content="$store.state.profile.delete_after | formatDateHumanize"/>
               <TextField v-else title="Scheduled to delete" content="never"/>
             </div>
-
+            <TextField title="UI Version" :content="uiVersion"/>
             <TextField title="Public Key" :content="$store.state.meta.portal_identity.public_key_pem || 'unknown'"
                        class="text-monospace"/>
 
@@ -131,6 +131,7 @@
 import Navbar from "@/components/Navbar";
 import TextField from "@/components/TextField.vue";
 import {toastMixin} from "@/mixins";
+import pjson from "@/../package.json";
 
 export default {
   name: "Settings",
@@ -162,6 +163,9 @@ export default {
         pid = pid.slice(segmentLength);
       }
       return result;
+    },
+    uiVersion() {
+      return pjson.version;
     }
   },
 
