@@ -68,6 +68,11 @@ export default {
       }
     }, 1000 * 5);
 
+    await this.$store.dispatch('query_ui_version');
+    setInterval(() => {
+      this.$store.dispatch('query_ui_version');
+    }, 1000 * 60 * 5);
+
     this.loading = false;
 
     EventBus.$on('app_install_error', (message) => {

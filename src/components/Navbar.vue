@@ -80,7 +80,14 @@
           </b-nav-item>
         </b-navbar-nav>
 
-        <b-navbar-nav id="nav-feedback" class="ml-auto">
+        <b-navbar-nav id="nav-update" class="ml-auto">
+          <b-nav-item v-if="uiUpdateMessage" @click="reload">
+            <b-icon-arrow-up-circle variant="warning"></b-icon-arrow-up-circle>
+            {{ uiUpdateMessage }}
+          </b-nav-item>
+        </b-navbar-nav>
+
+        <b-navbar-nav id="nav-feedback">
           <b-nav-item id="nav-feedback" v-b-modal.feedback-modal>
             <b-icon-chat-right-text></b-icon-chat-right-text>
             Feedback
@@ -135,10 +142,12 @@
 <script>
 import PortalIdBadge from "@/components/PortalIdBadge";
 import Banner from "@/components/Banner.vue";
+import pjson from "@/../package.json";
 
 export default {
   name: "Navbar",
   components: {Banner, PortalIdBadge},
+
   data() {
     return {
       feedback: {
@@ -149,6 +158,17 @@ export default {
       }
     }
   },
+
+  computed: {
+    uiUpdateMessage() {
+      if (this.$store.state.version !== null && this.$store.state.version !== pjson.version) {
+        return `Refresh to update to ${this.$store.state.version}`;
+      } else {
+        return undefined;
+      }
+    },
+  },
+
   methods: {
     async sendFeedback() {
       this.feedback.isSending = true;
@@ -169,6 +189,10 @@ export default {
       this.feedback.isSending = false;
       this.feedback.sendConfirmed = false;
       this.feedback.text = '';
+    },
+
+    reload() {
+      location.reload();
     },
   },
 }
