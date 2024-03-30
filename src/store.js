@@ -72,14 +72,15 @@ const store = new Vuex.Store({
     actions: {
         async query_meta_data(context) {
             let meta = {}
-            let whoami = await this._vm.$http.get('/core/public/meta/whoami')
+            const [whoami, whoareyou] = await Promise.all([
+                this._vm.$http.get('/core/public/meta/whoami'),
+                this._vm.$http.get('/core/public/meta/whoareyou')
+            ]);
             if (whoami.data.type !== 'anonymous') {
                 meta.is_anonymous = false;
                 meta.device_id = whoami.data.id;
                 meta.device_name = whoami.data.name;
             }
-
-            const whoareyou = await this._vm.$http.get('/core/public/meta/whoareyou')
             meta.portal_identity = whoareyou.data;
 
             context.commit('set_meta', meta)
@@ -99,8 +100,12 @@ const store = new Vuex.Store({
             context.commit('set_profile', profile.data);
         },
         async query_tour_data(context) {
-            let tours = await this._vm.$http.get('/core/protected/help/tours')
-            context.commit('set_tours', tours.data)
+            try {
+                const response = await this._vm.$http.get('/core/protected/help/tours')
+            context.commit('set_tours', response.data)
+            } catch (e) {
+                console.error('Failed to load tours');
+            }
         },
         async mark_tour_as_seen(context, tourName) {
             await this._vm.$http.put('/core/protected/help/tours', {name: tourName, status: 'seen'})

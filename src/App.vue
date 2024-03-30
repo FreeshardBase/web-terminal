@@ -44,31 +44,26 @@ export default {
   },
 
   async beforeMount() {
-    const whoami = await this.$http.get('/core/public/meta/whoami')
+    await Promise.all([
+      this.$store.dispatch('query_meta_data'),
+      this.$store.dispatch('query_tour_data'),
+      this.$store.dispatch('query_profile_data'),
+      this.$store.dispatch('query_ui_version'),
+    ]);
 
-    await this.$store.dispatch('query_meta_data');
-    if (whoami.data.type === 'anonymous') {
+    if (this.$store.state.meta.is_anonymous) {
       if (!['Pair', 'Welcome'].includes(this.$route.name)) {
         await this.$router.replace('/welcome');
       }
     } else {
-      await this.$store.dispatch('query_tour_data');
       this.connectWS();
+      setInterval(() => {
+        if (!this.websocket) {
+          this.connectWS();
+        }
+      }, 1000 * 5);
     }
 
-    try {
-      await this.$store.dispatch("query_profile_data");
-    } catch (error) {
-      console.log(error);
-    }
-
-    setInterval(() => {
-      if (!this.websocket) {
-        this.connectWS();
-      }
-    }, 1000 * 5);
-
-    await this.$store.dispatch('query_ui_version');
     setInterval(() => {
       this.$store.dispatch('query_ui_version');
     }, 1000 * 60 * 5);
