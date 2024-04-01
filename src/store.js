@@ -88,7 +88,7 @@ const store = new Vuex.Store({
 
         async query_ui_version(context) {
             try {
-                let response = await this._vm.$http.get('/version.json');
+                let response = await this._vm.$http.get(`/version.json?timestamp=${new Date().getTime()}`);
                 context.commit('set_version', response.data.version);
             } catch (e) {
                 console.error('Failed to load version.json');

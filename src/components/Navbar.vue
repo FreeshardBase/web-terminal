@@ -192,7 +192,7 @@ export default {
     },
 
     reload() {
-      location.reload();
+      location.reload(true);
     },
   },
 }
