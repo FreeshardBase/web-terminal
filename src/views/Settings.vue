@@ -19,13 +19,49 @@
         <b-row>
           <b-col>
             <b-card title="Backup">
+
               <b-card-text>
-                Download a zip archive containing all of your Portal's personal data.
+                Backups are done automatically every night.
               </b-card-text>
-              <b-button variant="primary" href="/core/protected/backup/export">
-                <b-icon-download></b-icon-download>
-                Download
-              </b-button>
+              <b-button v-b-toggle.accordion-1 class="mt-1">Show latest backup stats</b-button>
+              <b-collapse id="accordion-1" class="mt-1">
+                <b-card>
+                  <pre>{{ backupInfo.last_report || 'No backup was done yet.' }}</pre>
+                </b-card>
+              </b-collapse>
+
+              <hr>
+
+              <b-card-text class="mt-2">
+                Backups are encrypted with a passphrase on this Portal before being sent to the backup server.
+                In order to access your backups later, it is highly recommended to <b>write down your passphrase</b>.
+                If you lose your passphrase, you will not be able to access your backups.
+                There is no other way to recover them.
+              </b-card-text>
+              <b-card-text v-if="!backupInfo.last_passphrase_access_info">
+                <b-icon-exclamation-triangle-fill></b-icon-exclamation-triangle-fill>
+                You have not revealed your passphrase yet. Please write it down as soon as possible.
+              </b-card-text>
+              <b-button v-b-toggle.accordion-2 class="mt-1">Reveal passphrase</b-button>
+              <b-collapse id="accordion-2" class="mt-1">
+                <b-card>
+                  <b-alert show variant="warning" class="mt-2">
+                    This is very sensitive information. Make sure no one else is watching!
+                    <b-button @click="fetchPassphrase" variant="warning" size="sm" class="ml-2" v-if="!passphrase">Reveal now</b-button>
+                    <b-spinner v-if="passphraseLoading" small class="ml-2"></b-spinner>
+                    <div v-if="passphrase">
+                      <p>Your passphrase:</p>
+                      <b-card class="text-monospace">{{ passphrase }}</b-card>
+                    </div>
+                  </b-alert>
+                  <p v-if="backupInfo.last_passphrase_access_info" class="text-muted small">
+                    Your passphrase was last revealed {{ backupInfo.last_passphrase_access_info.time | formatDateHumanize }}
+                    from device {{ backupInfo.last_passphrase_access_info.terminal_id }}.
+                  </p>
+                  <p v-else class="text-muted small">You have not revealed your passphrase yet.</p>
+                </b-card>
+              </b-collapse>
+
             </b-card>
           </b-col>
         </b-row>
@@ -36,6 +72,7 @@
               <b-card-text>
                 Change the size of your Portal.
                 This sets the number of CPUs and the amount of RAM your Portal can use.
+                <!-- TODO: Add information about how to contact us to unlock more sizes -->
               </b-card-text>
 
               <b-button-group>
@@ -149,7 +186,10 @@ export default {
       prune: {
         inProgress: false,
         result: '',
-      }
+      },
+      backupInfo: {"last_report": null},
+      passphraseLoading: false,
+      passphrase: null, // This will be handled later
     }
   },
 
@@ -178,6 +218,28 @@ export default {
         this.toastError('Error during loading', e.response.data.detail);
       } finally {
         this.isUpdating = false;
+      }
+    },
+    async refreshBackupInfo() {
+      try {
+        const response = await this.$http.get('/core/protected/backup/info');
+        if (this.backupInfo) {
+          this.backupInfo = response.data;
+        }
+      } catch (e) {
+        this.toastError('Error during loading', e.response.data.detail);
+      }
+    },
+    async fetchPassphrase() {
+      this.passphraseLoading = true;
+      try {
+        const response = await this.$http.get('/core/protected/backup/passphrase');
+        this.passphrase = response.data.passphrase;
+      } catch (e) {
+        this.toastError('Error during loading', e.response.data.detail);
+      } finally {
+        this.passphraseLoading = false;
+        this.refreshBackupInfo();
       }
     },
     async resetTour() {
@@ -226,6 +288,7 @@ export default {
 
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - About`;
+    this.refreshBackupInfo(); // Load backup info in the background
   },
 }
 </script>
