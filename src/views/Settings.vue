@@ -23,7 +23,16 @@
               <b-card-text>
                 Backups are done automatically every night.
               </b-card-text>
-              <b-button v-b-toggle.accordion-1 class="mt-1">Show latest backup stats</b-button>
+              <b-card-text class="text-muted small">
+                We are currently working on a self-service access to your backups.
+                Until then, please <a href="mailto:contact@getportal.org">contact us</a> if you need access,
+                so we can guide you through the process.
+              </b-card-text>
+              <div class="mt-1">
+                <b-button variant="primary" v-b-toggle.accordion-1>Show latest backup stats</b-button>
+                <!-- TODO: Add a function to start a backup now -->
+                <b-button variant="primary" class="ml-1">Start backup now</b-button>
+              </div>
               <b-collapse id="accordion-1" class="mt-1">
                 <b-card>
                   <pre>{{ backupInfo.last_report || 'No backup was done yet.' }}</pre>
@@ -34,7 +43,7 @@
 
               <b-card-text class="mt-2">
                 Backups are encrypted with a passphrase on this Portal before being sent to the backup server.
-                In order to access your backups later, it is highly recommended to <b>write down your passphrase</b>.
+                In order to access your backups later, it is essential to <b>write down your passphrase</b>.
                 If you lose your passphrase, you will not be able to access your backups.
                 There is no other way to recover them.
               </b-card-text>
@@ -42,7 +51,7 @@
                 <b-icon-exclamation-triangle-fill></b-icon-exclamation-triangle-fill>
                 You have not revealed your passphrase yet. Please write it down as soon as possible.
               </b-card-text>
-              <b-button v-b-toggle.accordion-2 class="mt-1">Reveal passphrase</b-button>
+              <b-button v-b-toggle.accordion-2 class="mt-1" variant="warning">Reveal passphrase</b-button>
               <b-collapse id="accordion-2" class="mt-1">
                 <b-card>
                   <b-alert show variant="warning" class="mt-2">
