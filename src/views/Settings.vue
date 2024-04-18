@@ -21,10 +21,11 @@
             <b-card title="Backup">
 
               <b-card-text>
-                Backups are done automatically every night.
+                A backups is done automatically every night. New backups overwrite the old ones.
+                Even after your Portal is deleted, you can still access your backups.
               </b-card-text>
               <b-card-text class="text-muted small">
-                We are currently working on a self-service access to your backups.
+                We are currently working on self-service access to your backups.
                 Until then, please <a href="mailto:contact@getportal.org">contact us</a> if you need access,
                 so we can guide you through the process.
               </b-card-text>
@@ -42,15 +43,16 @@
               <hr>
 
               <b-card-text class="mt-2">
-                Backups are encrypted with a passphrase on this Portal before being sent to the backup server.
+                Backups are encrypted on this Portal before being sent to the backup server.
+                The encryption key is your personal passphrase.
                 In order to access your backups later, it is essential to <b>write down your passphrase</b>.
-                If you lose your passphrase, you will not be able to access your backups.
+                If you lose it, you will not be able to access your backups.
                 There is no other way to recover them.
               </b-card-text>
-              <b-card-text v-if="!backupInfo.last_passphrase_access_info">
+              <b-alert show variant="danger" v-if="!backupInfo.last_passphrase_access_info">
                 <b-icon-exclamation-triangle-fill></b-icon-exclamation-triangle-fill>
-                You have not revealed your passphrase yet. Please write it down as soon as possible.
-              </b-card-text>
+                You have never viewed your passphrase. Please write it down as soon as possible.
+              </b-alert>
               <b-button v-b-toggle.accordion-2 class="mt-1" variant="warning">Reveal passphrase</b-button>
               <b-collapse id="accordion-2" class="mt-1">
                 <b-card>
@@ -67,7 +69,6 @@
                     Your passphrase was last revealed {{ backupInfo.last_passphrase_access_info.time | formatDateHumanize }}
                     from device {{ backupInfo.last_passphrase_access_info.terminal_id }}.
                   </p>
-                  <p v-else class="text-muted small">You have not revealed your passphrase yet.</p>
                 </b-card>
               </b-collapse>
 
