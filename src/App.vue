@@ -70,9 +70,18 @@ export default {
 
     this.loading = false;
 
+    // === Websocket listeners ===
     EventBus.$on('app_install_error', (message) => {
       this.toastError(`Failed to install app ${message.name}`, message.error);
     });
+    EventBus.$on('backup_update', (message) => {
+      if (message.error) {
+        this.toastError(`Backup failed`, message.error);
+      } else {
+        this.toastSuccess('Backup completed');
+      }
+    });
+
   },
 }
 </script>

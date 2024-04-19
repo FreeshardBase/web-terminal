@@ -31,8 +31,7 @@
               </b-card-text>
               <div class="mt-1">
                 <b-button variant="primary" v-b-toggle.accordion-1>Show latest backup stats</b-button>
-                <!-- TODO: Add a function to start a backup now -->
-                <b-button variant="primary" class="ml-1">Start backup now</b-button>
+                <b-button variant="primary" @click="startBackup" class="ml-1">Start backup now</b-button>
               </div>
               <b-collapse id="accordion-1" class="mt-1">
                 <b-card>
@@ -249,6 +248,16 @@ export default {
         this.toastError('Error during loading', e.response.data.detail);
       } finally {
         this.passphraseLoading = false;
+        this.refreshBackupInfo();
+      }
+    },
+    async startBackup() {
+      try {
+        await this.$http.post('/core/protected/backup/start');
+        this.toastSuccess('Backup started.');
+      } catch (e) {
+        this.toastError('Error during starting', e.response.data.detail);
+      } finally {
         this.refreshBackupInfo();
       }
     },
