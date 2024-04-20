@@ -81,7 +81,11 @@
               <b-card-text>
                 Change the size of your Portal.
                 This sets the number of CPUs and the amount of RAM your Portal can use.
-                <!-- TODO: Add information about how to contact us to unlock more sizes -->
+              </b-card-text>
+              <b-card-text class="text-muted small">
+                There is currently no way to unlock larger sizes in a self-service way.
+                If you need a larger size, please <a href="mailto:contact@getportal.org">contact us</a>
+                so we can unlock it for you.
               </b-card-text>
 
               <b-button-group>
