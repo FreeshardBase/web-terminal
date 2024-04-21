@@ -66,7 +66,7 @@
                   </b-alert>
                   <p v-if="backupInfo.last_passphrase_access_info" class="text-muted small">
                     Your passphrase was last revealed {{ backupInfo.last_passphrase_access_info.time | formatDateHumanize }}
-                    from device {{ backupInfo.last_passphrase_access_info.terminal_id }}.
+                    from device <i>{{ backupInfo.last_passphrase_access_info.terminal_name }}</i> (with ID: {{ backupInfo.last_passphrase_access_info.terminal_id }}).
                   </p>
                 </b-card>
               </b-collapse>
@@ -182,6 +182,7 @@ import Navbar from "@/components/Navbar";
 import TextField from "@/components/TextField.vue";
 import {toastMixin} from "@/mixins";
 import pjson from "@/../package.json";
+import {EventBus} from "@/event-bus";
 
 export default {
   name: "Settings",
@@ -312,6 +313,10 @@ export default {
   async mounted() {
     document.title = `Portal [${this.$store.getters.short_portal_id}] - About`;
     this.refreshBackupInfo(); // Load backup info in the background
+
+    EventBus.$on('backup_update', () => {
+      this.refreshBackupInfo();
+    });
   },
 }
 </script>
