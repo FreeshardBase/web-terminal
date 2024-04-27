@@ -50,8 +50,10 @@ export default {
       this.$store.dispatch('query_profile_data'),
       this.$store.dispatch('query_ui_version'),
     ]);
+    console.log('store filled with data')
 
     if (this.$store.state.meta.is_anonymous) {
+      console.log('Anonymous user detected')
       if (!['Pair', 'Welcome'].includes(this.$route.name)) {
         await this.$router.replace('/welcome');
       }

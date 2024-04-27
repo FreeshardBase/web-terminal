@@ -195,7 +195,7 @@ export default {
       const this_ = this;
       return this.$store.state.apps.filter(app => {
         const storeApp = this_.storeApps.find(a => a.name === app.name);
-        return storeApp !== undefined && app.meta && app.meta.app_version !== storeApp.app_version && app.status !== 'uninstalling';
+        return storeApp !== undefined && app.meta && app.meta.app_version !== storeApp.app_version && ['stopped', 'running', 'DOWN'].includes(app.status);
       })
     }
   },
@@ -232,7 +232,7 @@ export default {
     },
 
     async updateAllApps() {
-      await Promise.all(this.installedApps.map(app => this.$http.post(`/core/protected/apps/${app.name}/reinstall`)));
+      await Promise.all(this.appsWithUpdates.map(app => this.$http.post(`/core/protected/apps/${app.name}/reinstall`)));
     }
 
   },
