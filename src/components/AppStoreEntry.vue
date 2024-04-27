@@ -4,7 +4,7 @@
       <b-row>
         <b-col cols="2" class="text-center">
           <b-spinner
-              v-if="['installing', 'installation_queued', 'uninstalling'].includes(app.status)"
+              v-if="isBusy"
               class="app-icon m-2">
           </b-spinner>
           <div v-else>
@@ -56,10 +56,6 @@
               </h2>
               <p class="text-secondary" v-if="is_installed"><small>
                 {{ app.status }}<br>
-                <div v-if="Boolean(app.from_branch) && app.from_branch !== 'master'">From branch: {{
-                    app.from_branch
-                  }}
-                </div>
                 <div v-if="app.installation_reason === 'custom'">Custom App</div>
                 <div v-if="app.installation_reason === 'config'">Preconfigured App</div>
               </small></p>
@@ -139,7 +135,7 @@ import {toastMixin} from "@/mixins";
 export default {
   name: "AppStoreEntry",
   mixins: [toastMixin],
-  props: ['app', 'is_installed', 'branch', 'update_available'],
+  props: ['app', 'is_installed', 'update_available'],
   data: function () {
     return {
       iconLoadedCard: false,
@@ -154,7 +150,7 @@ export default {
         return `/core/protected/apps/${this.app.name}/icon`;
       } else {
         const iconFilename = this.app.icon;
-        return `https://storageaccountportab0da.blob.core.windows.net/app-store/${this.branch}/all_apps/${this.app.name}/${iconFilename}`;
+        return `https://storageaccountportab0da.blob.core.windows.net/app-store/master/all_apps/${this.app.name}/${iconFilename}`;
       }
     },
     appStoreInfo() {
@@ -174,13 +170,23 @@ export default {
       } else {
         return true;
       }
+    },
+    isBusy() {
+      return [
+        'installation_queued',
+        'installing',
+        'uninstallation_queued',
+        'uninstalling',
+        'reinstallation_queued',
+        'reinstalling',
+      ].includes(this.app.status)
     }
   },
 
   methods: {
     async installApp() {
       this.busyMessage = `Installing ${this.app.name}...`;
-      await this.$http.post(`/core/protected/apps/${this.app.name}?branch=${this.branch}`);
+      await this.$http.post(`/core/protected/apps/${this.app.name}`);
       this.$emit('changed');
       this.busyMessage = null;
     },
@@ -189,11 +195,16 @@ export default {
       this.$bvModal.show(`app-details-${this.app.name}`);
     },
 
+    hideDetails() {
+      this.$bvModal.hide(`app-details-${this.app.name}`);
+    },
+
     async removeApp() {
       this.busyMessage = `Removing ${this.app.name}...`;
       await this.$http.delete(`/core/protected/apps/${this.app.name}`);
       this.$emit('changed');
       this.busyMessage = null;
+      this.hideDetails();
     },
 
     async updateApp() {

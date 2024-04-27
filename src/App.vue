@@ -44,14 +44,19 @@ export default {
   },
 
   async beforeMount() {
-    await Promise.all([
-      this.$store.dispatch('query_meta_data'),
-      this.$store.dispatch('query_tour_data'),
-      this.$store.dispatch('query_profile_data'),
-      this.$store.dispatch('query_ui_version'),
-    ]);
+    try {
+      await Promise.all([
+        this.$store.dispatch('query_meta_data'),
+        this.$store.dispatch('query_tour_data'),
+        this.$store.dispatch('query_profile_data'),
+        this.$store.dispatch('query_ui_version'),
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
 
     if (this.$store.state.meta.is_anonymous) {
+      console.log('Anonymous user detected')
       if (!['Pair', 'Welcome'].includes(this.$route.name)) {
         await this.$router.replace('/welcome');
       }
@@ -66,7 +71,7 @@ export default {
 
     setInterval(() => {
       this.$store.dispatch('query_ui_version');
-    }, 1000 * 60 * 5);
+    }, 1000 * 60);
 
     this.loading = false;
 
