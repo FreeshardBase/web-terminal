@@ -195,11 +195,16 @@ export default {
       this.$bvModal.show(`app-details-${this.app.name}`);
     },
 
+    hideDetails() {
+      this.$bvModal.hide(`app-details-${this.app.name}`);
+    },
+
     async removeApp() {
       this.busyMessage = `Removing ${this.app.name}...`;
       await this.$http.delete(`/core/protected/apps/${this.app.name}`);
       this.$emit('changed');
       this.busyMessage = null;
+      this.hideDetails();
     },
 
     async updateApp() {

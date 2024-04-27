@@ -90,8 +90,16 @@ export default {
         component.show_error = true;
         return;
       }
-      await this.$store.dispatch('query_meta_data');
-      await this.$store.dispatch('query_tour_data');
+      try {
+        await Promise.all([
+          this.$store.dispatch('query_meta_data'),
+          this.$store.dispatch('query_tour_data'),
+          this.$store.dispatch('query_profile_data'),
+          this.$store.dispatch('query_ui_version'),
+        ]);
+      } catch (error) {
+        console.log(error);
+      }
       await component.$router.replace('/');
     },
     _makeDeviceObject: function () {
