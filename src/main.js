@@ -37,6 +37,10 @@ Vue.filter('formatDateHumanize', function (value) {
   return duration.humanize(true);
 })
 
+Vue.filter('errorMessage', function (error) {
+  return error.response.data.detail || error.response.data.error || error.response.data.message || error.response.data || error.message || error;
+})
+
 new Vue({
   router,
   store,

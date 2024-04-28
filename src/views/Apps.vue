@@ -136,6 +136,7 @@
           placeholder="Choose a file or drop it here..."
           drop-placeholder="Drop file here..."
       ></b-form-file>
+      <p v-if="customAppError" class="text-danger">{{ customAppError | errorMessage }}</p>
       <template #modal-footer>
         <b-button variant="success" :disabled="!Boolean(customAppFile)" @click="uploadCustomApp">
           <b-icon-box-arrow-in-up></b-icon-box-arrow-in-up>
@@ -162,6 +163,7 @@ export default {
       storeSwitchBranchInput: '',
       isUpdating: false,
       customAppFile: null,
+      customAppError: null,
     }
   },
 
@@ -226,9 +228,13 @@ export default {
     async uploadCustomApp() {
       const formData = new FormData();
       formData.append('file', this.customAppFile);
-      await this.$http.post(`/core/protected/apps`, formData);
-      this.$bvModal.hide('install-custom-app');
-      await this.refresh();
+      try {
+        await this.$http.post(`/core/protected/apps`, formData);
+        this.$bvModal.hide('install-custom-app');
+        await this.refresh();
+      } catch (error) {
+        this.customAppError = error;
+      }
     },
 
     async updateAllApps() {

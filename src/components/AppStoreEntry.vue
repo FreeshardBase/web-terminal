@@ -91,6 +91,7 @@
       </div>
       <p v-else-if="appStoreInfo.description_long">{{ appStoreInfo.description_long }}</p>
       <p v-else>{{ appStoreInfo.description_short }}</p>
+
       <template #modal-footer>
         <!-- Install/Remove and Open Button -->
         <div v-if="busyMessage" class="w-100">
@@ -102,7 +103,7 @@
               striped animated></b-progress-bar>
         </div>
         <div v-else>
-          <div v-if="is_installed">
+          <div v-if="is_installed" class="text-right">
             <b-button class="m-1" variant="warning" @click="updateApp" v-if="update_available">
               <b-icon-arrow-up-circle></b-icon-arrow-up-circle>
               Update
@@ -114,7 +115,7 @@
               Remove
             </b-button>
           </div>
-          <div v-else>
+          <div v-else class="text-right">
             <b-button v-if="canBeInstalled" class="m-1" variant="outline-success" @click="installApp">
               Install
             </b-button>
@@ -123,8 +124,10 @@
               Cannot be installed. Portal size of {{ app.minimum_portal_size | uppercase }} or more required.
             </p>
           </div>
+          <p v-if="error" class="text-danger text-right">{{ error | errorMessage }}</p>
         </div>
       </template>
+
     </b-modal>
   </div>
 </template>
@@ -141,6 +144,7 @@ export default {
       iconLoadedCard: false,
       iconLoadedModal: false,
       busyMessage: null,
+      error: null,
     }
   },
 
@@ -186,25 +190,25 @@ export default {
   methods: {
     async installApp() {
       this.busyMessage = `Installing ${this.app.name}...`;
-      await this.$http.post(`/core/protected/apps/${this.app.name}`);
+      try {
+        await this.$http.post(`/core/protected/apps/${this.app.name}`);
+      } catch (e) {
+        this.error = e;
+      }
       this.$emit('changed');
       this.busyMessage = null;
-    },
-
-    showDetails() {
-      this.$bvModal.show(`app-details-${this.app.name}`);
-    },
-
-    hideDetails() {
-      this.$bvModal.hide(`app-details-${this.app.name}`);
     },
 
     async removeApp() {
       this.busyMessage = `Removing ${this.app.name}...`;
-      await this.$http.delete(`/core/protected/apps/${this.app.name}`);
+      try {
+        await this.$http.delete(`/core/protected/apps/${this.app.name}`);
+        this.hideDetails();
+      } catch (e) {
+        this.error = e;
+      }
       this.$emit('changed');
       this.busyMessage = null;
-      this.hideDetails();
     },
 
     async updateApp() {
@@ -212,11 +216,19 @@ export default {
       try {
         await this.$http.post(`/core/protected/apps/${this.app.name}/reinstall`);
       } catch (e) {
-        this.toastError(`Failed to update ${this.app.name}`, e.message);
+        this.error = e;
       } finally {
         this.$emit('changed');
         this.busyMessage = null;
       }
+    },
+
+    hideDetails() {
+      this.$bvModal.hide(`app-details-${this.app.name}`);
+    },
+
+    showDetails() {
+      this.$bvModal.show(`app-details-${this.app.name}`);
     },
 
     open() {
