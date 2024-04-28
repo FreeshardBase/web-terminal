@@ -104,12 +104,15 @@
         </div>
         <div v-else>
           <div v-if="is_installed" class="text-right">
-            <b-button class="m-1" variant="warning" @click="updateApp" v-if="update_available">
+            <b-button v-if="update_available" class="m-1" variant="warning" @click="updateApp">
               <b-icon-arrow-up-circle></b-icon-arrow-up-circle>
               Update
             </b-button>
-            <b-button class="m-1" variant="primary" @click="open">
+            <b-button v-if="app.status !== 'error'" class="m-1" variant="primary" @click="open">
               Open
+            </b-button>
+            <b-button v-if="app.status === 'error' && !update_available" class="m-1" variant="warning" @click="updateApp">
+              Reinstall
             </b-button>
             <b-button class="m-1" variant="outline-danger" @click="removeApp">
               Remove
