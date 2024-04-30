@@ -7,7 +7,12 @@
 
         <b-row>
           <b-col>
-            <h1>Settings</h1>
+            <h1>
+              Settings
+              <b-button @click="refresh(true)" variant="outline-secondary" size="sm">
+                <b-icon-arrow-repeat></b-icon-arrow-repeat>
+              </b-button>
+            </h1>
           </b-col>
         </b-row>
 
@@ -57,7 +62,9 @@
                 <b-card>
                   <b-alert show variant="warning" class="mt-2">
                     This is very sensitive information. Make sure no one else is watching!
-                    <b-button @click="fetchPassphrase" variant="warning" size="sm" class="ml-2" v-if="!passphrase">Reveal now</b-button>
+                    <b-button @click="fetchPassphrase" variant="warning" size="sm" class="ml-2" v-if="!passphrase">
+                      Reveal now
+                    </b-button>
                     <b-spinner v-if="passphraseLoading" small class="ml-2"></b-spinner>
                     <div v-if="passphrase">
                       <p>Your passphrase:</p>
@@ -65,8 +72,10 @@
                     </div>
                   </b-alert>
                   <p v-if="backupInfo.last_passphrase_access_info" class="text-muted small">
-                    Your passphrase was last revealed {{ backupInfo.last_passphrase_access_info.time | formatDateHumanize }}
-                    from device <i>{{ backupInfo.last_passphrase_access_info.terminal_name }}</i> (with ID: {{ backupInfo.last_passphrase_access_info.terminal_id }}).
+                    Your passphrase was last revealed
+                    {{ backupInfo.last_passphrase_access_info.time | formatDateHumanize }}
+                    from device <i>{{ backupInfo.last_passphrase_access_info.terminal_name }}</i> (with ID:
+                    {{ backupInfo.last_passphrase_access_info.terminal_id }}).
                   </p>
                 </b-card>
               </b-collapse>
@@ -153,13 +162,17 @@
         <b-row>
 
           <b-col>
-            <TextField v-if="$store.state.profile" title="Machine ID" :content="$store.state.profile.vm_id || 'unknown'"/>
+            <TextField v-if="$store.state.profile" title="Machine ID"
+                       :content="$store.state.profile.vm_id || 'unknown'"/>
             <TextField title="Portal ID" :content="portalIdWithBreaks || 'unknown'"
                        class="text-monospace"/>
             <TextField v-if="$store.state.profile" title="Owner" :content="$store.state.profile.owner || 'unknown'"/>
-            <TextField v-if="$store.state.profile" title="Owner Email" :content="$store.state.profile.owner_email || 'unknown'"/>
-            <TextField v-if="$store.state.profile" title="Created" :content="$store.state.profile.time_created | formatDateHumanize"/>
-            <TextField v-if="$store.state.profile" title="Assigned" :content="$store.state.profile.time_assigned | formatDateHumanize"/>
+            <TextField v-if="$store.state.profile" title="Owner Email"
+                       :content="$store.state.profile.owner_email || 'unknown'"/>
+            <TextField v-if="$store.state.profile" title="Created"
+                       :content="$store.state.profile.time_created | formatDateHumanize"/>
+            <TextField v-if="$store.state.profile" title="Assigned"
+                       :content="$store.state.profile.time_assigned | formatDateHumanize"/>
             <div v-if="$store.state.profile">
               <TextField v-if="$store.state.profile.delete_after" title="Scheduled to delete"
                          :content="$store.state.profile.delete_after | formatDateHumanize"/>
@@ -224,10 +237,14 @@ export default {
   },
 
   methods: {
-    async refresh() {
+    async refresh(force) {
       this.isUpdating = true;
       try {
-        await this.$store.dispatch("query_profile_data");
+        if (force) {
+          await this.$store.dispatch("force_query_profile_data");
+        } else {
+          await this.$store.dispatch("query_profile_data");
+        }
       } catch (e) {
         this.toastError('Error during loading', e.response.data.detail);
       } finally {

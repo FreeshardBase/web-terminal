@@ -99,6 +99,10 @@ const store = new Vuex.Store({
             let profile = await this._vm.$http.get('/core/protected/management/profile');
             context.commit('set_profile', profile.data);
         },
+        async force_query_profile_data(context) {
+            let profile = await this._vm.$http.get('/core/protected/management/profile?refresh=true');
+            context.commit('set_profile', profile.data);
+        },
         async query_tour_data(context) {
             try {
                 const response = await this._vm.$http.get('/core/protected/help/tours')
