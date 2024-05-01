@@ -197,7 +197,7 @@ export default {
       const this_ = this;
       return this.$store.state.apps.filter(app => {
         const storeApp = this_.storeApps.find(a => a.name === app.name);
-        return storeApp !== undefined && app.meta && app.meta.app_version !== storeApp.app_version && ['stopped', 'running', 'DOWN'].includes(app.status);
+        return storeApp !== undefined && app.meta && app.meta.app_version !== storeApp.app_version && ['stopped', 'running', 'down'].includes(app.status);
       })
     }
   },
