@@ -1,6 +1,6 @@
 {
   "name": "web-terminal",
-  "version": "0.32.6",
+  "version": "0.33.0-SNAPSHOT",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --openssl-legacy-provider",
