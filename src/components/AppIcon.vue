@@ -1,6 +1,6 @@
 <template>
-  <div @click="open" id="main" ref="main" class="grid" :class="{'active': isActive, 'blocked': !canBeStarted}">
-    <div v-if="!isActive">
+  <div @click="open" id="main" ref="main" class="grid" :class="{'active': !isBusy, 'blocked': !canBeStarted}">
+    <div v-if="isBusy">
       <b-spinner class="app-icon"></b-spinner>
     </div>
     <div v-else>
@@ -39,8 +39,15 @@ export default {
     iconSrc() {
       return `/core/protected/apps/${this.app.name}/icon`
     },
-    isActive() {
-      return !['installing', 'installation_queued'].includes(this.app.status);
+    isBusy() {
+      return [
+        'installation_queued',
+        'installing',
+        'uninstallation_queued',
+        'uninstalling',
+        'reinstallation_queued',
+        'reinstalling',
+      ].includes(this.app.status);
     },
     canBeStarted() {
       const sizes = ['xs', 's', 'm', 'l', 'xl'];
@@ -62,7 +69,7 @@ export default {
   },
   methods: {
     open() {
-      if (!this.isActive) {
+      if (this.isBusy) {
         return;
       }
       if (!this.canBeStarted) {
