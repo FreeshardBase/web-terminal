@@ -26,7 +26,7 @@
             <b-card title="Backup">
 
               <b-card-text>
-                A backups is done automatically every night. New backups overwrite the old ones.
+                A backup is done automatically every night. New backups overwrite the old ones.
                 Even after your Portal is deleted, you can still access your backups.
               </b-card-text>
               <b-card-text class="text-muted small">
