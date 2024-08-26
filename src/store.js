@@ -32,6 +32,7 @@ const store = new Vuex.Store({
             total_gb: 0,
             free_gb: 0,
             disk_space_low: false,
+            disk_space_warning: false,
         }
     },
     getters: {
@@ -74,7 +75,7 @@ const store = new Vuex.Store({
             state.profile = profile;
         },
         set_disk_usage(state, disk_usage) {
-            state.disk_usage = disk_usage;
+            state.disk_usage = {...disk_usage, disk_space_warning: disk_usage.free_gb < 5};
         }
     },
     actions: {
@@ -114,7 +115,7 @@ const store = new Vuex.Store({
         async query_tour_data(context) {
             try {
                 const response = await this._vm.$http.get('/core/protected/help/tours')
-            context.commit('set_tours', response.data)
+                context.commit('set_tours', response.data)
             } catch (e) {
                 console.error('Failed to load tours');
             }

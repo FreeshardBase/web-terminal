@@ -27,15 +27,27 @@
               <b-progress
                   :max="disk_usage_total"
                   height="2em"
+                  :variant="disk_usage_variant"
               >
                 <b-progress-bar
                     :value="disk_usage_used"
                     class="text-center"
-                >{{ (disk_usage_used / disk_usage_total * 100).toFixed(1) }} %</b-progress-bar>
+                >{{ (disk_usage_used / disk_usage_total * 100).toFixed(1) }} %
+                </b-progress-bar>
               </b-progress>
               <b-card-text class="mt-2">
                 Used: {{ disk_usage_used }} GiB of {{ disk_usage_total }} GiB
               </b-card-text>
+              <b-alert show variant="danger" v-if="$store.state.disk_usage.disk_space_low">
+                <b-icon-hdd-fill></b-icon-hdd-fill>
+                Disk space critically low. All apps are stopped. Please upgrade your disk space or <a
+                  href="mailto:contact@getportal.org">contact us</a> for help.
+              </b-alert>
+              <b-alert show variant="warning" v-else-if="$store.state.disk_usage.disk_space_warning">
+                <b-icon-hdd-fill></b-icon-hdd-fill>
+                Disk space is getting low. If it gets critical, all apps will be stopped to prevent data loss.
+                You should prune unused data or upgrade your disk space.
+              </b-alert>
 
               <hr>
 
@@ -254,6 +266,15 @@ export default {
     },
     disk_usage_used() {
       return (this.$store.state.disk_usage.total_gb - this.$store.state.disk_usage.free_gb).toFixed(2);
+    },
+    disk_usage_variant() {
+      if (this.$store.state.disk_usage.disk_space_low) {
+        return 'danger';
+      } else if (this.$store.state.disk_usage.disk_space_warning) {
+        return 'warning';
+      } else {
+        return 'success';
+      }
     },
   },
 
