@@ -50,6 +50,7 @@ export default {
         this.$store.dispatch('query_tour_data'),
         this.$store.dispatch('query_profile_data'),
         this.$store.dispatch('query_ui_version'),
+        this.$store.dispatch('query_disk_usage'),
       ]);
     } catch (error) {
       console.log(error);
@@ -85,6 +86,9 @@ export default {
       } else {
         this.toastSuccess('Backup completed');
       }
+    });
+    EventBus.$on('disk_usage_update', (message) => {
+      this.$store.commit('set_disk_usage', message);
     });
 
   },

@@ -23,6 +23,37 @@
 
         <b-row>
           <b-col>
+            <b-card title="Disk Space">
+              <b-progress
+                  :max="disk_usage_total"
+                  height="2em"
+              >
+                <b-progress-bar
+                    :value="disk_usage_used"
+                    class="text-center"
+                >{{ (disk_usage_used / disk_usage_total * 100).toFixed(1) }} %</b-progress-bar>
+              </b-progress>
+              <b-card-text class="mt-2">
+                Used: {{ disk_usage_used }} GiB of {{ disk_usage_total }} GiB
+              </b-card-text>
+
+              <hr>
+
+              <b-card-text>
+                Prune unused data in order to free up disk space. This is also done automatically every night.
+              </b-card-text>
+              <b-button @click="pruneImages" variant="primary" :disabled="prune.inProgress">
+                <b-icon-trash></b-icon-trash>
+                Prune
+              </b-button>
+              &nbsp;<b-spinner v-if="prune.inProgress" small></b-spinner>
+              {{ prune.result }}
+            </b-card>
+          </b-col>
+        </b-row>
+
+        <b-row>
+          <b-col>
             <b-card title="Backup">
 
               <b-card-text>
@@ -139,22 +170,6 @@
 
         <b-row>
           <b-col>
-            <b-card title="Prune">
-              <b-card-text>
-                Prune unused data in order to free up disk space.
-              </b-card-text>
-              <b-button @click="pruneImages" variant="primary" :disabled="prune.inProgress">
-                <b-icon-trash></b-icon-trash>
-                Prune
-              </b-button>
-              &nbsp;<b-spinner v-if="prune.inProgress" small></b-spinner>
-              {{ prune.result }}
-            </b-card>
-          </b-col>
-        </b-row>
-
-        <b-row>
-          <b-col>
             <h1>About</h1>
           </b-col>
         </b-row>
@@ -233,7 +248,13 @@ export default {
     },
     uiVersion() {
       return pjson.version;
-    }
+    },
+    disk_usage_total() {
+      return this.$store.state.disk_usage.total_gb.toFixed(2);
+    },
+    disk_usage_used() {
+      return (this.$store.state.disk_usage.total_gb - this.$store.state.disk_usage.free_gb).toFixed(2);
+    },
   },
 
   methods: {

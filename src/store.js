@@ -28,6 +28,11 @@ const store = new Vuex.Store({
         apps: [],
         terminals: [],
         tours: [],
+        disk_usage: {
+            total_gb: 0,
+            free_gb: 0,
+            disk_space_low: false,
+        }
     },
     getters: {
         short_portal_id: state => {
@@ -67,6 +72,9 @@ const store = new Vuex.Store({
         },
         set_profile(state, profile) {
             state.profile = profile;
+        },
+        set_disk_usage(state, disk_usage) {
+            state.disk_usage = disk_usage;
         }
     },
     actions: {
@@ -110,6 +118,10 @@ const store = new Vuex.Store({
             } catch (e) {
                 console.error('Failed to load tours');
             }
+        },
+        async query_disk_usage(context) {
+            const response = await this._vm.$http.get('/core/protected/stats/disk');
+            context.commit('set_disk_usage', response.data);
         },
         async mark_tour_as_seen(context, tourName) {
             await this._vm.$http.put('/core/protected/help/tours', {name: tourName, status: 'seen'})
