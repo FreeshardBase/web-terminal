@@ -87,6 +87,28 @@
           </b-nav-item>
         </b-navbar-nav>
 
+        <b-navbar-nav id="nav-disk-danger">
+          <b-nav-item
+              v-if="$store.state.disk_usage.disk_space_low"
+              to="/settings">
+            <b-icon-hdd-fill variant="danger"></b-icon-hdd-fill>
+          </b-nav-item>
+        </b-navbar-nav>
+        <b-tooltip target="nav-disk-danger" placement="bottom">
+          Disk space critically low. All apps are stopped.
+        </b-tooltip>
+
+        <b-navbar-nav id="nav-disk-warning">
+          <b-nav-item
+              v-if="$store.state.disk_usage.disk_space_warning && !$store.state.disk_usage.disk_space_low"
+              to="/settings">
+            <b-icon-hdd-fill variant="warning"></b-icon-hdd-fill>
+          </b-nav-item>
+        </b-navbar-nav>
+        <b-tooltip target="nav-disk-warning" placement="bottom">
+          Disk space is getting low.
+        </b-tooltip>
+
         <b-navbar-nav id="nav-feedback">
           <b-nav-item id="nav-feedback" v-b-modal.feedback-modal>
             <b-icon-chat-right-text></b-icon-chat-right-text>
