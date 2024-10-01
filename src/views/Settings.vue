@@ -127,8 +127,13 @@
           </b-col>
         </b-row>
 
-        <b-row v-if="$store.state.profile">
+        <b-row id="size" v-if="$store.state.profile">
           <b-col>
+          <b-overlay :show="navOverlays.size" variant="primary" rounded="sm">
+
+            <!-- to remove the spinner -->
+            <template #overlay><div></div></template>
+
             <b-card title="Size">
               <b-card-text>
                 Change the size of your Portal.
@@ -163,6 +168,7 @@
               </b-button-group>
 
             </b-card>
+            </b-overlay>
           </b-col>
         </b-row>
 
@@ -180,7 +186,7 @@
           </b-col>
         </b-row>
 
-        <b-row>
+        <b-row id="about">
           <b-col>
             <h1>About</h1>
           </b-col>
@@ -244,6 +250,10 @@ export default {
       backupInfo: {"last_report": null},
       passphraseLoading: false,
       passphrase: null, // This will be handled later
+      navOverlays: {
+        size: false,
+        about: false,
+      }
     }
   },
 
@@ -376,6 +386,17 @@ export default {
     EventBus.$on('backup_update', () => {
       this.refreshBackupInfo();
     });
+
+    const section = this.$router.currentRoute.hash.replace("#", "");
+    if (section) {
+      this.navOverlays[section] = true;
+      this.$nextTick(() => {
+        window.document.getElementById(section).scrollIntoView();
+      });
+      setTimeout(() => {
+        this.navOverlays[section] = false;
+      }, 400);
+    }
   },
 }
 </script>
