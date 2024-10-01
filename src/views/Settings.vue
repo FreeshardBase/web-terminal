@@ -140,9 +140,7 @@
                 This sets the number of CPUs and the amount of RAM your Portal can use.
               </b-card-text>
               <b-card-text class="text-muted small">
-                There is currently no way to unlock larger sizes in a self-service way.
-                If you need a larger size, please <a href="mailto:contact@getportal.org">contact us</a>
-                so we can unlock it for you.
+                To unlock larger sizes, please <a href="mailto:contact@getportal.org">contact us</a>.
               </b-card-text>
 
               <b-button-group>

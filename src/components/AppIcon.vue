@@ -21,7 +21,8 @@
 
     <b-popover :target="this.$refs.main" ref="popover" placement="bottom">
       This app requires a Portal of size <b>{{ minimumPortalSize | uppercase }}</b> or larger -
-      Current size: <b>{{ $store.state.profile.portal_size | uppercase }}</b>
+      Current size: <b>{{ $store.state.profile.portal_size | uppercase }}</b><br>
+      <RouterLink to="/settings#size">Upgrade</RouterLink>
     </b-popover>
   </div>
 </template>

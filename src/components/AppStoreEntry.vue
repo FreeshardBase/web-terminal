@@ -26,7 +26,7 @@
               <b-icon-star-fill
                   v-if="appStoreInfo.is_featured" class="app-star"></b-icon-star-fill>
               <b-icon-exclamation-octagon-fill
-                  v-if="!canBeInstalled" variant="warning"></b-icon-exclamation-octagon-fill>
+                  v-if="!isSizeCompatible" variant="warning"></b-icon-exclamation-octagon-fill>
               <b-icon-exclamation-triangle-fill
                   v-if="app.status === 'error'" variant="danger"></b-icon-exclamation-triangle-fill>
             </b-card-title>
@@ -102,6 +102,12 @@
               :label="busyMessage"
               striped animated></b-progress-bar>
         </div>
+        <div v-else-if="!isSizeCompatible">
+            <p class="m-1">
+              <b-icon-exclamation-octagon-fill class="text-warning"></b-icon-exclamation-octagon-fill>
+              You need to <RouterLink to="/settings#size">upgrade your Portal</RouterLink> at least to size {{ minimumPortalSize | uppercase }} to use this app.
+            </p>
+        </div>
         <div v-else>
           <div v-if="is_installed" class="text-right">
             <b-button v-if="update_available" class="m-1" variant="warning" @click="updateApp">
@@ -119,13 +125,9 @@
             </b-button>
           </div>
           <div v-else class="text-right">
-            <b-button v-if="canBeInstalled" class="m-1" variant="outline-success" @click="installApp">
+            <b-button class="m-1" variant="outline-success" @click="installApp">
               Install
             </b-button>
-            <p v-else class="m-1 text-warning">
-              <b-icon-exclamation-octagon-fill></b-icon-exclamation-octagon-fill>
-              Cannot be installed. Portal size of {{ app.minimum_portal_size | uppercase }} or more required.
-            </p>
           </div>
           <p v-if="error" class="text-danger text-right">{{ error | errorMessage }}</p>
         </div>
@@ -168,11 +170,14 @@ export default {
         is_featured: false,
       }
     },
-    canBeInstalled() {
+    minimumPortalSize() {
+      return (this.app.meta && this.app.meta.minimum_portal_size) || this.app.minimum_portal_size;
+    },
+    isSizeCompatible() {
       const sizes = ['xs', 's', 'm', 'l', 'xl'];
       if (this.$store.state.profile) {
         const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
-        const requiredSize = sizes.indexOf(this.app.minimum_portal_size);
+        const requiredSize = sizes.indexOf(this.minimumPortalSize);
         return currentSize >= requiredSize;
       } else {
         return true;
