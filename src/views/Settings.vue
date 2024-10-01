@@ -127,17 +127,20 @@
           </b-col>
         </b-row>
 
-        <b-row v-if="$store.state.profile">
+        <b-row id="size" v-if="$store.state.profile">
           <b-col>
+          <b-overlay :show="navOverlays.size" variant="primary" rounded="sm">
+
+            <!-- to remove the spinner -->
+            <template #overlay><div></div></template>
+
             <b-card title="Size">
               <b-card-text>
                 Change the size of your Portal.
                 This sets the number of CPUs and the amount of RAM your Portal can use.
               </b-card-text>
               <b-card-text class="text-muted small">
-                There is currently no way to unlock larger sizes in a self-service way.
-                If you need a larger size, please <a href="mailto:contact@getportal.org">contact us</a>
-                so we can unlock it for you.
+                To unlock larger sizes, please <a href="mailto:contact@getportal.org">contact us</a>.
               </b-card-text>
 
               <b-button-group>
@@ -163,6 +166,7 @@
               </b-button-group>
 
             </b-card>
+            </b-overlay>
           </b-col>
         </b-row>
 
@@ -180,7 +184,7 @@
           </b-col>
         </b-row>
 
-        <b-row>
+        <b-row id="about">
           <b-col>
             <h1>About</h1>
           </b-col>
@@ -244,6 +248,10 @@ export default {
       backupInfo: {"last_report": null},
       passphraseLoading: false,
       passphrase: null, // This will be handled later
+      navOverlays: {
+        size: false,
+        about: false,
+      }
     }
   },
 
@@ -376,6 +384,17 @@ export default {
     EventBus.$on('backup_update', () => {
       this.refreshBackupInfo();
     });
+
+    const section = this.$router.currentRoute.hash.replace("#", "");
+    if (section) {
+      this.navOverlays[section] = true;
+      this.$nextTick(() => {
+        window.document.getElementById(section).scrollIntoView();
+      });
+      setTimeout(() => {
+        this.navOverlays[section] = false;
+      }, 400);
+    }
   },
 }
 </script>
