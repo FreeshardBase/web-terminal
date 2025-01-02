@@ -61,6 +61,26 @@
           </b-button>
         </b-alert>
 
+         <!--search for apps -->
+        <b-row class="mb-3">
+          <b-col>
+            <b-input-group>
+              <b-form-input
+                v-model="searchQuery"
+                placeholder="Search for apps..."
+              ></b-form-input>
+              <b-input-group-append>
+                <b-form-select
+                  v-model="selectedCategory"
+                  :options="categories"
+                  class="w-100"
+                  placeholder="Select Category"
+                ></b-form-select>
+              </b-input-group-append>
+            </b-input-group>
+          </b-col>
+        </b-row>
+
         <!-- Apps with updates -->
         <b-row v-if="appsWithUpdates.length > 0">
           <b-col>
@@ -164,8 +184,43 @@ export default {
       isUpdating: false,
       customAppFile: null,
       customAppError: null,
+      searchQuery: '',
+      selectedCategory: null, // New data property for selected category
+      categories: [
+      { value: null, text: "All Categories" },
+      { value: "files", text: "Files" },
+      { value: "security", text: "Security" },
+      { value: "productivity", text: "Productivity" },
+      { value: "collaboration", text: "Collaboration" },
+      { value: "media", text: "Media" },
+      { value: "finance", text: "Finance" },
+      { value: "communication", text: "Communication" },
+      { value: "system-logs", text: "System & Logs" },
+      { value: "bookmarks-rss", text: "Bookmarks & RSS" },
+      { value: "web-blogging", text: "Web & Blogging" },
+      { value: "time-management", text: "Time Management" },
+      { value: "iot", text: "IoT" }
+    ],
+
+    categoryKeywords: {
+      "files": ["file", "storage", "organize", "document", "pdf", "manipulation", "editor", "convert", "filebrowser"],
+      "security": ["password", "vaultwarden", "encryption", "security", "privacy"],
+      "productivity": ["plan", "project", "task", "schedule", "management", "planner", "track", "note", "notetaking", "memo", "journal", "knowledge", "ideas"],
+      "collaboration": ["workspace", "collaboration", "whiteboard", "team", "docs", "affine", "draw", "diagram", "visualize"],
+      "media": ["audiobook", "podcast", "music", "stream", "media", "audio", "listen", "photo", "backup", "gallery", "Immich", "Kavita"],
+      "finance": ["finance", "budget", "money", "accounting", "spend", "I Hate Money"],
+      "communication": ["video", "call", "chat", "messaging", "communication", "Element", "MiroTalk"],
+      "system-logs": ["monitor", "system", "glances", "stats", "resource", "performance", "logging", "monitoring", "Dozzle"],
+      "bookmarks-rss": ["bookmark", "links", "save", "favorites", "Linkding", "rss", "feed", "aggregator", "FreshRSS"],
+      "web-blogging": ["web", "save", "read", "Wallabag", "article", "blog", "write", "Ghost", "publish"],
+      "time-management": ["time", "tracking", "Titra", "freelancer", "project"],
+      "iot": ["mqtt", "broker", "Mosquitto", "IoT", "message", "protocol"]
+
+      // You can add more categories and their keywords here
+      }
     }
   },
+
 
   computed: {
     availableApps() {
@@ -200,7 +255,43 @@ export default {
         return storeApp !== undefined && app.meta && app.meta.app_version !== storeApp.app_version && ['stopped', 'running', 'down'].includes(app.status);
       })
     }
+
+    
+    filteredInstalledApps() {
+      const query = this.searchQuery.toLowerCase();
+      return this.installedApps.filter(app => {
+	//Match search query
+        const matchesQuery = query === "" || app.name.toLowerCase().includes(query);
+
+        //Match category keywords (check all keywords in the category)
+        const matchesCategory = !this.selectedCategory || 
+          this.categoryKeywords[this.selectedCategory].some(keyword =>
+            app.description_short && app.description_short.toLowerCase().includes(keyword)
+          );
+
+        // Show apps that match both the query and the category
+        return matchesQuery && matchesCategory;
+      });
+    },
+
+    filteredAvailableApps() {
+      const query = this.searchQuery.toLowerCase();
+      return this.availableApps.filter(app => {
+        const matchesQuery = query === "" || app.name.toLowerCase().includes(query);
+
+        // Match category keywords
+        const matchesCategory = !this.selectedCategory || 
+          this.categoryKeywords[this.selectedCategory].some(keyword =>
+            app.description_short && app.description_short.toLowerCase().includes(keyword)
+          );
+
+
+        // Show apps that match both the query and the category
+        return matchesQuery && matchesCategory;
+      });
+    },
   },
+
 
   methods: {
     async refresh() {
