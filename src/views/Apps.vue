@@ -109,10 +109,14 @@
             <b-container>
               <!-- Entries -->
               <b-row cols="1" cols-md="2">
-                <b-col v-for="app in installedApps" :key="app.name" class="p-1">
+                <b-col v-for="app in filteredInstalledApps" :key="app.name" class="p-1">
                   <AppStoreEntry :app="app" is_installed="true" @changed="refresh" :update_available="app.update_available"></AppStoreEntry>
                 </b-col>
               </b-row>
+              <!-- No Apps Found Message -->
+              <p v-if="filteredInstalledApps.length === 0" class="text-center text-muted">
+                Seems like you don't have that App installed.
+              </p>
             </b-container>
           </b-col>
         </b-row>
@@ -125,10 +129,14 @@
             <b-container>
               <!-- Entries -->
               <b-row cols="1" cols-md="2">
-                <b-col v-for="app in availableApps" :key="app.name" class="p-1">
+                <b-col v-for="app in filteredAvailableApps" :key="app.name" class="p-1">
                   <AppStoreEntry :app="app" @changed="refresh" :branch="storeBranch"></AppStoreEntry>
                 </b-col>
               </b-row>
+              <!-- No Apps Found Message -->
+              <p v-if="filteredAvailableApps.length === 0" class="text-center text-muted">
+                We don't have that App (yet). You can use the Feedback option on the top right to request the App.
+              </p>
             </b-container>
           </b-col>
         </b-row>
@@ -256,7 +264,7 @@ export default {
       })
     }
 
-    
+
     filteredInstalledApps() {
       const query = this.searchQuery.toLowerCase();
       return this.installedApps.filter(app => {
