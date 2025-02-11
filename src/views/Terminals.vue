@@ -50,7 +50,7 @@
         <p>Scan this QR-code with another terminal to pair it</p>
         <qrcode-vue :value="pairingLink" size="150"></qrcode-vue>
         <HorizontalSeparator title="or"></HorizontalSeparator>
-        <p>Navigate to <a :href="$store.getters.portal_href">{{ $store.state.meta.portal_identity.domain }}</a> and use
+        <p>Navigate to <a :href="$store.getters.shard_href">{{ $store.state.meta.identity.domain }}</a> and use
           the one-time
           pairing code</p>
         <p>
@@ -94,9 +94,9 @@ export default {
     },
     pairingLink() {
       if (this.pairing.code) {
-        return `https://${this.$store.state.meta.portal_identity.domain}/#/pair?code=${this.pairing.code.code}`;
+        return `https://${this.$store.state.meta.identity.domain}/#/pair?code=${this.pairing.code.code}`;
       } else {
-        return `https://${this.$store.state.meta.portal_identity.domain}`;
+        return `https://${this.$store.state.meta.identity.domain}`;
       }
     },
     pairingCodeValidityProgress() {
@@ -142,7 +142,7 @@ export default {
   },
 
   async mounted() {
-    document.title = `Portal [${this.$store.getters.short_portal_id}] - Devices`;
+    document.title = `Shard [${this.$store.getters.short_shard_id}] - Devices`;
     await this.$store.dispatch("refresh_terminals");
   }
 }

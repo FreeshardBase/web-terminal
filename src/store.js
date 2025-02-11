@@ -14,7 +14,7 @@ const store = new Vuex.Store({
             is_anonymous: true,
             device_id: 'unknown',
             device_name: 'unknown',
-            portal_identity: {
+            identity: {
                 id: '',
                 name: '',
                 email: '',
@@ -36,11 +36,11 @@ const store = new Vuex.Store({
         }
     },
     getters: {
-        short_portal_id: state => {
-            return state.meta.portal_identity.id.substr(0, 6);
+        short_shard_id: state => {
+            return state.meta.identity.id.substr(0, 6);
         },
-        portal_href: (state) => {
-            return `https://${state.meta.portal_identity.domain}`;
+        shard_href: (state) => {
+            return `https://${state.meta.identity.domain}`;
         },
         tour_seen: (state) => (tourName) => {
             const t = state.tours.find(t => t.name === tourName);
@@ -90,7 +90,7 @@ const store = new Vuex.Store({
                 meta.device_id = whoami.data.id;
                 meta.device_name = whoami.data.name;
             }
-            meta.portal_identity = whoareyou.data;
+            meta.identity = whoareyou.data;
 
             context.commit('set_meta', meta)
         },

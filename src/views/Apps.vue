@@ -128,7 +128,7 @@
       </p>
       <b-alert variant="danger" show>
         Custom apps are not not verified by us.
-        They can cause serious harm to your Portal instance.
+        They can cause serious harm to your Shard instance.
         Make sure, you trust the source of the app.
       </b-alert>
       <b-form-file
@@ -244,7 +244,7 @@ export default {
   },
 
   async mounted() {
-    document.title = `Portal [${this.$store.getters.short_portal_id}] - Apps`;
+    document.title = `Shard [${this.$store.getters.short_shard_id}] - Apps`;
     await this.refresh();
   }
 }

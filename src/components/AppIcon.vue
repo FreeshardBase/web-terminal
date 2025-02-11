@@ -20,8 +20,8 @@
     <div>{{ (app.meta && app.meta.pretty_name) || app.name }}</div>
 
     <b-popover :target="this.$refs.main" ref="popover" placement="bottom">
-      This app requires a Portal of size <b>{{ minimumPortalSize | uppercase }}</b> or larger -
-      Current size: <b>{{ $store.state.profile.portal_size | uppercase }}</b><br>
+      This app requires a VM of size <b>{{ minimumVmSize | uppercase }}</b> or larger -
+      Current size: <b>{{ $store.state.profile.vm_size | uppercase }}</b><br>
       <RouterLink to="/settings#size">Upgrade</RouterLink>
     </b-popover>
   </div>
@@ -53,16 +53,16 @@ export default {
     canBeStarted() {
       const sizes = ['xs', 's', 'm', 'l', 'xl'];
       if (this.$store.state.profile && this.app.meta) {
-        const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
-        const requiredSize = sizes.indexOf(this.app.meta.minimum_portal_size);
+        const currentSize = sizes.indexOf(this.$store.state.profile.vm_size);
+        const requiredSize = sizes.indexOf(this.app.meta.minimum_vm_size);
         return currentSize >= requiredSize;
       } else {
         return true;
       }
     },
-    minimumPortalSize() {
+    minimumVmSize() {
       if (this.app.meta) {
-        return this.app.meta.minimum_portal_size;
+        return this.app.meta.minimum_vm_size;
       } else {
         return 'unknown';
       }

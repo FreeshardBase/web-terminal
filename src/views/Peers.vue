@@ -36,7 +36,7 @@
         <b-col>
           <b-table :items="peers" :fields="peerFields" hover id="peers-table">
             <template #cell(id)="data">
-              <a :href="`https://${data.value}.p.getportal.org`" target="_blank">{{ data.value }}</a>
+              <a :href="`https://${data.value}.freeshard.cloud`" target="_blank">{{ data.value }}</a>
             </template>
             <template #cell(name)="data">
               {{ data.value || '[Unknown]' }}
@@ -109,7 +109,7 @@ export default {
   },
 
   async mounted() {
-    document.title = `Portal [${this.$store.getters.short_portal_id}] - Peers`;
+    document.title = `Shard [${this.$store.getters.short_shard_id}] - Peers`;
     await this.refresh();
   },
 }

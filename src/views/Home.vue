@@ -28,7 +28,7 @@ export default {
   },
 
   async mounted() {
-    document.title = `Portal [${this.$store.getters.short_portal_id}] - Home`;
+    document.title = `Shard [${this.$store.getters.short_shard_id}] - Home`;
     await this.$store.dispatch("refresh_apps")
     if (!this.$store.getters.tour_seen('usage prompt')) {
       this.$refs['usage-prompt-modal'].show();

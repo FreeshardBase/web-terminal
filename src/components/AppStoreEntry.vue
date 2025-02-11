@@ -66,7 +66,7 @@
                 <b-icon-star-fill :id="`star-modal-${app.name}`" class="app-star"></b-icon-star-fill>
                 <b-popover :target="`star-modal-${app.name}`" placement="leftbottom" triggers="click blur">
                   <template #title>Featured App</template>
-                  This app is well integrated with Portal and recommended by us.
+                  This app is well integrated with Freeshard and recommended by us.
                 </b-popover>
                 <br>
               </div>
@@ -105,7 +105,8 @@
         <div v-else-if="!isSizeCompatible">
             <p class="m-1">
               <b-icon-exclamation-octagon-fill class="text-warning"></b-icon-exclamation-octagon-fill>
-              You need to <RouterLink to="/settings#size">upgrade your Portal</RouterLink> at least to size {{ minimumPortalSize | uppercase }} to use this app.
+              You need to <RouterLink to="/settings#size">upgrade your Shard</RouterLink>
+              at least to size {{ minimumVMSize | uppercase }} to use this app.
             </p>
         </div>
         <div v-else>
@@ -170,14 +171,14 @@ export default {
         is_featured: false,
       }
     },
-    minimumPortalSize() {
-      return (this.app.meta && this.app.meta.minimum_portal_size) || this.app.minimum_portal_size;
+    minimumVMSize() {
+      return (this.app.meta && this.app.meta.minimum_vm_size) || this.app.minimum_vm_size;
     },
     isSizeCompatible() {
       const sizes = ['xs', 's', 'm', 'l', 'xl'];
       if (this.$store.state.profile) {
-        const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
-        const requiredSize = sizes.indexOf(this.minimumPortalSize);
+        const currentSize = sizes.indexOf(this.$store.state.profile.vm_size);
+        const requiredSize = sizes.indexOf(this.minimumVMSize);
         return currentSize >= requiredSize;
       } else {
         return true;

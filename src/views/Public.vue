@@ -51,7 +51,7 @@ export default {
   },
 
   async mounted() {
-    document.title = `Portal [${this.$store.getters.short_portal_id}] - Profile`;
+    document.title = `Shard [${this.$store.getters.short_shard_id}] - Profile`;
     this.refreshAvatar();
     await this.refresh();
   },

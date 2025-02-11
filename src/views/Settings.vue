@@ -17,7 +17,7 @@
         </b-row>
 
         <b-alert show v-if="$store.state.profile === null" variant="warning">
-          Some of this Portal's metadata could not be loaded,
+          Some of this Shard's metadata could not be loaded,
           so some settings are not available.
         </b-alert>
 
@@ -41,7 +41,7 @@
               <b-alert show variant="danger" v-if="$store.state.disk_usage.disk_space_low">
                 <b-icon-hdd-fill></b-icon-hdd-fill>
                 Disk space critically low. All apps are stopped. Please upgrade your disk space or <a
-                  href="mailto:contact@getportal.org">contact us</a> for help.
+                  href="mailto:contact@freeshard.net">contact us</a> for help.
               </b-alert>
               <b-alert show variant="warning" v-else-if="$store.state.disk_usage.disk_space_warning">
                 <b-icon-hdd-fill></b-icon-hdd-fill>
@@ -70,11 +70,11 @@
 
               <b-card-text>
                 A backup is done automatically every night. New backups overwrite the old ones.
-                Even after your Portal is deleted, you can still access your backups.
+                Even after your Shard is deleted, you can still access your backups.
               </b-card-text>
               <b-card-text class="text-muted small">
                 We are currently working on self-service access to your backups.
-                Until then, please <a href="mailto:contact@getportal.org">contact us</a> if you need access,
+                Until then, please <a href="mailto:contact@freeshard.net">contact us</a> if you need access,
                 so we can guide you through the process.
               </b-card-text>
               <div class="mt-1">
@@ -90,7 +90,7 @@
               <hr>
 
               <b-card-text class="mt-2">
-                Backups are encrypted on this Portal before being sent to the backup server.
+                Backups are encrypted on this Shard before being sent to the backup server.
                 The encryption key is your personal passphrase.
                 In order to access your backups later, it is essential to <b>write down your passphrase</b>.
                 If you lose it, you will not be able to access your backups.
@@ -136,11 +136,11 @@
 
             <b-card title="Size">
               <b-card-text>
-                Change the size of your Portal.
-                This sets the number of CPUs and the amount of RAM your Portal can use.
+                Change the size of your Shard.
+                This sets the number of CPUs and the amount of RAM your Shard can use.
               </b-card-text>
               <b-card-text class="text-muted small">
-                To unlock larger sizes, please <a href="mailto:contact@getportal.org">contact us</a>.
+                To unlock larger sizes, please <a href="mailto:contact@freeshard.net">contact us</a>.
               </b-card-text>
 
               <b-button-group>
@@ -155,7 +155,7 @@
               </b-button-group>
 
               <b-button-group v-if="resize.selectedSize" class="ml-3">
-                <b-button variant="primary" @click="resizePortal" :disabled="resize.waitingForRestart">
+                <b-button variant="primary" @click="resizeShard" :disabled="resize.waitingForRestart">
                   <b-icon-arrow-clockwise></b-icon-arrow-clockwise>
                   Resize to {{ resize.selectedSize | uppercase }} and restart
                 </b-button>
@@ -195,7 +195,7 @@
           <b-col>
             <TextField v-if="$store.state.profile" title="Machine ID"
                        :content="$store.state.profile.vm_id || 'unknown'"/>
-            <TextField title="Portal ID" :content="portalIdWithBreaks || 'unknown'"
+            <TextField title="Shard ID" :content="shardIdWithBreaks || 'unknown'"
                        class="text-monospace"/>
             <TextField v-if="$store.state.profile" title="Owner" :content="$store.state.profile.owner || 'unknown'"/>
             <TextField v-if="$store.state.profile" title="Owner Email"
@@ -210,7 +210,7 @@
               <TextField v-else title="Scheduled to delete" content="never"/>
             </div>
             <TextField title="UI Version" :content="uiVersion"/>
-            <TextField title="Public Key" :content="$store.state.meta.portal_identity.public_key_pem || 'unknown'"
+            <TextField title="Public Key" :content="$store.state.meta.identity.public_key_pem || 'unknown'"
                        class="text-monospace"/>
 
           </b-col>
@@ -256,9 +256,9 @@ export default {
   },
 
   computed: {
-    portalIdWithBreaks() {
+    shardIdWithBreaks() {
       const segmentLength = 16;
-      let pid = this.$store.state.meta.portal_identity.id;
+      let pid = this.$store.state.meta.identity.id;
       let result = '';
       while (pid.length > segmentLength) {
         result = result.concat(pid.slice(0, segmentLength)).concat('\n');
@@ -355,14 +355,14 @@ export default {
       }
     },
     sizeIsAvailable(size) {
-      if (this.$store.state.profile.max_portal_size === undefined) {
+      if (this.$store.state.profile.max_shard_size === undefined) {
         return false;
       }
-      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.$store.state.profile.max_portal_size)
-          && size !== this.$store.state.profile.portal_size;
+      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.$store.state.profile.max_shard_size)
+          && size !== this.$store.state.profile.shard_size;
     },
     variantForSize(size) {
-      if (size === this.$store.state.profile.portal_size) {
+      if (size === this.$store.state.profile.shard_size) {
         return 'info';
       } else if (size === this.resize.selectedSize) {
         return 'primary';
@@ -370,7 +370,7 @@ export default {
         return 'outline-secondary';
       }
     },
-    async resizePortal() {
+    async resizeShard() {
       this.resize.waitingForRestart = true;
       await this.$http.post('/core/protected/management/resize', {size: this.resize.selectedSize});
       await this.$router.replace('/restart');
@@ -378,7 +378,7 @@ export default {
   },
 
   async mounted() {
-    document.title = `Portal [${this.$store.getters.short_portal_id}] - About`;
+    document.title = `Shard [${this.$store.getters.short_shard_id}] - About`;
     this.refreshBackupInfo(); // Load backup info in the background
 
     EventBus.$on('backup_update', () => {

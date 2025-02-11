@@ -1,33 +1,33 @@
 <template>
-  <b-input-group class="portal-id-badge">
+  <b-input-group class="shard-id-badge">
     <b-input-group-prepend>
       <b-input-group-text>
-        <img class="h-100" alt="Portal logo" src="../assets/logo.svg">
+        <img class="h-100" alt="Freeshard logo" src="../assets/logo.svg">
       </b-input-group-text>
     </b-input-group-prepend>
     <b-form-input
-        class="portal-id-input text-monospace"
+        class="shard-id-input text-monospace"
         readonly
-        :value=portalId
+        :value=shardId
     ></b-form-input>
   </b-input-group>
 </template>
 <script>
 export default {
-  name: 'PortalIdBadge',
+  name: 'ShardIdBadge',
 
-  props: ['portalId']
+  props: ['shardId']
 }
 </script>
 <style scoped>
 
-.portal-id-badge {
+.shard-id-badge {
   width: 8em;
   text-align: center;
   display: inline-flex;
 }
 
-.portal-id-input {
+.shard-id-input {
   cursor: pointer;
   text-align: center;
 }

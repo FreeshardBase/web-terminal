@@ -4,14 +4,14 @@
     <b-navbar toggleable="lg" type="dark" variant="dark" sticky>
 
       <b-navbar-brand to="/">
-        <PortalIdBadge :portal-id="$store.getters.short_portal_id"/>
+        <ShardIdBadge :shard-id="$store.getters.short_shard_id"/>
       </b-navbar-brand>
 
       <b-navbar-nav v-if="!$store.state.websocket.isConnected" id="nav-ws-warning">
         <b-nav-item>
           <b-icon-exclamation-triangle-fill
               variant="warning"
-              v-b-popover.hover.bottom="'No connection to Portal, retrying...'">
+              v-b-popover.hover.bottom="'No connection to Shard, retrying...'">
           </b-icon-exclamation-triangle-fill>
         </b-nav-item>
       </b-navbar-nav>
@@ -21,7 +21,7 @@
       <b-collapse id="nav-collapse" is-nav>
 
         <b-navbar-nav id="nav-home">
-          <b-nav-item v-if="$route.name==='Portal'">
+          <b-nav-item v-if="$route.name==='Shard'">
             <b>
               <b-icon-house-fill></b-icon-house-fill>
               Home</b>
@@ -142,7 +142,7 @@
         and currently we have no way of responding directly to it.
         For more elaborate feedback or a dialogue, you can use our
         <a href="https://feedback.getportal.org" target="_blank">feedback platform</a>
-        or <a href="mailto:contact@getportal.org">write us</a>
+        or <a href="mailto:contact@freeshard.net">write us</a>
         or visit our <a href="https://discord.gg/ZXQDuTGcCf" target="_blank">Discord</a>.</small></p>
       <template #modal-footer>
         <b-button
@@ -162,13 +162,13 @@
 </template>
 
 <script>
-import PortalIdBadge from "@/components/PortalIdBadge";
+import ShardIdBadge from "@/components/ShardIdBadge.vue";
 import Banner from "@/components/Banner.vue";
 import pjson from "@/../package.json";
 
 export default {
   name: "Navbar",
-  components: {Banner, PortalIdBadge},
+  components: {Banner, ShardIdBadge},
 
   data() {
     return {

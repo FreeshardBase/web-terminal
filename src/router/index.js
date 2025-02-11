@@ -15,7 +15,7 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Portal',
+    name: 'Shard',
     component: Home
   },
   {

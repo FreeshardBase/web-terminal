@@ -34,8 +34,8 @@
               <small v-if="!canBeStarted" class="text-muted">
                 <br>
                 <b-icon-exclamation-triangle-fill variant="warning"></b-icon-exclamation-triangle-fill>
-                Starting the app requires a Portal of size <b>{{ app.minimum_portal_size | uppercase }}</b> or larger -
-                Current size: <b>{{ $store.state.profile.portal_size | uppercase }}</b>
+                Starting the app requires a Shard of size <b>{{ app.minimum_shard_size | uppercase }}</b> or larger -
+                Current size: <b>{{ $store.state.profile.shard_size | uppercase }}</b>
               </small>
             </p>
           </b-card-text>
@@ -59,8 +59,8 @@ export default {
     canBeStarted() {
       const sizes = ['xs', 's', 'm', 'l', 'xl'];
       if (this.$store.state.profile) {
-        const currentSize = sizes.indexOf(this.$store.state.profile.portal_size);
-        const requiredSize = sizes.indexOf(this.app.minimum_portal_size);
+        const currentSize = sizes.indexOf(this.$store.state.profile.shard_size);
+        const requiredSize = sizes.indexOf(this.app.minimum_shard_size);
         return currentSize >= requiredSize;
       } else {
         return true;

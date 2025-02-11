@@ -4,44 +4,44 @@
       <b-col></b-col>
       <b-col cols="8" class="pb-3">
         <div>
-          <h1 class="mt-5">Restarting Portal</h1>
+          <h1 class="mt-5">Restarting Shard</h1>
         </div>
 
         <div class="mt-4 mb-4">
-          <PortalIdBadge :portal-id="$store.state.meta.portal_identity.id"></PortalIdBadge>
+          <ShardIdBadge :shard-id="$store.state.meta.identity.id"></ShardIdBadge>
         </div>
 
         <b-spinner style="width: 4rem; height: 4rem;" class="mb-4" variant="secondary"></b-spinner>
 
         <div v-if="phase === 'pending'">
-          <p v-if="seconds < 10">Portal restart was triggered</p>
-          <p v-else-if="seconds < 30">Restarting Portal soon</p>
+          <p v-if="seconds < 10">Shard restart was triggered</p>
+          <p v-else-if="seconds < 30">Restarting Shard soon</p>
           <p v-else-if="seconds < 50">Any second now...</p>
           <p v-else>
-            Portal is still alive and kicking.
+            Shard is still alive and kicking.
             Maybe something went wrong.
-            Try again or contact support <a href="mailto:contact@getportal.org">here</a>.
+            Try again or contact support <a href="mailto:contact@freeshard.net">here</a>.
           </p>
         </div>
         <div v-else-if="phase === 'unresponsive'">
-          <p v-if="seconds < 45">Portal went down, waiting for restart</p>
+          <p v-if="seconds < 45">Shard went down, waiting for restart</p>
           <p v-else-if="seconds < 90">Be patient, sometimes it may take a moment</p>
           <p v-else-if="seconds < 60*4">Perhaps this time there is a lot to do...</p>
           <p v-else-if="seconds < 60*7">Something is strange, it usually does not take so long</p>
           <p v-else-if="seconds < 60*12">
             It seems like something went wrong.
-            Better contact support <a href="mailto:contact@getportal.org">here</a>.
+            Better contact support <a href="mailto:contact@freeshard.net">here</a>.
           </p>
           <p v-else-if="seconds < 60*20">
             Wow, you are really patient.
-            But this Portal is most probably broken.
-            You should really <a href="mailto:contact@getportal.org">contact support</a>.
+            But this Shard is most probably broken.
+            You should really <a href="mailto:contact@freeshard.net">contact support</a>.
           </p>
           <p v-else>
             Knock knock!
             Is someone there?
-            This Portal broke down and needs help.
-            Please <a href="mailto:contact@getportal.org">contact support</a>.
+            This Shard broke down and needs help.
+            Please <a href="mailto:contact@freeshard.net">contact support</a>.
           </p>
         </div>
 
@@ -52,15 +52,15 @@
 </template>
 
 <script>
-import PortalIdBadge from "@/components/PortalIdBadge.vue";
+import ShardIdBadge from "@/components/ShardIdBadge.vue";
 
 export default {
   name: "Restart",
-  components: {PortalIdBadge},
+  components: {ShardIdBadge},
 
   data: function () {
     return {
-      message: 'Your Portal will restart soon',
+      message: 'Your Shard will restart soon',
       intervals: [],
       // phases are 'pending', 'unresponsive'
       phase: 'pending',
@@ -86,7 +86,7 @@ export default {
   },
 
   async mounted() {
-    document.title = `Portal [${this.$store.getters.short_portal_id}] - Restarting`;
+    document.title = `Shard [${this.$store.getters.short_shard_id}] - Restarting`;
     this.intervals.push(setInterval(this.retry, 2000));
     this.intervals.push(setInterval(() => {this.seconds += 1;}, 1000));
   },

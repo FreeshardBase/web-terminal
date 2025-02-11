@@ -8,8 +8,8 @@
         </div>
 
         <div class="mt-4">
-          <p>This Portal is <br>
-            <PortalIdBadge :portal-id="short_id"></PortalIdBadge>
+          <p>This Shard is <br>
+            <ShardIdBadge :shard-id="short_id"></ShardIdBadge>
           </p>
         </div>
 
@@ -51,14 +51,14 @@ import {
   isTablet,
   osName
 } from "mobile-device-detect";
-import PortalIdBadge from "@/components/PortalIdBadge";
+import ShardIdBadge from "@/components/ShardIdBadge.vue";
 
 export default {
   name: 'Pair',
-  components: {PortalIdBadge},
+  components: {ShardIdBadge},
   data: function () {
     return {
-      portal_id: null,
+      shard_id: null,
       device_name: null,
       pairing_code: null,
       pairing_in_progress: false,
@@ -69,8 +69,8 @@ export default {
 
   computed: {
     short_id: function () {
-      if (this.portal_id) {
-        return this.portal_id.substring(0, 6);
+      if (this.shard_id) {
+        return this.shard_id.substring(0, 6);
       } else {
         return 'unknown';
       }
@@ -126,8 +126,8 @@ export default {
     }
 
     const whoareyou = await this.$http.get('/core/public/meta/whoareyou');
-    this.portal_id = whoareyou.data.id;
-    document.title = `Portal [${this.short_id}] - Hello`;
+    this.shard_id = whoareyou.data.id;
+    document.title = `Shard [${this.short_id}] - Hello`;
   },
 
   beforeMount: async function () {
@@ -147,7 +147,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-.portal-id-input {
+.shard-id-input {
   width: 8em;
   text-align: center;
   display: inline-flex;

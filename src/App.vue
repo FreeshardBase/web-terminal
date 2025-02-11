@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div v-if="loading" id="portal-load-splash">
+    <div v-if="loading" id="loading-splash">
       <img src="./assets/logo.svg">
       <h1>Loading</h1>
     </div>
@@ -105,7 +105,7 @@ export default {
   color: #2c3e50;
 }
 
-#portal-load-splash {
+#loading-splash {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -114,12 +114,12 @@ export default {
   text-align: center;
 }
 
-#portal-load-splash img {
+#loading-splash img {
   height: 7em;
   margin: 3em;
 }
 
-#portal-load-splash h1 {
+#loading-splash h1 {
   font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
