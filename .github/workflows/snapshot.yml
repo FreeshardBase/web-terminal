@@ -12,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
       - name: Inject enhanced GitHub environment variables
         uses: rlespinasse/github-slug-action@v5
