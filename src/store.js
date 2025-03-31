@@ -105,8 +105,12 @@ const store = new Vuex.Store({
         },
 
         async query_profile_data(context) {
-            let profile = await this._vm.$http.get('/core/protected/management/profile');
-            context.commit('set_profile', profile.data);
+            try {
+                let profile = await this._vm.$http.get('/core/protected/management/profile');
+                context.commit('set_profile', profile.data);
+            } catch (e) {
+                console.error('Failed to load profile');
+            }
         },
         async force_query_profile_data(context) {
             let profile = await this._vm.$http.get('/core/protected/management/profile?refresh=true');
