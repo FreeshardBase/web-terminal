@@ -19,7 +19,7 @@
     </div>
     <div>{{ (app.meta && app.meta.pretty_name) || app.name }}</div>
 
-    <b-popover :target="this.$refs.main" ref="popover" placement="bottom">
+    <b-popover :target="this.$refs.main" v-if="$store.profile" ref="popover" placement="bottom">
       This app requires a VM of size <b>{{ minimumVmSize | uppercase }}</b> or larger -
       Current size: <b>{{ $store.state.profile.vm_size | uppercase }}</b><br>
       <RouterLink to="/settings#size">Upgrade</RouterLink>
@@ -51,6 +51,9 @@ export default {
       ].includes(this.app.status);
     },
     canBeStarted() {
+      if (this.$store.profile === null) {
+        return true;
+      }
       const sizes = ['xs', 's', 'm', 'l', 'xl'];
       if (this.$store.state.profile && this.app.meta) {
         const currentSize = sizes.indexOf(this.$store.state.profile.vm_size);
