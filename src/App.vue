@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <div v-if="loading" id="loading-splash">
-      <img src="./assets/logo.svg">
-      <h1>Loading</h1>
+      <img src="./assets/freeshard_logo_2x.png">
+      <h4 class="text-muted">loading...</h4>
     </div>
     <router-view v-else/>
   </div>
@@ -120,7 +120,7 @@ export default {
 }
 
 #loading-splash img {
-  height: 7em;
+  height: 12em;
   margin: 3em;
 }
 

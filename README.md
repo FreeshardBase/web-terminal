@@ -47,7 +47,7 @@ npm run lint
 ### Using shard_core running on the dev machine
 
 1. Start shard_core, look for instructions in its readme on how to do that
-2. Make sure that `http://127.0.0.1:8000` is the proxy target in `vue.config.js`
+2. Make sure that `http://127.0.0.1:8080` is the proxy target in `vue.config.js`
 3. Make sure that the `pathRewrite` option is enabled
 4. Start the proxy together with the hot-reloading server with `npm run serve`
-5. Get a pairing code at http://127.0.0.1:8000/protected/terminals/pairing-code
+5. Get a pairing code at http://127.0.0.1:8080/protected/terminals/pairing-code
