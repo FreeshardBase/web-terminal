@@ -22,6 +22,7 @@ export default {
 
   methods: {
     connectWS() {
+      console.log('Connecting to websocket');
       const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
       this.websocket = new WebSocket(`${wsProtocol}//${window.location.host}/core/protected/ws/updates`);
       this.websocket.onmessage = (event) => {
@@ -31,7 +32,11 @@ export default {
       };
       this.websocket.onerror = () => {
         this.websocket.close();
+        console.log('Websocket error, retrying in 3 seconds');
         this.websocket = null;
+        setTimeout(() => {
+          this.connectWS();
+        }, 1000 * 3);
       }
       this.websocket.onclose = () => {
         this.$store.commit('websocket_disconnect');
