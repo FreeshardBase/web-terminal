@@ -32,7 +32,6 @@ export default {
       };
       this.websocket.onerror = () => {
         this.websocket.close();
-        console.log('Websocket error, retrying in 3 seconds');
         this.websocket = null;
       }
       this.websocket.onclose = () => {
