@@ -34,9 +34,6 @@ export default {
         this.websocket.close();
         console.log('Websocket error, retrying in 3 seconds');
         this.websocket = null;
-        setTimeout(() => {
-          this.connectWS();
-        }, 1000 * 3);
       }
       this.websocket.onclose = () => {
         this.$store.commit('websocket_disconnect');
@@ -66,14 +63,13 @@ export default {
       if (!['Pair', 'Welcome'].includes(this.$route.name)) {
         await this.$router.replace('/welcome');
       }
-    } else {
-      this.connectWS();
-      setInterval(() => {
-        if (!this.websocket) {
-          this.connectWS();
-        }
-      }, 1000 * 5);
     }
+
+    setInterval(() => {
+      if (!this.$store.state.meta.is_anonymous && !this.websocket) {
+        this.connectWS();
+      }
+    }, 1000);
 
     setInterval(() => {
       this.$store.dispatch('query_ui_version');

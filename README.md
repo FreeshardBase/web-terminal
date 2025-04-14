@@ -50,4 +50,5 @@ npm run lint
 2. Make sure that `http://127.0.0.1:8080` is the proxy target in `vue.config.js`
 3. Make sure that the `pathRewrite` option is enabled
 4. Start the proxy together with the hot-reloading server with `npm run serve`
-5. Get a pairing code at http://127.0.0.1:8080/protected/terminals/pairing-code
+5. Look up the shard's URL in the logs right below where the logo is printed. It should be in the format `<shard_id>.<DNS_ZONE>`. Open it in your browser at port `8081` 
+6. Get a pairing code at http://127.0.0.1:8080/protected/terminals/pairing-code
