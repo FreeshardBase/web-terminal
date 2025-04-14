@@ -2,15 +2,15 @@ module.exports = {
   devServer: {
     proxy: {
       '^/core': {
-        //target: 'https://8rgg8z.freeshard.cloud',
-        target: 'http://127.0.0.1:8000',
+        //target: 'https://c0p3x5.freeshard.cloud',
+        target: 'http://localhost:8080',
         changeOrigin: true,
-        cookieDomainRewrite: {
-          "*": "localhost",
-        },
         pathRewrite: {'^/core': ''}
       },
-    }
+    },
+    allowedHosts: [
+      '.localhost',
+    ],
   },
   chainWebpack: (config) => {
     // Add a rule to handle b-card as a module dependency

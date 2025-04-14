@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <div v-if="loading" id="loading-splash">
-      <img src="./assets/logo.svg">
-      <h1>Loading</h1>
+      <img src="./assets/freeshard_logo_2x.png">
+      <h4 class="text-muted">loading...</h4>
     </div>
     <router-view v-else/>
   </div>
@@ -22,6 +22,7 @@ export default {
 
   methods: {
     connectWS() {
+      console.log('Connecting to websocket');
       const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
       this.websocket = new WebSocket(`${wsProtocol}//${window.location.host}/core/protected/ws/updates`);
       this.websocket.onmessage = (event) => {
@@ -61,14 +62,13 @@ export default {
       if (!['Pair', 'Welcome'].includes(this.$route.name)) {
         await this.$router.replace('/welcome');
       }
-    } else {
-      this.connectWS();
-      setInterval(() => {
-        if (!this.websocket) {
-          this.connectWS();
-        }
-      }, 1000 * 5);
     }
+
+    setInterval(() => {
+      if (!this.$store.state.meta.is_anonymous && !this.websocket) {
+        this.connectWS();
+      }
+    }, 1000);
 
     setInterval(() => {
       this.$store.dispatch('query_ui_version');
@@ -115,7 +115,7 @@ export default {
 }
 
 #loading-splash img {
-  height: 7em;
+  height: 12em;
   margin: 3em;
 }
 

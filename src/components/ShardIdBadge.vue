@@ -2,7 +2,7 @@
   <b-input-group class="shard-id-badge">
     <b-input-group-prepend>
       <b-input-group-text>
-        <img class="h-100" alt="Freeshard logo" src="../assets/logo.svg">
+        <img class="h-100" alt="Freeshard logo" src="../assets/shard_logo.png">
       </b-input-group-text>
     </b-input-group-prepend>
     <b-form-input
