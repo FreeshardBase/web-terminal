@@ -83,7 +83,7 @@ export default {
         }, 4000);
         return;
       }
-      window.open(`https://${this.app.name}.${window.location.host}`, '_blank');
+      window.open(`${window.location.protocol}//${this.app.name}.${window.location.host}`, '_blank');
     }
   }
 }
