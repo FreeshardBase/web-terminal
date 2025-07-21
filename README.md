@@ -8,7 +8,7 @@
 
 > [!NOTE]
 > Freeshard used to be called _Portal_. Don't be confused if you see the old name in the code or documentation.
-> Our goal is to update everything as soon as possible.
+> Our goal is to update everything step by step.
 
 # Web Terminal
 
