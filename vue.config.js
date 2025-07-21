@@ -2,10 +2,11 @@ module.exports = {
   devServer: {
     proxy: {
       '^/core': {
-        //target: 'https://c0p3x5.freeshard.cloud',
-        target: 'http://localhost:8080',
+        target: 'https://9d9twt.freeshard.cloud',
+        //target: 'http://localhost:8080',
         changeOrigin: true,
-        pathRewrite: {'^/core': ''}
+        //pathRewrite: {'^/core': ''},
+        cookieDomainRewrite: 'localhost'
       },
     },
     allowedHosts: [

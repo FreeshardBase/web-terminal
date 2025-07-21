@@ -47,7 +47,7 @@
 
       <b-overlay :show="isUpdating" rounded="sm" variant="white" class="w-100 p-1" id="all-apps">
 
-        <b-alert show v-if="storeBranch !== 'master'">
+        <b-alert show v-if="storeBranch !== 'main'">
           <p>
             You are viewing the app app store on branch <b>{{ storeBranch }}</b>.
             This is meant for development and testing only.
@@ -159,7 +159,7 @@ export default {
   data: function () {
     return {
       storeApps: [],
-      storeBranch: 'master',
+      storeBranch: 'main',
       storeSwitchBranchInput: '',
       isUpdating: false,
       customAppFile: null,
@@ -229,7 +229,11 @@ export default {
       const formData = new FormData();
       formData.append('file', this.customAppFile);
       try {
-        await this.$http.post(`/core/protected/apps`, formData);
+        await this.$http.post(`/core/protected/apps`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
         this.$bvModal.hide('install-custom-app');
         await this.refresh();
       } catch (error) {
