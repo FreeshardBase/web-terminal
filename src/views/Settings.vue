@@ -355,14 +355,14 @@ export default {
       }
     },
     sizeIsAvailable(size) {
-      if (this.$store.state.profile.max_shard_size === undefined) {
+      if (this.$store.state.profile.max_vm_size === undefined) {
         return false;
       }
-      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.$store.state.profile.max_shard_size)
-          && size !== this.$store.state.profile.shard_size;
+      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.$store.state.profile.max_vm_size)
+          && size !== this.$store.state.profile.vm_size;
     },
     variantForSize(size) {
-      if (size === this.$store.state.profile.shard_size) {
+      if (size === this.$store.state.profile.vm_size) {
         return 'info';
       } else if (size === this.resize.selectedSize) {
         return 'primary';
