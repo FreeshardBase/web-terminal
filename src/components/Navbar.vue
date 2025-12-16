@@ -140,9 +140,7 @@
       ></b-form-textarea>
       <p class="text-muted"><small>What you write here is a one-off message for us
         and currently we have no way of responding directly to it.
-        For more elaborate feedback or a dialogue, you can use our
-        <a href="https://feedback.getportal.org" target="_blank">feedback platform</a>
-        or <a href="mailto:contact@freeshard.net">write us</a>
+        For more elaborate feedback or a dialogue, you can <a href="mailto:contact@freeshard.net">write us</a>
         or visit our <a href="https://discord.gg/ZXQDuTGcCf" target="_blank">Discord</a>.</small></p>
       <template #modal-footer>
         <b-button
