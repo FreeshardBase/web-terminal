@@ -124,7 +124,7 @@
       </template>
       <p>
         Custom apps are apps that are not in the app store.
-        See the documentation on how to <a href="https://docs.getportal.org/developer_docs/custom_apps/" target="_blank">create</a> one.
+        See the documentation on how to <a href="https://docs.freeshard.net/developer_docs/custom_apps/" target="_blank">create</a> one.
       </p>
       <b-alert variant="danger" show>
         Custom apps are not not verified by us.
