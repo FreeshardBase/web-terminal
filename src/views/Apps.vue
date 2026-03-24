@@ -132,13 +132,14 @@
         Make sure, you trust the source of the app.
       </b-alert>
       <b-form-file
-          v-model="customAppFile"
-          placeholder="Choose a file or drop it here..."
-          drop-placeholder="Drop file here..."
+          v-model="customAppFiles"
+          multiple
+          placeholder="Choose files or drop them here..."
+          drop-placeholder="Drop files here..."
       ></b-form-file>
       <p v-if="customAppError" class="text-danger">{{ customAppError | errorMessage }}</p>
       <template #modal-footer>
-        <b-button variant="success" :disabled="!Boolean(customAppFile)" @click="uploadCustomApp">
+        <b-button variant="success" :disabled="!customAppFiles.length" @click="uploadCustomApp">
           <b-icon-box-arrow-in-up></b-icon-box-arrow-in-up>
           Install
         </b-button>
@@ -162,7 +163,7 @@ export default {
       storeBranch: 'main',
       storeSwitchBranchInput: '',
       isUpdating: false,
-      customAppFile: null,
+      customAppFiles: [],
       customAppError: null,
     }
   },
@@ -226,18 +227,26 @@ export default {
     },
 
     async uploadCustomApp() {
-      const formData = new FormData();
-      formData.append('file', this.customAppFile);
-      try {
-        await this.$http.post(`/core/protected/apps`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
+      const failures = [];
+      for (const file of this.customAppFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+          await this.$http.post(`/core/protected/apps`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+        } catch (error) {
+          failures.push({ file, error });
+        }
+      }
+      if (failures.length === 0) {
         this.$bvModal.hide('install-custom-app');
         await this.refresh();
-      } catch (error) {
-        this.customAppError = error;
+      } else {
+        this.customAppError = failures[0].error;
+        await this.refresh();
       }
     },
 
