@@ -7,7 +7,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         websocket: {
-            isConnected: false,
+            disconnectedSince: null,
             lastHeartbeat: null,
         },
         meta: {
@@ -60,10 +60,10 @@ const store = new Vuex.Store({
             state.tours = tours;
         },
         websocket_connect(state) {
-            state.websocket.isConnected = true;
+            state.websocket.disconnectedSince = null;
         },
         websocket_disconnect(state) {
-            state.websocket.isConnected = false;
+            state.websocket.disconnectedSince = Date.now();
         },
         set_apps(state, apps) {
             state.apps = apps;
