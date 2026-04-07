@@ -7,7 +7,7 @@
         <ShardIdBadge :shard-id="$store.getters.short_shard_id"/>
       </b-navbar-brand>
 
-      <b-navbar-nav v-if="!$store.state.websocket.isConnected" id="nav-ws-warning">
+      <b-navbar-nav v-if="showConnectionWarning" id="nav-ws-warning">
         <b-nav-item>
           <b-icon-exclamation-triangle-fill
               variant="warning"
@@ -170,6 +170,7 @@ export default {
 
   data() {
     return {
+      now: Date.now(),
       feedback: {
         text: '',
         isSending: false,
@@ -179,7 +180,20 @@ export default {
     }
   },
 
+  created() {
+    this._nowInterval = setInterval(() => { this.now = Date.now(); }, 1000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this._nowInterval);
+  },
+
   computed: {
+    showConnectionWarning() {
+      const disconnectedSince = this.$store.state.websocket.disconnectedSince;
+      return disconnectedSince !== null && (this.now - disconnectedSince) >= 5000;
+    },
+
     uiUpdateMessage() {
       if (this.$store.state.version !== null && this.$store.state.version !== pjson.version) {
         return `Refresh to update to ${this.$store.state.version}`;
