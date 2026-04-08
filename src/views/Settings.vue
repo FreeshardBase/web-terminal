@@ -372,7 +372,7 @@ export default {
     },
     async resizeShard() {
       this.resize.waitingForRestart = true;
-      await this.$http.post('/core/protected/management/resize', {size: this.resize.selectedSize});
+      await this.$http.post('/core/protected/management/api/shards/self/resize', {new_vm_size: this.resize.selectedSize});
       await this.$router.replace('/restart');
     }
   },
