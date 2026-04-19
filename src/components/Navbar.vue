@@ -170,7 +170,7 @@ export default {
 
   data() {
     return {
-      now: Date.now(),
+      warningEnabled: false,
       feedback: {
         text: '',
         isSending: false,
@@ -181,17 +181,17 @@ export default {
   },
 
   created() {
-    this._nowInterval = setInterval(() => { this.now = Date.now(); }, 1000);
+    this._warningTimeout = setTimeout(() => { this.warningEnabled = true; }, 5000);
   },
 
   beforeDestroy() {
-    clearInterval(this._nowInterval);
+    clearTimeout(this._warningTimeout);
   },
 
   computed: {
     showConnectionWarning() {
       const disconnectedSince = this.$store.state.websocket.disconnectedSince;
-      return disconnectedSince !== null && (this.now - disconnectedSince) >= 5000;
+      return this.warningEnabled && disconnectedSince !== null;
     },
 
     uiUpdateMessage() {
