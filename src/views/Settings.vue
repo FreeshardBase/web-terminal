@@ -21,6 +21,103 @@
           so some settings are not available.
         </b-alert>
 
+        <b-row v-if="$store.state.profile">
+          <b-col>
+            <b-card title="Subscription">
+
+              <!-- Trial -->
+              <template v-if="subscriptionState === 'trial'">
+                <b-alert :show="cancelAlert" variant="warning" dismissible @dismissed="dismissCancelAlert">
+                  Subscription was cancelled. You can subscribe again any time.
+                </b-alert>
+                <b-card-text v-if="$store.state.profile.delete_after">
+                  Your shard will be deleted
+                  {{ $store.state.profile.delete_after | formatDateHumanize }}.
+                </b-card-text>
+                <b-card-text v-else>
+                  Subscribe to keep your shard running.
+                </b-card-text>
+                <b-button variant="primary" @click="subscribe" :disabled="subscribing">
+                  <b-spinner v-if="subscribing" small></b-spinner>
+                  {{ subscribeButtonLabel }}
+                </b-button>
+              </template>
+
+              <!-- Interstitial -->
+              <template v-else-if="subscriptionState === 'interstitial'">
+                <div class="d-flex align-items-center">
+                  <b-spinner small class="mr-2"></b-spinner>
+                  <span>Activating subscription…</span>
+                </div>
+                <b-button
+                    v-if="pollingTimedOut"
+                    variant="outline-secondary"
+                    size="sm"
+                    class="mt-2"
+                    @click="refresh(true)">
+                  <b-icon-arrow-repeat></b-icon-arrow-repeat>
+                  Refresh
+                </b-button>
+              </template>
+
+              <!-- Active / Active+pending -->
+              <template v-else-if="subscriptionState === 'active' || subscriptionState === 'active-pending'">
+                <b-card-text>
+                  Plan: <b>{{ $store.state.profile.subscription.vm_size | uppercase }}</b>
+                  — {{ formatPrice(centsToEur($store.state.profile.subscription.price_cents)) }}/month
+                </b-card-text>
+                <b-card-text v-if="$store.state.profile.subscription.next_charge_at">
+                  Next charge {{ $store.state.profile.subscription.next_charge_at | formatDateHumanize }}.
+                </b-card-text>
+                <b-card-text v-if="$store.state.profile.subscription.payer_email" class="text-muted small">
+                  Billed to {{ $store.state.profile.subscription.payer_email }}.
+                </b-card-text>
+                <b-alert
+                    show
+                    variant="info"
+                    v-if="subscriptionState === 'active-pending'">
+                  Upgrade pending:
+                  <b>{{ $store.state.profile.subscription.pending_vm_size | uppercase }}</b>
+                  at
+                  {{ formatPrice(centsToEur($store.state.profile.subscription.pending_price_cents)) }}/month.
+                </b-alert>
+                <b-button
+                    variant="outline-primary"
+                    :href="$store.state.profile.subscription.paypal_manage_url"
+                    target="_blank"
+                    rel="noopener"
+                    :disabled="!$store.state.profile.subscription.paypal_manage_url">
+                  Manage on PayPal
+                </b-button>
+              </template>
+
+              <!-- Grace -->
+              <template v-else-if="subscriptionState === 'grace'">
+                <b-card-text v-if="$store.state.profile.subscription.last_payment_failed_at">
+                  Payment failed
+                  {{ $store.state.profile.subscription.last_payment_failed_at | formatDateHumanize }}.
+                </b-card-text>
+                <b-card-text v-else-if="$store.state.profile.subscription.ended_at">
+                  Subscription ended
+                  {{ $store.state.profile.subscription.ended_at | formatDateHumanize }}.
+                </b-card-text>
+                <b-card-text v-else>
+                  Subscription is no longer active.
+                </b-card-text>
+                <b-card-text v-if="$store.state.profile.delete_after">
+                  Your shard will stop
+                  {{ $store.state.profile.delete_after | formatDateHumanize }}.
+                </b-card-text>
+                <b-button variant="primary" @click="subscribe" :disabled="subscribing">
+                  <b-spinner v-if="subscribing" small></b-spinner>
+                  {{ subscribeButtonLabel }}
+                </b-button>
+              </template>
+
+            </b-card>
+          </b-col>
+        </b-row>
+
         <b-row>
           <b-col>
             <b-card title="Disk Space">
@@ -148,7 +245,7 @@
                     v-for="size in resize.sizes"
                     :key="size"
                     @click="resize.selectedSize=size"
-                    :disabled="!sizeIsAvailable(size) || resize.waitingForRestart"
+                    :disabled="!sizeIsAvailable(size) || resize.waitingForRestart || hasPendingResize"
                     :variant="variantForSize(size)">
                   {{ size | uppercase }}
                 </b-button>
@@ -164,6 +261,10 @@
                   Cancel
                 </b-button>
               </b-button-group>
+
+              <b-card-text v-if="hasPendingResize" class="text-muted small mt-2">
+                A size change is already pending; new resizes are disabled until it completes.
+              </b-card-text>
 
             </b-card>
             </b-overlay>
@@ -227,6 +328,10 @@ import TextField from "@/components/TextField.vue";
 import {toastMixin} from "@/mixins";
 import pjson from "@/../package.json";
 import {EventBus} from "@/event-bus";
+import {centsToEur, computeMonthlyPrice, formatPrice} from "@/lib/pricing";
+
+const INTERSTITIAL_POLL_MS = 3000;
+const INTERSTITIAL_TIMEOUT_MS = 60000;
 
 export default {
   name: "Settings",
@@ -251,7 +356,12 @@ export default {
       navOverlays: {
         size: false,
         about: false,
-      }
+      },
+      subscribing: false,
+      cancelAlert: false,
+      pollingInterval: null,
+      pollingTimeoutHandle: null,
+      pollingTimedOut: false,
     }
   },
 
@@ -283,6 +393,48 @@ export default {
       } else {
         return 'success';
       }
+    },
+    subscriptionState() {
+      const profile = this.$store.state.profile;
+      if (!profile) return null;
+      const sub = profile.subscription;
+      const subQuery = this.$route.query.sub;
+      if (sub && sub.status === 'active') {
+        return sub.pending_vm_size ? 'active-pending' : 'active';
+      }
+      if (sub && ['grace', 'ended', 'suspended', 'cancelled'].includes(sub.status)) {
+        return 'grace';
+      }
+      if (subQuery === 'return') {
+        return 'interstitial';
+      }
+      return 'trial';
+    },
+    subscribeButtonLabel() {
+      const profile = this.$store.state.profile;
+      if (!profile) return 'Subscribe';
+      const sub = profile.subscription;
+      const reactivating = sub && ['grace', 'ended', 'suspended', 'cancelled'].includes(sub.status);
+      const verb = reactivating ? 'Reactivate' : 'Subscribe';
+      const price = computeMonthlyPrice(profile.vm_size, profile.volume_size_gb);
+      return `${verb} — ${formatPrice(price)}/month`;
+    },
+    hasPendingResize() {
+      const sub = this.$store.state.profile && this.$store.state.profile.subscription;
+      return !!(sub && sub.pending_vm_size);
+    },
+  },
+
+  watch: {
+    '$store.state.profile.subscription': {
+      handler(newVal) {
+        if (newVal && newVal.status === 'active') {
+          this.stopInterstitialPolling();
+          if (this.$route.query.sub) {
+            this.$router.replace({query: {}}).catch(() => {});
+          }
+        }
+      },
     },
   },
 
@@ -373,14 +525,70 @@ export default {
     async resizeShard() {
       this.resize.waitingForRestart = true;
       try {
-        await this.$http.post('/core/protected/management/api/shards/self/resize', {new_vm_size: this.resize.selectedSize});
+        const response = await this.$http.post(
+            '/core/protected/management/api/shards/self/resize',
+            {new_vm_size: this.resize.selectedSize});
+        if (response.data && response.data.approval_url) {
+          window.location = response.data.approval_url;
+          return;
+        }
         await this.$router.replace('/restart');
       } catch (e) {
         this.toastError('Error during resize', e.response.data.detail);
+        await this.$store.dispatch('force_query_profile_data').catch(() => {});
       } finally {
         this.resize.waitingForRestart = false;
       }
-    }
+    },
+    async subscribe() {
+      this.subscribing = true;
+      try {
+        const response = await this.$http.post(
+            '/core/protected/management/api/shards/self/subscribe');
+        if (response.data && response.data.approval_url) {
+          window.location = response.data.approval_url;
+          return;
+        }
+        this.toastError('Subscription error', 'No approval URL returned.');
+      } catch (e) {
+        const detail = (e.response && e.response.data && e.response.data.detail) || e.message;
+        this.toastError('Subscription error', detail);
+      } finally {
+        this.subscribing = false;
+      }
+    },
+    startInterstitialPolling() {
+      this.stopInterstitialPolling();
+      this.pollingTimedOut = false;
+      this.pollingInterval = setInterval(() => {
+        this.$store.dispatch('query_profile_data').catch(() => {});
+      }, INTERSTITIAL_POLL_MS);
+      this.pollingTimeoutHandle = setTimeout(() => {
+        this.pollingTimedOut = true;
+        if (this.pollingInterval) {
+          clearInterval(this.pollingInterval);
+          this.pollingInterval = null;
+        }
+      }, INTERSTITIAL_TIMEOUT_MS);
+    },
+    stopInterstitialPolling() {
+      if (this.pollingInterval) {
+        clearInterval(this.pollingInterval);
+        this.pollingInterval = null;
+      }
+      if (this.pollingTimeoutHandle) {
+        clearTimeout(this.pollingTimeoutHandle);
+        this.pollingTimeoutHandle = null;
+      }
+    },
+    dismissCancelAlert() {
+      this.cancelAlert = false;
+      if (this.$route.query.sub) {
+        this.$router.replace({query: {}}).catch(() => {});
+      }
+    },
+    centsToEur,
+    formatPrice,
   },
 
   async mounted() {
@@ -390,6 +598,19 @@ export default {
     EventBus.$on('backup_update', () => {
       this.refreshBackupInfo();
     });
+
+    const subQuery = this.$route.query.sub;
+    if (subQuery === 'return') {
+      const sub = this.$store.state.profile && this.$store.state.profile.subscription;
+      if (sub && sub.status === 'active') {
+        // WS or earlier refetch already converged → drop the query param.
+        await this.$router.replace({query: {}}).catch(() => {});
+      } else {
+        this.startInterstitialPolling();
+      }
+    } else if (subQuery === 'cancel') {
+      this.cancelAlert = true;
+    }
 
     const section = this.$router.currentRoute.hash.replace("#", "");
     if (section) {
@@ -401,6 +622,10 @@ export default {
         this.navOverlays[section] = false;
       }, 400);
     }
+  },
+
+  beforeDestroy() {
+    this.stopInterstitialPolling();
   },
 }
 </script>
