@@ -139,6 +139,9 @@ const store = new Vuex.Store({
             if (message.message_type === 'apps_update') {
                 context.commit('set_apps', message.message);
             }
+            if (message.message_type === 'subscription_updated') {
+                await context.dispatch('force_query_profile_data');
+            }
         },
         async refresh_terminals(context) {
             const response = await this._vm.$http.get('/core/protected/terminals');

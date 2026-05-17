@@ -1,0 +1,37 @@
+// Pricing helper — mirrors landing-page/src/components/Pricing.astro.
+// Used by the Subscription card to compute the Subscribe / Reactivate
+// button label. Active / Grace states render the controller-supplied
+// `price_cents` directly so existing subscribers stay grandfathered.
+
+export const VM_PRICING_EUR = {
+  xs: 5.50,
+  s: 11.00,
+  m: 19.80,
+  l: 51.00,
+  xl: 102.00,
+};
+
+export const DISK_PRICE_PER_GB_EUR = 0.04;
+export const MANAGEMENT_COST_EUR = 3.00;
+export const MARGIN_MULTIPLIER = 1.5;
+
+export function computeMonthlyPrice(vmSize, volumeSizeGb) {
+  if (!vmSize) return null;
+  const vmCost = VM_PRICING_EUR[vmSize];
+  if (vmCost === undefined) return null;
+  if (!Number.isFinite(volumeSizeGb)) return null;
+  const total =
+    (vmCost + volumeSizeGb * DISK_PRICE_PER_GB_EUR + MANAGEMENT_COST_EUR) *
+    MARGIN_MULTIPLIER;
+  return Math.round(total * 100) / 100;
+}
+
+export function formatPrice(amount) {
+  if (amount == null) return '€—';
+  return `€${amount.toFixed(2)}`;
+}
+
+export function centsToEur(cents) {
+  if (cents == null) return null;
+  return Math.round(cents) / 100;
+}
