@@ -63,11 +63,11 @@
               <!-- Active / Active+pending -->
               <template v-else-if="subscriptionState === 'active' || subscriptionState === 'active-pending'">
                 <b-card-text>
-                  Plan: <b>{{ $store.state.profile.subscription.vm_size | uppercase }}</b>
+                  Plan: <b>{{ $store.state.profile.vm_size | uppercase }}</b>
                   — {{ formatPrice(centsToEur($store.state.profile.subscription.price_cents)) }}/month
                 </b-card-text>
-                <b-card-text v-if="$store.state.profile.subscription.next_charge_at">
-                  Next charge {{ $store.state.profile.subscription.next_charge_at | formatDateHumanize }}.
+                <b-card-text v-if="$store.state.profile.subscription.next_billing_date">
+                  Next charge {{ $store.state.profile.subscription.next_billing_date | formatDateHumanize }}.
                 </b-card-text>
                 <b-card-text v-if="$store.state.profile.subscription.payer_email" class="text-muted small">
                   Billed to {{ $store.state.profile.subscription.payer_email }}.
@@ -97,9 +97,9 @@
                   Payment failed
                   {{ $store.state.profile.subscription.last_payment_failed_at | formatDateHumanize }}.
                 </b-card-text>
-                <b-card-text v-else-if="$store.state.profile.subscription.ended_at">
+                <b-card-text v-else-if="$store.state.profile.subscription.ended">
                   Subscription ended
-                  {{ $store.state.profile.subscription.ended_at | formatDateHumanize }}.
+                  {{ $store.state.profile.subscription.ended | formatDateHumanize }}.
                 </b-card-text>
                 <b-card-text v-else>
                   Subscription is no longer active.

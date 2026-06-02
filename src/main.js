@@ -24,6 +24,7 @@ Vue.prototype.$http = axios.create({
 });
 
 Vue.filter('uppercase', function (value) {
+  if (value === undefined || value === null) return value;
   return value.toUpperCase();
 });
 
