@@ -21,30 +21,12 @@
           so some settings are not available.
         </b-alert>
 
-        <b-row v-if="$store.state.profile">
+        <b-row v-if="$store.state.profile && $store.state.profile.billing_enabled">
           <b-col>
             <b-card title="Subscription">
 
-              <!-- Trial -->
-              <template v-if="subscriptionState === 'trial'">
-                <b-alert :show="cancelAlert" variant="warning" dismissible @dismissed="dismissCancelAlert">
-                  Subscription was cancelled. You can subscribe again any time.
-                </b-alert>
-                <b-card-text v-if="$store.state.profile.delete_after">
-                  Your shard will be deleted
-                  {{ $store.state.profile.delete_after | formatDateHumanize }}.
-                </b-card-text>
-                <b-card-text v-else>
-                  Subscribe to keep your shard running.
-                </b-card-text>
-                <b-button variant="primary" @click="subscribe" :disabled="subscribing">
-                  <b-spinner v-if="subscribing" small></b-spinner>
-                  {{ subscribeButtonLabel }}
-                </b-button>
-              </template>
-
-              <!-- Interstitial -->
-              <template v-else-if="subscriptionState === 'interstitial'">
+              <!-- Interstitial (driven by SDK onApprove) -->
+              <template v-if="subscribing">
                 <div class="d-flex align-items-center">
                   <b-spinner small class="mr-2"></b-spinner>
                   <span>Activating subscription…</span>
@@ -58,6 +40,21 @@
                   <b-icon-arrow-repeat></b-icon-arrow-repeat>
                   Refresh
                 </b-button>
+              </template>
+
+              <!-- Trial -->
+              <template v-else-if="subscriptionState === 'trial'">
+                <b-alert :show="cancelAlert" variant="warning" dismissible @dismissed="dismissCancelAlert">
+                  Subscription was cancelled. You can subscribe again any time.
+                </b-alert>
+                <b-card-text v-if="$store.state.profile.delete_after">
+                  Your shard will be deleted
+                  {{ $store.state.profile.delete_after | formatDateHumanize }}.
+                </b-card-text>
+                <b-card-text v-else>
+                  Subscribe to keep your shard running.
+                </b-card-text>
+                <div ref="paypalButton"></div>
               </template>
 
               <!-- Active / Active+pending -->
@@ -108,10 +105,7 @@
                   Your shard will stop
                   {{ $store.state.profile.delete_after | formatDateHumanize }}.
                 </b-card-text>
-                <b-button variant="primary" @click="subscribe" :disabled="subscribing">
-                  <b-spinner v-if="subscribing" small></b-spinner>
-                  {{ subscribeButtonLabel }}
-                </b-button>
+                <div ref="paypalButton"></div>
               </template>
 
             </b-card>
@@ -328,7 +322,8 @@ import TextField from "@/components/TextField.vue";
 import {toastMixin} from "@/mixins";
 import pjson from "@/../package.json";
 import {EventBus} from "@/event-bus";
-import {centsToEur, computeMonthlyPrice, formatPrice} from "@/lib/pricing";
+import {centsToEur, formatPrice} from "@/lib/pricing";
+import {loadPaypalSdk} from "@/lib/paypal-sdk";
 
 const INTERSTITIAL_POLL_MS = 3000;
 const INTERSTITIAL_TIMEOUT_MS = 60000;
@@ -358,6 +353,7 @@ export default {
         about: false,
       },
       subscribing: false,
+      paypalButtonRendered: false,
       cancelAlert: false,
       pollingInterval: null,
       pollingTimeoutHandle: null,
@@ -398,26 +394,13 @@ export default {
       const profile = this.$store.state.profile;
       if (!profile) return null;
       const sub = profile.subscription;
-      const subQuery = this.$route.query.sub;
       if (sub && sub.status === 'active') {
         return sub.pending_vm_size ? 'active-pending' : 'active';
       }
       if (sub && ['grace', 'ended'].includes(sub.status)) {
         return 'grace';
       }
-      if (subQuery === 'return') {
-        return 'interstitial';
-      }
       return 'trial';
-    },
-    subscribeButtonLabel() {
-      const profile = this.$store.state.profile;
-      if (!profile) return 'Subscribe';
-      const sub = profile.subscription;
-      const reactivating = sub && ['grace', 'ended'].includes(sub.status);
-      const verb = reactivating ? 'Reactivate' : 'Subscribe';
-      const price = computeMonthlyPrice(profile.vm_size, profile.volume_size_gb);
-      return `${verb} — ${formatPrice(price)}/month`;
     },
     hasPendingResize() {
       const sub = this.$store.state.profile && this.$store.state.profile.subscription;
@@ -429,12 +412,22 @@ export default {
     '$store.state.profile.subscription': {
       handler(newVal) {
         if (newVal && newVal.status === 'active') {
+          this.subscribing = false;
           this.stopInterstitialPolling();
           if (this.$route.query.sub) {
             this.$router.replace({query: {}}).catch(() => {});
           }
         }
       },
+    },
+    subscriptionState(newState) {
+      if (!['trial', 'grace'].includes(newState)) {
+        this.paypalButtonRendered = false;
+      }
+      this.$nextTick(() => this.renderPaypalButton());
+    },
+    '$store.state.profile.billing_enabled'() {
+      this.$nextTick(() => this.renderPaypalButton());
     },
   },
 
@@ -524,12 +517,29 @@ export default {
     },
     async resizeShard() {
       this.resize.waitingForRestart = true;
+      // Set when a PayPal popup is in flight: the popup-close watcher owns
+      // resetting waitingForRestart, so the finally block must not clear it.
+      let popupInFlight = false;
       try {
         const response = await this.$http.post(
             '/core/protected/management/api/shards/self/resize',
             {new_vm_size: this.resize.selectedSize});
         if (response.data && response.data.approval_url) {
-          window.location = response.data.approval_url;
+          // The POST already happened, so we cannot open the popup synchronously
+          // on the click; if the browser blocks it, fall back to a redirect.
+          const popup = window.open(response.data.approval_url, 'paypal-revise', 'width=500,height=700');
+          if (!popup) {
+            window.location = response.data.approval_url;
+            return;
+          }
+          popupInFlight = true;
+          const timer = setInterval(async () => {
+            if (popup.closed) {
+              clearInterval(timer);
+              await this.$store.dispatch('force_query_profile_data').catch(() => {});
+              this.resize.waitingForRestart = false;
+            }
+          }, 800);
           return;
         }
         await this.$router.replace('/restart');
@@ -537,25 +547,49 @@ export default {
         this.toastError('Error during resize', e.response.data.detail);
         await this.$store.dispatch('force_query_profile_data').catch(() => {});
       } finally {
-        this.resize.waitingForRestart = false;
+        if (!popupInFlight) {
+          this.resize.waitingForRestart = false;
+        }
       }
     },
-    async subscribe() {
-      this.subscribing = true;
+    async renderPaypalButton() {
+      const profile = this.$store.state.profile;
+      if (!profile || !profile.billing_enabled) return;
+      if (!['trial', 'grace'].includes(this.subscriptionState)) return;
+      if (this.paypalButtonRendered) return;
+      const container = this.$refs.paypalButton;
+      if (!container || container.childElementCount > 0) return;
       try {
-        const response = await this.$http.post(
-            '/core/protected/management/api/shards/self/subscribe');
-        if (response.data && response.data.approval_url) {
-          window.location = response.data.approval_url;
-          return;
-        }
-        this.toastError('Subscription error', 'No approval URL returned.');
+        await loadPaypalSdk(profile.paypal_client_id);
       } catch (e) {
-        const detail = (e.response && e.response.data && e.response.data.detail) || e.message;
-        this.toastError('Subscription error', detail);
-      } finally {
-        this.subscribing = false;
+        this.toastError('PayPal error', 'Could not load PayPal.');
+        return;
       }
+      // Guard against a second render (SDK throws on a non-empty node) and
+      // against re-rendering if state changed while the SDK was loading.
+      if (this.paypalButtonRendered) return;
+      if (!this.$refs.paypalButton || this.$refs.paypalButton.childElementCount > 0) return;
+      this.paypalButtonRendered = true;
+      window.paypal.Buttons({
+        createSubscription: async () => {
+          const {data} = await this.$http.post(
+              '/core/protected/management/api/shards/self/subscribe');
+          return data.subscription_id;
+        },
+        onApprove: async () => {
+          this.subscribing = true;
+          // Poll until the webhook flips the subscription to active; the
+          // subscription watcher stops polling and clears `subscribing`.
+          this.startInterstitialPolling();
+          await this.$store.dispatch('force_query_profile_data');
+        },
+        onCancel: () => {
+          this.toastError('Subscription', 'Subscription was not completed');
+        },
+        onError: (err) => {
+          this.toastError('PayPal error', String(err));
+        },
+      }).render(this.$refs.paypalButton);
     },
     startInterstitialPolling() {
       this.stopInterstitialPolling();
@@ -600,17 +634,11 @@ export default {
     });
 
     const subQuery = this.$route.query.sub;
-    if (subQuery === 'return') {
-      const sub = this.$store.state.profile && this.$store.state.profile.subscription;
-      if (sub && sub.status === 'active') {
-        // WS or earlier refetch already converged → drop the query param.
-        await this.$router.replace({query: {}}).catch(() => {});
-      } else {
-        this.startInterstitialPolling();
-      }
-    } else if (subQuery === 'cancel') {
+    if (subQuery === 'cancel') {
       this.cancelAlert = true;
     }
+
+    this.$nextTick(() => this.renderPaypalButton());
 
     const section = this.$router.currentRoute.hash.replace("#", "");
     if (section) {
