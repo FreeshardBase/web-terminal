@@ -402,7 +402,7 @@ export default {
       if (sub && sub.status === 'active') {
         return sub.pending_vm_size ? 'active-pending' : 'active';
       }
-      if (sub && ['grace', 'ended', 'suspended', 'cancelled'].includes(sub.status)) {
+      if (sub && ['grace', 'ended'].includes(sub.status)) {
         return 'grace';
       }
       if (subQuery === 'return') {
@@ -414,7 +414,7 @@ export default {
       const profile = this.$store.state.profile;
       if (!profile) return 'Subscribe';
       const sub = profile.subscription;
-      const reactivating = sub && ['grace', 'ended', 'suspended', 'cancelled'].includes(sub.status);
+      const reactivating = sub && ['grace', 'ended'].includes(sub.status);
       const verb = reactivating ? 'Reactivate' : 'Subscribe';
       const price = computeMonthlyPrice(profile.vm_size, profile.volume_size_gb);
       return `${verb} — ${formatPrice(price)}/month`;
