@@ -420,7 +420,10 @@ export default {
         }
       },
     },
-    subscriptionState() {
+    subscriptionState(newState) {
+      if (!['trial', 'grace'].includes(newState)) {
+        this.paypalButtonRendered = false;
+      }
       this.$nextTick(() => this.renderPaypalButton());
     },
     '$store.state.profile.billing_enabled'() {
@@ -555,7 +558,7 @@ export default {
       if (!['trial', 'grace'].includes(this.subscriptionState)) return;
       if (this.paypalButtonRendered) return;
       const container = this.$refs.paypalButton;
-      if (!container) return;
+      if (!container || container.childElementCount > 0) return;
       try {
         await loadPaypalSdk(profile.paypal_client_id);
       } catch (e) {
@@ -565,7 +568,7 @@ export default {
       // Guard against a second render (SDK throws on a non-empty node) and
       // against re-rendering if state changed while the SDK was loading.
       if (this.paypalButtonRendered) return;
-      if (!this.$refs.paypalButton) return;
+      if (!this.$refs.paypalButton || this.$refs.paypalButton.childElementCount > 0) return;
       this.paypalButtonRendered = true;
       window.paypal.Buttons({
         createSubscription: async () => {
