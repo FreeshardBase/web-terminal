@@ -245,16 +245,17 @@
                 </b-button>
               </b-button-group>
 
-              <b-button-group v-if="resize.selectedSize" class="ml-3">
-                <b-button variant="primary" @click="resizeShard" :disabled="resize.waitingForRestart">
-                  <b-icon-arrow-clockwise></b-icon-arrow-clockwise>
-                  Resize to {{ resize.selectedSize | uppercase }} and restart
-                </b-button>
-                <b-button variant="danger" @click="resize.selectedSize=null" :disabled="resize.waitingForRestart">
-                  <b-icon-x-circle-fill></b-icon-x-circle-fill>
+              <div v-if="resize.selectedSize" class="ml-3 d-inline-block align-top">
+                <b-card-text class="small mb-1">
+                  Approve the new price to resize to {{ resize.selectedSize | uppercase }}. The shard restarts afterwards.
+                </b-card-text>
+                <!-- PayPal SDK revise button; performs actions.subscription.revise in-window. -->
+                <div ref="resizeButton"></div>
+                <b-button variant="link" size="sm" class="text-danger px-0"
+                          @click="cancelResizeSelection" :disabled="resize.waitingForRestart">
                   Cancel
                 </b-button>
-              </b-button-group>
+              </div>
 
               <b-card-text v-if="hasPendingResize" class="text-muted small mt-2">
                 A size change is already pending; new resizes are disabled until it completes.
@@ -354,6 +355,7 @@ export default {
       },
       subscribing: false,
       paypalButtonRendered: false,
+      resizeButtonInstance: null,
       cancelAlert: false,
       pollingInterval: null,
       pollingTimeoutHandle: null,
@@ -406,9 +408,28 @@ export default {
       const sub = this.$store.state.profile && this.$store.state.profile.subscription;
       return !!(sub && sub.pending_vm_size);
     },
+    resizeNeedsApproval() {
+      const p = this.$store.state.profile;
+      return !!(p && p.billing_enabled && p.subscription && p.subscription.status === 'active');
+    },
   },
 
   watch: {
+    'resize.selectedSize'(newSize) {
+      if (newSize && this.resizeNeedsApproval) {
+        this.$nextTick(() => this.renderResizeButton());
+      } else {
+        this.teardownResizeButton();
+      }
+    },
+    hasPendingResize(now, was) {
+      // pending cleared by the UPDATED webhook → the resize is committed.
+      if (was && !now) {
+        this.resize.waitingForRestart = false;
+        this.resize.selectedSize = null;
+        this.stopInterstitialPolling();
+      }
+    },
     '$store.state.profile.subscription': {
       handler(newVal) {
         if (newVal && newVal.status === 'active') {
@@ -516,41 +537,80 @@ export default {
       }
     },
     async resizeShard() {
+      // Immediate resize path for unsubscribed shards (no price approval needed).
+      // Subscribed shards go through the PayPal SDK revise button instead.
       this.resize.waitingForRestart = true;
-      // Set when a PayPal popup is in flight: the popup-close watcher owns
-      // resetting waitingForRestart, so the finally block must not clear it.
-      let popupInFlight = false;
       try {
-        const response = await this.$http.post(
+        await this.$http.post(
             '/core/protected/management/api/shards/self/resize',
             {new_vm_size: this.resize.selectedSize});
-        if (response.data && response.data.approval_url) {
-          // The POST already happened, so we cannot open the popup synchronously
-          // on the click; if the browser blocks it, fall back to a redirect.
-          const popup = window.open(response.data.approval_url, 'paypal-revise', 'width=500,height=700');
-          if (!popup) {
-            window.location = response.data.approval_url;
-            return;
-          }
-          popupInFlight = true;
-          const timer = setInterval(async () => {
-            if (popup.closed) {
-              clearInterval(timer);
-              await this.$store.dispatch('force_query_profile_data').catch(() => {});
-              this.resize.waitingForRestart = false;
-            }
-          }, 800);
-          return;
-        }
         await this.$router.replace('/restart');
       } catch (e) {
-        this.toastError('Error during resize', e.response.data.detail);
-        await this.$store.dispatch('force_query_profile_data').catch(() => {});
+        this.toastError('Error during resize', (e.response && e.response.data && e.response.data.detail) || e.message);
       } finally {
-        if (!popupInFlight) {
-          this.resize.waitingForRestart = false;
-        }
+        this.resize.waitingForRestart = false;
       }
+    },
+    cancelResizeSelection() {
+      // Watcher tears down the PayPal button when selectedSize clears.
+      this.resize.selectedSize = null;
+    },
+    teardownResizeButton() {
+      if (this.resizeButtonInstance) {
+        try {
+          this.resizeButtonInstance.close();
+        } catch (e) { /* button already gone */ }
+        this.resizeButtonInstance = null;
+      }
+      const container = this.$refs.resizeButton;
+      if (container) container.innerHTML = '';
+    },
+    async renderResizeButton() {
+      const profile = this.$store.state.profile;
+      if (!this.resize.selectedSize || !this.resizeNeedsApproval) return;
+      if (!this.$refs.resizeButton) return;
+      this.teardownResizeButton();
+      try {
+        await loadPaypalSdk(profile.paypal_client_id);
+      } catch (e) {
+        this.toastError('PayPal error', 'Could not load PayPal.');
+        return;
+      }
+      // State may have changed while the SDK loaded.
+      if (!this.$refs.resizeButton || !this.resize.selectedSize || !this.resizeNeedsApproval) return;
+      const selectedSize = this.resize.selectedSize;
+      const cancelPending = () =>
+          this.$http.post('/core/protected/management/api/shards/self/resize/cancel').catch(() => {});
+      this.resizeButtonInstance = window.paypal.Buttons({
+        createSubscription: async (data, actions) => {
+          // Claim the pending-resize slot and get the new quantity, then revise
+          // the existing subscription in-window.
+          const {data: r} = await this.$http.post(
+              '/core/protected/management/api/shards/self/resize',
+              {new_vm_size: selectedSize});
+          // NOTE: verify this actions.subscription.revise signature in the PayPal sandbox.
+          return actions.subscription.revise(r.subscription_id, {
+            plan_id: r.plan_id,
+            quantity: String(r.expected_price_cents),
+          });
+        },
+        onApprove: async () => {
+          // The UPDATED webhook promotes the price, clears pending and resizes
+          // the VM; poll until the profile reflects it (hasPendingResize watcher
+          // then clears waitingForRestart).
+          this.resize.waitingForRestart = true;
+          this.startInterstitialPolling();
+          await this.$store.dispatch('force_query_profile_data').catch(() => {});
+        },
+        onCancel: async () => {
+          await cancelPending();
+        },
+        onError: async (err) => {
+          await cancelPending();
+          this.toastError('PayPal error', String(err));
+        },
+      });
+      this.resizeButtonInstance.render(this.$refs.resizeButton);
     },
     async renderPaypalButton() {
       const profile = this.$store.state.profile;
@@ -654,6 +714,7 @@ export default {
 
   beforeDestroy() {
     this.stopInterstitialPolling();
+    this.teardownResizeButton();
   },
 }
 </script>
