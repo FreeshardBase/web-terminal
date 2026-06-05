@@ -39,7 +39,14 @@ export default {
         this.websocket = null;
       };
       this.websocket.onopen = () => {
+        // On a reconnect (e.g. after a resize restarts the shard) re-pull the
+        // profile so size/price reflect the new state. Skip on the first open;
+        // beforeMount already loaded it.
+        const wasDisconnected = this.$store.state.websocket.disconnectedSince !== null;
         this.$store.commit('websocket_connect');
+        if (wasDisconnected) {
+          this.$store.dispatch('force_query_profile_data').catch(() => {});
+        }
       };
     },
   },
