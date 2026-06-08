@@ -2,6 +2,7 @@ import {
   centsToEur,
   computeMonthlyPrice,
   formatPrice,
+  vatAmountEur,
 } from '@/lib/pricing';
 
 describe('computeMonthlyPrice', () => {
@@ -51,5 +52,21 @@ describe('formatPrice', () => {
 describe('centsToEur', () => {
   test('converts cents to euros', () => {
     expect(centsToEur(2130)).toBe(21.30);
+  });
+});
+
+describe('vatAmountEur', () => {
+  // VAT share of a gross price: gross - round(gross/1.19)
+  test('s + 30GB gross 2178c => 3.48', () => {
+    expect(vatAmountEur(2178)).toBe(3.48);
+  });
+  test('m + 100GB gross 4248c => 6.78', () => {
+    expect(vatAmountEur(4248)).toBe(6.78);
+  });
+  test('xl + 400GB gross 21063c => 33.63', () => {
+    expect(vatAmountEur(21063)).toBe(33.63);
+  });
+  test('null => null', () => {
+    expect(vatAmountEur(null)).toBeNull();
   });
 });

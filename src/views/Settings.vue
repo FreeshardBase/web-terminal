@@ -59,9 +59,12 @@
 
               <!-- Active / Active+pending -->
               <template v-else-if="subscriptionState === 'active' || subscriptionState === 'active-pending'">
-                <b-card-text>
+                <b-card-text class="mb-1">
                   Plan: <b>{{ $store.state.profile.vm_size | uppercase }}</b>
                   — {{ formatPrice(centsToEur($store.state.profile.subscription.price_cents)) }}/month
+                </b-card-text>
+                <b-card-text class="text-muted small">
+                  incl. 19% VAT ({{ formatPrice(vatAmountEur($store.state.profile.subscription.price_cents)) }})
                 </b-card-text>
                 <b-card-text v-if="$store.state.profile.subscription.next_billing_date">
                   Next charge {{ $store.state.profile.subscription.next_billing_date | formatDateHumanize }}.
@@ -76,7 +79,10 @@
                   Upgrade pending:
                   <b>{{ $store.state.profile.subscription.pending_vm_size | uppercase }}</b>
                   at
-                  {{ formatPrice(centsToEur($store.state.profile.subscription.pending_price_cents)) }}/month.
+                  {{ formatPrice(centsToEur($store.state.profile.subscription.pending_price_cents)) }}/month
+                  <span class="text-muted small">
+                    (incl. 19% VAT {{ formatPrice(vatAmountEur($store.state.profile.subscription.pending_price_cents)) }})
+                  </span>.
                 </b-alert>
                 <b-button
                     variant="outline-primary"
@@ -323,7 +329,7 @@ import TextField from "@/components/TextField.vue";
 import {toastMixin} from "@/mixins";
 import pjson from "@/../package.json";
 import {EventBus} from "@/event-bus";
-import {centsToEur, formatPrice} from "@/lib/pricing";
+import {centsToEur, formatPrice, vatAmountEur} from "@/lib/pricing";
 import {loadPaypalSdk} from "@/lib/paypal-sdk";
 
 const INTERSTITIAL_POLL_MS = 3000;
@@ -683,6 +689,7 @@ export default {
     },
     centsToEur,
     formatPrice,
+    vatAmountEur,
   },
 
   async mounted() {

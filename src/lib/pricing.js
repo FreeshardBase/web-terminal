@@ -36,3 +36,10 @@ export function centsToEur(cents) {
   if (cents == null) return null;
   return Math.round(cents) / 100;
 }
+
+// VAT share of a gross price (gross already includes 19% VAT), in euros.
+export function vatAmountEur(grossCents) {
+  if (grossCents == null) return null;
+  const net = Math.round(grossCents / VAT_MULTIPLIER);
+  return (grossCents - net) / 100;
+}
