@@ -2,27 +2,28 @@ import {
   centsToEur,
   computeMonthlyPrice,
   formatPrice,
+  vatAmountEur,
 } from '@/lib/pricing';
 
 describe('computeMonthlyPrice', () => {
-  // (11.00 + 30*0.04 + 3.00) * 1.5 = 22.80
-  test('s + 30GB => 22.80', () => {
-    expect(computeMonthlyPrice('s', 30)).toBe(22.80);
+  // (11.00 + 30*0.04) * 1.5 * 1.19 = 21.78
+  test('s + 30GB => 21.78', () => {
+    expect(computeMonthlyPrice('s', 30)).toBe(21.78);
   });
 
-  // (5.50 + 20*0.04 + 3.00) * 1.5 = 13.95
-  test('xs + 20GB => 13.95', () => {
-    expect(computeMonthlyPrice('xs', 20)).toBe(13.95);
+  // (5.50 + 20*0.04) * 1.5 * 1.19 = 11.25
+  test('xs + 20GB => 11.25', () => {
+    expect(computeMonthlyPrice('xs', 20)).toBe(11.25);
   });
 
-  // (102.00 + 400*0.04 + 3.00) * 1.5 = 181.50
-  test('xl + 400GB => 181.50', () => {
-    expect(computeMonthlyPrice('xl', 400)).toBe(181.50);
+  // (102.00 + 400*0.04) * 1.5 * 1.19 = 210.63
+  test('xl + 400GB => 210.63', () => {
+    expect(computeMonthlyPrice('xl', 400)).toBe(210.63);
   });
 
-  // (19.80 + 250*0.04 + 3.00) * 1.5 = 49.20
-  test('m + 250GB => 49.20', () => {
-    expect(computeMonthlyPrice('m', 250)).toBe(49.20);
+  // (19.80 + 250*0.04) * 1.5 * 1.19 = 53.19
+  test('m + 250GB => 53.19', () => {
+    expect(computeMonthlyPrice('m', 250)).toBe(53.19);
   });
 
   test('missing vmSize => null', () => {
@@ -51,5 +52,21 @@ describe('formatPrice', () => {
 describe('centsToEur', () => {
   test('converts cents to euros', () => {
     expect(centsToEur(2130)).toBe(21.30);
+  });
+});
+
+describe('vatAmountEur', () => {
+  // VAT share of a gross price: gross - round(gross/1.19)
+  test('s + 30GB gross 2178c => 3.48', () => {
+    expect(vatAmountEur(2178)).toBe(3.48);
+  });
+  test('m + 100GB gross 4248c => 6.78', () => {
+    expect(vatAmountEur(4248)).toBe(6.78);
+  });
+  test('xl + 400GB gross 21063c => 33.63', () => {
+    expect(vatAmountEur(21063)).toBe(33.63);
+  });
+  test('null => null', () => {
+    expect(vatAmountEur(null)).toBeNull();
   });
 });

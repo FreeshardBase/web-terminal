@@ -12,8 +12,8 @@ export const VM_PRICING_EUR = {
 };
 
 export const DISK_PRICE_PER_GB_EUR = 0.04;
-export const MANAGEMENT_COST_EUR = 3.00;
 export const MARGIN_MULTIPLIER = 1.5;
+export const VAT_MULTIPLIER = 1.19;
 
 export function computeMonthlyPrice(vmSize, volumeSizeGb) {
   if (!vmSize) return null;
@@ -21,8 +21,9 @@ export function computeMonthlyPrice(vmSize, volumeSizeGb) {
   if (vmCost === undefined) return null;
   if (!Number.isFinite(volumeSizeGb)) return null;
   const total =
-    (vmCost + volumeSizeGb * DISK_PRICE_PER_GB_EUR + MANAGEMENT_COST_EUR) *
-    MARGIN_MULTIPLIER;
+    (vmCost + volumeSizeGb * DISK_PRICE_PER_GB_EUR) *
+    MARGIN_MULTIPLIER *
+    VAT_MULTIPLIER;
   return Math.round(total * 100) / 100;
 }
 
@@ -34,4 +35,11 @@ export function formatPrice(amount) {
 export function centsToEur(cents) {
   if (cents == null) return null;
   return Math.round(cents) / 100;
+}
+
+// VAT share of a gross price (gross already includes 19% VAT), in euros.
+export function vatAmountEur(grossCents) {
+  if (grossCents == null) return null;
+  const net = Math.round(grossCents / VAT_MULTIPLIER);
+  return (grossCents - net) / 100;
 }
