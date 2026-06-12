@@ -66,7 +66,7 @@ const store = new Vuex.Store({
             state.websocket.disconnectedSince = Date.now();
         },
         set_apps(state, apps) {
-            state.apps = apps;
+            state.apps = [...apps].sort((a, b) => a.name.localeCompare(b.name));
         },
         set_terminals(state, terminals) {
             state.terminals = terminals;

@@ -44,3 +44,14 @@ describe('handle_websocket_message', () => {
     expect(httpGet).not.toHaveBeenCalled();
   });
 });
+
+describe('set_apps', () => {
+  test('sorts apps by name', () => {
+    store.commit('set_apps', [
+      {name: 'zulu'},
+      {name: 'alpha'},
+      {name: 'Mike'},
+    ]);
+    expect(store.state.apps.map(a => a.name)).toEqual(['alpha', 'Mike', 'zulu']);
+  });
+});
