@@ -1,6 +1,6 @@
 {
   "name": "web-terminal",
-  "version": "0.39.4",
+  "version": "0.39.5",
   "private": true,
   "scripts": {
     "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
