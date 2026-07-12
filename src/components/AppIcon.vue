@@ -15,6 +15,7 @@
     </div>
     <div class="status text-secondary">
       <b-icon-circle-fill v-if="app.status === 'running'"></b-icon-circle-fill>
+      <b-icon-circle-fill v-else-if="app.status === 'paused'" class="paused-dot"></b-icon-circle-fill>
       <div v-else></div>
     </div>
     <div>{{ (app.meta && app.meta.pretty_name) || app.name }}</div>
@@ -119,6 +120,10 @@ p {
 .status > * {
   height: 0.5em;
   width: 0.5em;
+}
+
+.paused-dot {
+  opacity: 0.4;
 }
 
 .grid {
