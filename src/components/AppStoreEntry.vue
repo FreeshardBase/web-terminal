@@ -29,6 +29,8 @@
                   v-if="!isSizeCompatible" variant="warning"></b-icon-exclamation-octagon-fill>
               <b-icon-exclamation-triangle-fill
                   v-if="app.status === 'error'" variant="danger"></b-icon-exclamation-triangle-fill>
+              <b-icon-pause-circle-fill
+                  v-if="app.status === 'paused'" variant="secondary"></b-icon-pause-circle-fill>
             </b-card-title>
             <b-card-text>{{ appStoreInfo.description_short }}</b-card-text>
           </b-card-body>
@@ -55,7 +57,11 @@
                 {{ app.pretty_name || (app.meta && app.meta.pretty_name) || app.name }}
               </h2>
               <p class="text-secondary" v-if="is_installed"><small>
-                {{ app.status }}<br>
+                <span v-if="app.status === 'paused'">
+                  <b-icon-pause-circle-fill></b-icon-pause-circle-fill>
+                  Paused — wakes automatically on access
+                </span>
+                <span v-else>{{ app.status }}</span><br>
                 <div v-if="app.installation_reason === 'custom'">Custom App</div>
                 <div v-if="app.installation_reason === 'config'">Preconfigured App</div>
               </small></p>
