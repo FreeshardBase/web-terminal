@@ -481,12 +481,13 @@ export default {
   },
 
   watch: {
-    'resize.selectedSize'(newSize) {
-      if (newSize && this.resizeNeedsApproval) {
-        this.$nextTick(() => this.renderResizeButton());
-      } else {
-        this.teardownResizeButton();
-      }
+    'resize.selectedSize'() {
+      this.syncResizeButton();
+    },
+    resizeNeedsApproval() {
+      // A size can already be selected when the shard gains a subscription,
+      // and the approval button only enters the DOM at that point.
+      this.syncResizeButton();
     },
     hasPendingResize(now, was) {
       // pending cleared by the UPDATED webhook → the resize is committed.
@@ -620,6 +621,13 @@ export default {
     cancelResizeSelection() {
       // Watcher tears down the PayPal button when selectedSize clears.
       this.resize.selectedSize = null;
+    },
+    syncResizeButton() {
+      if (this.resize.selectedSize && this.resizeNeedsApproval) {
+        this.$nextTick(() => this.renderResizeButton());
+      } else {
+        this.teardownResizeButton();
+      }
     },
     teardownResizeButton() {
       if (this.resizeButtonInstance) {
