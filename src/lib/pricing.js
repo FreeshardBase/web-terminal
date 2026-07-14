@@ -1,7 +1,8 @@
 // Pricing helper — mirrors landing-page/src/components/Pricing.astro.
-// Used by the Subscription card to compute the Subscribe / Reactivate
-// button label. Active / Grace states render the controller-supplied
-// `price_cents` directly so existing subscribers stay grandfathered.
+// Used by the Subscription card to preview the monthly price of a size
+// before the buyer is sent to PayPal. Active / Grace states render the
+// controller-supplied `price_cents` directly so existing subscribers stay
+// grandfathered.
 
 export const VM_PRICING_EUR = {
   xs: 5.50,
@@ -30,6 +31,12 @@ export function computeMonthlyPrice(vmSize, volumeSizeGb) {
 export function formatPrice(amount) {
   if (amount == null) return '€—';
   return `€${amount.toFixed(2)}`;
+}
+
+export function formatPriceDelta(amount) {
+  if (amount == null) return '€—';
+  const sign = amount < 0 ? '-' : '+';
+  return `${sign}${formatPrice(Math.abs(amount))}`;
 }
 
 export function centsToEur(cents) {
