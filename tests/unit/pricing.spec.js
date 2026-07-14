@@ -2,6 +2,7 @@ import {
   centsToEur,
   computeMonthlyPrice,
   formatPrice,
+  formatPriceDelta,
   vatAmountEur,
 } from '@/lib/pricing';
 
@@ -46,6 +47,24 @@ describe('formatPrice', () => {
 
   test('returns dash for null', () => {
     expect(formatPrice(null)).toBe('€—');
+  });
+});
+
+describe('formatPriceDelta', () => {
+  test('signs an upgrade delta', () => {
+    expect(formatPriceDelta(15.56)).toBe('+€15.56');
+  });
+
+  test('signs a downgrade delta', () => {
+    expect(formatPriceDelta(-15.56)).toBe('-€15.56');
+  });
+
+  test('zero counts as non-negative', () => {
+    expect(formatPriceDelta(0)).toBe('+€0.00');
+  });
+
+  test('returns dash for null', () => {
+    expect(formatPriceDelta(null)).toBe('€—');
   });
 });
 

@@ -21,9 +21,82 @@
           so some settings are not available.
         </b-alert>
 
-        <b-row v-if="$store.state.profile && $store.state.profile.billing_enabled">
+        <b-row id="size" v-if="$store.state.profile">
           <b-col>
-            <b-card title="Subscription">
+          <b-overlay :show="navOverlays.size" variant="primary" rounded="sm">
+
+            <!-- to remove the spinner -->
+            <template #overlay><div></div></template>
+
+            <b-card :title="billingEnabled ? 'Subscription &amp; Size' : 'Size'">
+
+              <!-- ===================== Size ===================== -->
+              <template v-if="!subscribing">
+                <b-card-text>
+                  Change the size of your Shard.
+                  This sets the number of CPUs and the amount of RAM your Shard can use.
+                </b-card-text>
+                <b-card-text class="text-muted small">
+                  To unlock larger sizes, please <a href="mailto:contact@freeshard.net">contact us</a>.
+                </b-card-text>
+
+                <b-button-group>
+                  <b-button
+                      v-for="size in resize.sizes"
+                      :key="size"
+                      @click="resize.selectedSize=size"
+                      :disabled="!sizeIsAvailable(size) || resize.waitingForRestart || hasPendingResize"
+                      :variant="variantForSize(size)">
+                    {{ size | uppercase }}
+                  </b-button>
+                </b-button-group>
+
+                <div v-if="resize.selectedSize" class="mt-3">
+                  <b-card-text v-if="selectedSizePrice !== null" class="mb-1">
+                    New price: <b>{{ formatPrice(selectedSizePrice) }}</b>/month
+                    <span v-if="priceDelta !== null" class="text-muted">
+                      ({{ formatPriceDelta(priceDelta) }} vs. current)
+                    </span>
+                  </b-card-text>
+                  <b-card-text v-if="selectedSizePrice !== null" class="text-muted small">
+                    incl. 19% VAT ({{ formatPrice(vatOf(selectedSizePrice)) }})
+                  </b-card-text>
+                  <b-card-text class="small">
+                    <span v-if="resizeNeedsApproval">
+                      Approve the new price to resize to {{ resize.selectedSize | uppercase }}.
+                    </span>
+                    <span v-else>
+                      Resize to {{ resize.selectedSize | uppercase }}.
+                    </span>
+                    The shard restarts afterwards.
+                  </b-card-text>
+                  <!-- PayPal SDK revise button; performs actions.subscription.revise in-window. -->
+                  <div v-if="resizeNeedsApproval" ref="resizeButton" class="paypal-action mt-2"></div>
+                  <b-button
+                      v-else
+                      variant="primary"
+                      class="mt-2"
+                      @click="resizeShard"
+                      :disabled="resize.waitingForRestart">
+                    Resize
+                  </b-button>
+                  <div>
+                    <b-button variant="link" size="sm" class="text-danger px-0"
+                              @click="cancelResizeSelection" :disabled="resize.waitingForRestart">
+                      Cancel
+                    </b-button>
+                  </div>
+                </div>
+
+                <b-card-text v-if="hasPendingResize" class="text-muted small mt-2">
+                  A size change is already pending; new resizes are disabled until it completes.
+                </b-card-text>
+              </template>
+
+              <hr v-if="billingEnabled && !subscribing">
+
+              <!-- ================= Subscription ================= -->
+              <template v-if="billingEnabled">
 
               <!-- Interstitial (driven by SDK onApprove) -->
               <template v-if="subscribing">
@@ -54,7 +127,14 @@
                 <b-card-text v-else>
                   Subscribe to keep your shard running.
                 </b-card-text>
-                <div ref="paypalButton"></div>
+                <b-card-text v-if="currentSizePrice !== null" class="mb-1">
+                  <b>{{ $store.state.profile.vm_size | uppercase }}</b>
+                  — <b>{{ formatPrice(currentSizePrice) }}</b>/month
+                </b-card-text>
+                <b-card-text v-if="currentSizePrice !== null" class="text-muted small">
+                  incl. 19% VAT ({{ formatPrice(vatOf(currentSizePrice)) }})
+                </b-card-text>
+                <div ref="paypalButton" class="paypal-action mt-2"></div>
               </template>
 
               <!-- Active / Active+pending -->
@@ -111,10 +191,20 @@
                   Your shard will stop
                   {{ $store.state.profile.delete_after | formatDateHumanize }}.
                 </b-card-text>
-                <div ref="paypalButton"></div>
+                <b-card-text v-if="currentSizePrice !== null" class="mb-1">
+                  <b>{{ $store.state.profile.vm_size | uppercase }}</b>
+                  — <b>{{ formatPrice(currentSizePrice) }}</b>/month
+                </b-card-text>
+                <b-card-text v-if="currentSizePrice !== null" class="text-muted small">
+                  incl. 19% VAT ({{ formatPrice(vatOf(currentSizePrice)) }})
+                </b-card-text>
+                <div ref="paypalButton" class="paypal-action mt-2"></div>
+              </template>
+
               </template>
 
             </b-card>
+            </b-overlay>
           </b-col>
         </b-row>
 
@@ -224,54 +314,6 @@
           </b-col>
         </b-row>
 
-        <b-row id="size" v-if="$store.state.profile">
-          <b-col>
-          <b-overlay :show="navOverlays.size" variant="primary" rounded="sm">
-
-            <!-- to remove the spinner -->
-            <template #overlay><div></div></template>
-
-            <b-card title="Size">
-              <b-card-text>
-                Change the size of your Shard.
-                This sets the number of CPUs and the amount of RAM your Shard can use.
-              </b-card-text>
-              <b-card-text class="text-muted small">
-                To unlock larger sizes, please <a href="mailto:contact@freeshard.net">contact us</a>.
-              </b-card-text>
-
-              <b-button-group>
-                <b-button
-                    v-for="size in resize.sizes"
-                    :key="size"
-                    @click="resize.selectedSize=size"
-                    :disabled="!sizeIsAvailable(size) || resize.waitingForRestart || hasPendingResize"
-                    :variant="variantForSize(size)">
-                  {{ size | uppercase }}
-                </b-button>
-              </b-button-group>
-
-              <div v-if="resize.selectedSize" class="ml-3 d-inline-block align-top">
-                <b-card-text class="small mb-1">
-                  Approve the new price to resize to {{ resize.selectedSize | uppercase }}. The shard restarts afterwards.
-                </b-card-text>
-                <!-- PayPal SDK revise button; performs actions.subscription.revise in-window. -->
-                <div ref="resizeButton"></div>
-                <b-button variant="link" size="sm" class="text-danger px-0"
-                          @click="cancelResizeSelection" :disabled="resize.waitingForRestart">
-                  Cancel
-                </b-button>
-              </div>
-
-              <b-card-text v-if="hasPendingResize" class="text-muted small mt-2">
-                A size change is already pending; new resizes are disabled until it completes.
-              </b-card-text>
-
-            </b-card>
-            </b-overlay>
-          </b-col>
-        </b-row>
-
         <b-row>
           <b-col>
             <b-card title="Reset Welcome Screen">
@@ -329,7 +371,7 @@ import TextField from "@/components/TextField.vue";
 import {toastMixin} from "@/mixins";
 import pjson from "@/../package.json";
 import {EventBus} from "@/event-bus";
-import {centsToEur, formatPrice, vatAmountEur} from "@/lib/pricing";
+import {centsToEur, computeMonthlyPrice, formatPrice, formatPriceDelta, vatAmountEur} from "@/lib/pricing";
 import {loadPaypalSdk} from "@/lib/paypal-sdk";
 
 const INTERSTITIAL_POLL_MS = 3000;
@@ -398,6 +440,24 @@ export default {
         return 'success';
       }
     },
+    billingEnabled() {
+      const p = this.$store.state.profile;
+      return !!(p && p.billing_enabled);
+    },
+    currentSizePrice() {
+      const p = this.$store.state.profile;
+      if (!p) return null;
+      return computeMonthlyPrice(p.vm_size, p.volume_size_gb);
+    },
+    selectedSizePrice() {
+      const p = this.$store.state.profile;
+      if (!p || !this.resize.selectedSize) return null;
+      return computeMonthlyPrice(this.resize.selectedSize, p.volume_size_gb);
+    },
+    priceDelta() {
+      if (this.selectedSizePrice === null || this.currentSizePrice === null) return null;
+      return Math.round((this.selectedSizePrice - this.currentSizePrice) * 100) / 100;
+    },
     subscriptionState() {
       const profile = this.$store.state.profile;
       if (!profile) return null;
@@ -421,12 +481,13 @@ export default {
   },
 
   watch: {
-    'resize.selectedSize'(newSize) {
-      if (newSize && this.resizeNeedsApproval) {
-        this.$nextTick(() => this.renderResizeButton());
-      } else {
-        this.teardownResizeButton();
-      }
+    'resize.selectedSize'() {
+      this.syncResizeButton();
+    },
+    resizeNeedsApproval() {
+      // A size can already be selected when the shard gains a subscription,
+      // and the approval button only enters the DOM at that point.
+      this.syncResizeButton();
     },
     hasPendingResize(now, was) {
       // pending cleared by the UPDATED webhook → the resize is committed.
@@ -561,6 +622,13 @@ export default {
       // Watcher tears down the PayPal button when selectedSize clears.
       this.resize.selectedSize = null;
     },
+    syncResizeButton() {
+      if (this.resize.selectedSize && this.resizeNeedsApproval) {
+        this.$nextTick(() => this.renderResizeButton());
+      } else {
+        this.teardownResizeButton();
+      }
+    },
     teardownResizeButton() {
       if (this.resizeButtonInstance) {
         try {
@@ -602,11 +670,10 @@ export default {
         },
         onApprove: async () => {
           // The UPDATED webhook promotes the price, clears pending and resizes
-          // the VM; poll until the profile reflects it (hasPendingResize watcher
-          // then clears waitingForRestart).
+          // the VM. The restart screen polls the shard until it comes back, so
+          // hand off to it rather than polling on a busy Settings page.
           this.resize.waitingForRestart = true;
-          this.startInterstitialPolling();
-          await this.$store.dispatch('force_query_profile_data').catch(() => {});
+          await this.$router.replace('/restart');
         },
         onCancel: async () => {
           await cancelPending();
@@ -687,8 +754,13 @@ export default {
         this.$router.replace({query: {}}).catch(() => {});
       }
     },
+    vatOf(eur) {
+      if (eur == null) return null;
+      return vatAmountEur(Math.round(eur * 100));
+    },
     centsToEur,
     formatPrice,
+    formatPriceDelta,
     vatAmountEur,
   },
 
@@ -738,6 +810,11 @@ export default {
 
 .text-monospace {
   white-space: pre;
+}
+
+/* PayPal SDK buttons render full-width; keep them from spanning the card. */
+.paypal-action {
+  max-width: 300px;
 }
 
 </style>

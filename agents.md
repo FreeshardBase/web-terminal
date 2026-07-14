@@ -34,10 +34,13 @@ src/
     Pair.vue             Device pairing form (enter code)
     Terminals.vue        Manage paired devices, generate QR pairing codes
     Apps.vue             App store: browse, install, update, custom app upload
-    Settings.vue         Shard config, backups, disk usage, resize, about
+    Settings.vue         Shard config, backups, disk usage, subscription + size, about
     Public.vue           Edit own profile (name, email, avatar)
     Peers.vue            Peer management (currently hidden)
-    Restart.vue          Redirect target after shard restart
+    Restart.vue          Interstitial while the shard restarts; returns to /settings
+  lib/                 Framework-free helpers (plain JS, unit-tested)
+    pricing.js           Client-side mirror of the controller's price formula
+    paypal-sdk.js        Loads the PayPal JS SDK once, on demand
   components/          13 reusable UI components
     Navbar.vue           Sticky nav with feedback modal, version update notification, disk warnings
     AppIcon.vue          App launcher tile with status indicator
@@ -82,6 +85,23 @@ Single-file store with:
 - Computed properties for derived state
 - Local `editMode` boolean pattern for inline editing (see TerminalCard)
 - `toastMixin` for toast notifications on success/error
+
+### Subscription & Size (Settings.vue)
+Size and subscription are one card: a resize on a subscribed shard *is* a billing
+change, so the two are presented together.
+
+- **The monthly price must be visible in our UI before the buyer is sent to PayPal**
+  (German consumer law). Do not regress this to "PayPal shows it on its own screen".
+- `lib/pricing.js` mirrors the controller's `compute_price` by hand — formula *and*
+  half-up rounding. If they drift, the previewed price disagrees with the actual
+  charge. Change both together.
+- Prices are gross (incl. 19% VAT). A price is only shown when `profile.volume_size_gb`
+  is known; the controller rejects subscribe with 422 otherwise.
+- Active/grace render the controller's `subscription.price_cents` so existing
+  subscribers stay grandfathered. Only previews are computed client-side.
+- Two resize paths: unsubscribed resizes immediately; subscribed must authorize the
+  new price via the PayPal SDK (`revise`), and the actual resize is triggered by the
+  `BILLING.SUBSCRIPTION.UPDATED` webhook. Both hand off to `/restart`.
 
 ### App Store
 App metadata fetched from external Azure blob storage. Supports branch switching (main/dev) for testing unreleased apps.
