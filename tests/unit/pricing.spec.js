@@ -51,7 +51,6 @@ describe('formatPrice', () => {
 });
 
 describe('formatPriceDelta', () => {
-  // m + 30GB (37.34) minus s + 30GB (21.78)
   test('signs an upgrade delta', () => {
     expect(formatPriceDelta(15.56)).toBe('+€15.56');
   });
