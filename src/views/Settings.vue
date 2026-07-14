@@ -662,11 +662,10 @@ export default {
         },
         onApprove: async () => {
           // The UPDATED webhook promotes the price, clears pending and resizes
-          // the VM; poll until the profile reflects it (hasPendingResize watcher
-          // then clears waitingForRestart).
+          // the VM. The restart screen polls the shard until it comes back, so
+          // hand off to it rather than polling on a busy Settings page.
           this.resize.waitingForRestart = true;
-          this.startInterstitialPolling();
-          await this.$store.dispatch('force_query_profile_data').catch(() => {});
+          await this.$router.replace('/restart');
         },
         onCancel: async () => {
           await cancelPending();
