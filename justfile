@@ -3,7 +3,8 @@ default:
 
 @set-version version:
     just _set-version-files {{version}}
-    git add .
+    npm install --package-lock-only
+    git add package.json package-lock.json
     git commit -m "set version to {{version}}"
     echo "Version set to {{version}} and committed"
 
