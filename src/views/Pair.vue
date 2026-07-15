@@ -35,7 +35,7 @@
           </b-form>
         </div>
 
-        <b-alert v-model="show_error" dismissible variant="danger">{{ pairing_error }}</b-alert>
+        <b-alert v-model="show_error" dismissible variant="danger">{{ pairing_error | errorMessage }}</b-alert>
 
       </b-col>
       <b-col></b-col>
