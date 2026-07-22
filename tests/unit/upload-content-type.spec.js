@@ -1,62 +1,79 @@
 // Regression test for the multipart upload bug (issue #32).
 //
 // `$http` is an axios instance created in main.js with a default
-// `Content-Type: application/json`. When a FormData body is sent under that
-// default, axios' transformRequest serializes the FormData to a JSON string
-// and the browser never sets a `multipart/form-data; boundary=...` header, so
-// the backend sees no file part and returns 422.
+// `Content-Type: application/json`. Sending a FormData body under that default
+// makes axios serialize the FormData to a JSON string, so the browser never
+// sets a `multipart/form-data; boundary=...` header, the backend sees no file
+// part, and returns 422.
 //
-// The upload calls override the per-request Content-Type to `undefined`, which
-// drops the JSON default and lets axios keep the raw FormData (the browser then
-// sets the multipart boundary). We assert on the body reaching the adapter:
-// with the override it stays a FormData instance; without it, it would be a
-// serialized string.
-// Jest 26 ignores the package `exports` map and would load axios' ESM entry,
-// which it cannot transform; require the CJS build explicitly.
-import axios from 'axios/dist/node/axios.cjs';
+// The upload methods clear the per-request Content-Type so axios keeps the raw
+// FormData and the browser sets the multipart boundary itself. The first two
+// tests drive the real component methods and assert on the config they hand to
+// `$http`, so deleting the override from the source fails them. The third test
+// pins the axios behavior that makes `undefined` the correct value to send.
+import Public from '@/views/Public.vue';
+import Apps from '@/views/Apps.vue';
 
-// Mirror the instance configured in main.js.
-function makeHttp(adapter) {
-  const http = axios.create({headers: {'Content-type': 'application/json'}});
-  http.defaults.adapter = adapter;
-  return http;
-}
+describe('multipart uploads clear the JSON Content-Type', () => {
+  test('Public.uploadAvatar sends FormData with Content-Type cleared', async () => {
+    const put = jest.fn().mockResolvedValue({});
+    const ctx = {$http: {put}, refreshAvatar: jest.fn()};
 
-describe('multipart upload Content-Type override', () => {
-  let seen;
-  let http;
+    await Public.methods.uploadAvatar.call(ctx, {
+      value: 'avatar-bytes',
+      doneCallback: jest.fn(),
+    });
 
-  beforeEach(() => {
-    seen = null;
-    http = makeHttp(async (config) => {
+    expect(put).toHaveBeenCalledTimes(1);
+    const [url, body, config] = put.mock.calls[0];
+    expect(url).toBe('/core/protected/identities/default/avatar');
+    expect(body).toBeInstanceOf(FormData);
+    expect(config).toBeDefined();
+    expect(config.headers['Content-Type']).toBeUndefined();
+  });
+
+  test('Apps.uploadCustomApp posts each file with Content-Type cleared', async () => {
+    const post = jest.fn().mockResolvedValue({});
+    const ctx = {
+      customAppFiles: ['app-a', 'app-b'],
+      $http: {post},
+      $bvModal: {hide: jest.fn()},
+      refresh: jest.fn(),
+    };
+
+    await Apps.methods.uploadCustomApp.call(ctx);
+
+    expect(post).toHaveBeenCalledTimes(2);
+    for (const [url, body, config] of post.mock.calls) {
+      expect(url).toBe('/core/protected/apps');
+      expect(body).toBeInstanceOf(FormData);
+      expect(config).toBeDefined();
+      expect(config.headers['Content-Type']).toBeUndefined();
+    }
+  });
+
+  // Pins why `undefined` is the right value: run a FormData body through an
+  // instance shaped like main.js and confirm clearing the Content-Type leaves
+  // the body as FormData, whereas the JSON default alone serializes it to a
+  // string. Jest 26 ignores axios' `exports` map and would load its ESM entry,
+  // which it cannot transform, so require the CJS build explicitly.
+  test('clearing Content-Type keeps the FormData body; the default serializes it', async () => {
+    const axios = require('axios/dist/node/axios.cjs');
+    let seen;
+    const http = axios.create({headers: {'Content-type': 'application/json'}});
+    http.defaults.adapter = async (config) => {
       seen = config.data;
       return {data: {}, status: 200, statusText: 'OK', headers: {}, config};
-    });
-  });
+    };
 
-  test('avatar PUT keeps FormData body when Content-Type is cleared', async () => {
-    const formData = new FormData();
-    formData.append('file', 'avatar-bytes');
-    await http.put('/core/protected/identities/default/avatar', formData, {
-      headers: {'Content-Type': undefined},
-    });
+    const cleared = new FormData();
+    cleared.append('file', 'bytes');
+    await http.put('/x', cleared, {headers: {'Content-Type': undefined}});
     expect(seen).toBeInstanceOf(FormData);
-  });
 
-  test('custom app POST keeps FormData body when Content-Type is cleared', async () => {
-    const formData = new FormData();
-    formData.append('file', 'app-bytes');
-    await http.post('/core/protected/apps', formData, {
-      headers: {'Content-Type': undefined},
-    });
-    expect(seen).toBeInstanceOf(FormData);
-  });
-
-  test('regression: the JSON default alone serializes FormData to a string', async () => {
-    const formData = new FormData();
-    formData.append('file', 'avatar-bytes');
-    await http.put('/core/protected/identities/default/avatar', formData);
+    const defaulted = new FormData();
+    defaulted.append('file', 'bytes');
+    await http.put('/x', defaulted);
     expect(typeof seen).toBe('string');
-    expect(seen).not.toBeInstanceOf(FormData);
   });
 });
