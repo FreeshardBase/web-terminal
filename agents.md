@@ -58,6 +58,8 @@ All API calls go to the shard_core backend. Two base paths:
 
 Dev proxy: `vue.config.js` proxies requests to a remote shard or `localhost:8080`.
 
+The global `$http` instance (`main.js`) sets a default `Content-Type: application/json`. For `FormData`/file uploads this default must be cleared per request (`{ headers: { 'Content-Type': undefined } }`); otherwise axios serializes the FormData to JSON and the browser never sets the `multipart/form-data` boundary, so the backend rejects the upload with 422.
+
 ### Authentication Flow
 1. App loads → calls `/core/public/meta/whoami`
 2. If anonymous → redirect to `/welcome` or `/pair`
