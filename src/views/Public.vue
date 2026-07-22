@@ -74,7 +74,9 @@ export default {
     async uploadAvatar(eventBody) {
       const formData = new FormData();
       formData.append('file', eventBody.value);
-      await this.$http.put(`/core/protected/identities/default/avatar`, formData);
+      await this.$http.put(`/core/protected/identities/default/avatar`, formData, {
+        headers: { 'Content-Type': undefined }
+      });
       await eventBody.doneCallback();
       this.refreshAvatar();
     },
