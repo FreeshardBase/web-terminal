@@ -91,3 +91,11 @@ App metadata fetched from external Azure blob storage. Supports branch switching
 The dev server proxies `/core` requests. Configure the target in `vue.config.js`:
 - Default: `https://9d9twt.freeshard.cloud` (a real shard)
 - Local development: `http://localhost:8080` (requires shard_core running locally)
+
+## Commits
+
+[Scoped Commits](https://scopedcommits.com/): `<scope>: <description>`. The scope is the area of the tree the change touches, never a change type — write `settings: align subscription card with the controller contract`, not `fix(settings): ...`. Body and trailers are optional; a change's reasoning belongs in the body, not in a code comment.
+
+Scopes for this repo: `apps` `home` `pair` `peers` `public` `restart` `settings` `terminals` `welcome` `ui` `router` `lib` `ci` `deps` `meta`
+
+`meta` covers repo-level files (agents.md, README, justfile). For a change spanning several scopes, use a broader one, list two comma-separated, or use `treewide`. Merges, reverts and generated commits (`set version to <v>`) keep their own format. Don't generate a changelog from the commit log — release notes come from merged PRs.
