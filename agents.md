@@ -38,6 +38,9 @@ src/
     Public.vue           Edit own profile (name, email, avatar)
     Peers.vue            Peer management (currently hidden)
     Restart.vue          Redirect target after shard restart
+  lib/                 Framework-free pure functions, unit-tested from tests/unit/
+    errors.js            errorMessage(): displayable string from an axios error
+    pricing.js           Shard price computation
   components/          13 reusable UI components
     Navbar.vue           Sticky nav with feedback modal, version update notification, disk warnings
     AppIcon.vue          App launcher tile with status indicator
@@ -57,6 +60,10 @@ All API calls go to the shard_core backend. Two base paths:
 - `/core/protected/*` — requires paired terminal (apps, settings, backup, etc.)
 
 Dev proxy: `vue.config.js` proxies requests to a remote shard or `localhost:8080`.
+
+Backend errors carry the reason in the response body's `detail` field. Render caught errors
+through the `errorMessage` filter (`{{ err | errorMessage }}`) rather than binding the error
+object directly — binding it directly renders `AxiosError: Received HTTP status 401`.
 
 ### Authentication Flow
 1. App loads → calls `/core/public/meta/whoami`

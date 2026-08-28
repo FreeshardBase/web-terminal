@@ -34,7 +34,7 @@
     <b-modal id="new-terminal-modal" title="Pair new terminal" hide-footer @hidden="stopPairing">
       <b-spinner v-if="pairing.loading"></b-spinner>
       <p v-else-if="pairing.error">
-        {{ pairing.error }}
+        {{ pairing.error | errorMessage }}
       </p>
       <div v-else-if="pairingCodeValidityProgress===0">
         <p>Pairing code expired</p>

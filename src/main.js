@@ -11,6 +11,7 @@ import 'vue-tour/dist/vue-tour.css'
 import './assets/css/main.css'
 import QrcodeVue from "qrcode.vue";
 import moment from "moment/moment";
+import { errorMessage } from './lib/errors';
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
@@ -38,9 +39,7 @@ Vue.filter('formatDateHumanize', function (value) {
   return duration.humanize(true);
 })
 
-Vue.filter('errorMessage', function (error) {
-  return error.response.data.detail || error.response.data.error || error.response.data.message || error.response.data || error.message || error;
-})
+Vue.filter('errorMessage', errorMessage)
 
 new Vue({
   router,
