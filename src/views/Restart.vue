@@ -80,7 +80,8 @@ export default {
         return;
       }
       if (this.phase === 'unresponsive') {
-        window.location.replace('/');
+        // Full load, not a route push: the shard restarted, so all state is stale.
+        window.location.replace('/settings');
       }
     },
   },
