@@ -234,7 +234,7 @@ export default {
         try {
           await this.$http.post(`/core/protected/apps`, formData, {
             headers: {
-              'Content-Type': 'multipart/form-data'
+              'Content-Type': undefined
             }
           });
         } catch (error) {
