@@ -12,7 +12,6 @@
               class="mb-4"
           ></AvatarWrapper>
           <h1>{{ $store.state.meta.identity.name }}</h1>
-          <p><a :href="mailto">{{ $store.state.meta.identity.email }}</a></p>
           <div v-html="markdownToHtml($store.state.meta.identity.description)"></div>
 
         </b-col>
@@ -60,12 +59,6 @@ export default {
   async mounted() {
     document.title = `Shard [${this.$store.getters.short_shard_id}] - Welcome`;
     await this.$store.dispatch('query_meta_data');
-  },
-
-  computed: {
-    mailto() {
-      return `mailto:${this.$store.state.meta.identity.email}`
-    }
   },
 
   methods: {
