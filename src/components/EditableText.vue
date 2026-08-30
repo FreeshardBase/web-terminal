@@ -38,6 +38,7 @@
               `code`<br>
               --- horizontal rule<br>
               [link](https://example.com)<br>
+              &lt;contact@example.com&gt;<br>
             </p>
           </div>
         </div>
