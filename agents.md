@@ -35,7 +35,7 @@ src/
     Terminals.vue        Manage paired devices, generate QR pairing codes
     Apps.vue             App store: browse, install, update, custom app upload
     Settings.vue         Shard config, backups, disk usage, resize, about
-    Public.vue           Edit own profile (name, email, avatar)
+    Public.vue           Edit own profile (name, description, avatar)
     Peers.vue            Peer management (currently hidden)
     Restart.vue          Redirect target after shard restart
   components/          13 reusable UI components
