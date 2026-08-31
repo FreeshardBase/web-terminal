@@ -15,18 +15,19 @@
         <div class="mt-4" v-if="!token">
           <b-alert show variant="danger">
             This link is incomplete, so there is nothing to confirm.
-            Open the link from the confirmation email again, or send yourself a new one from the
-            Owner section in Settings, on a browser that is paired with this Shard.
+            Open the link from the confirmation email again, or use Send again in the Owner section
+            in Settings, on a browser that is paired with this Shard.
           </b-alert>
         </div>
 
         <div class="mt-4" v-else-if="state === 'confirmed'">
           <b-alert show variant="success">
-            Done. If the link was still valid, this address now receives messages about your Shard.
+            That is everything we can do from here. If the link was still valid, this address now
+            receives messages about your Shard.
           </b-alert>
           <p class="text-muted small">
             A confirmation link is valid for one hour and can be used once. If Settings still shows
-            the address as waiting for confirmation, send yourself a new email from there.
+            the address as waiting for confirmation, use Send again there.
           </p>
         </div>
 
@@ -37,8 +38,8 @@
           </p>
           <b-alert show variant="danger" v-if="state === 'failed'">
             The confirmation could not be completed. Try again in a moment. If it keeps failing,
-            send yourself a new confirmation email from the Owner section in Settings, on a browser
-            that is paired with this Shard.
+            use Send again in the Owner section in Settings, on a browser that is paired with this
+            Shard.
           </b-alert>
           <b-button variant="primary" :disabled="state === 'confirming'" @click="confirm">
             <span v-if="state === 'confirming'"><b-spinner small></b-spinner></span>

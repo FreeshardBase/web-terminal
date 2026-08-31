@@ -5,7 +5,7 @@
 import {createLocalVue, shallowMount} from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import App from '@/App';
-import routes from '@/router';
+import router from '@/router';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -21,20 +21,29 @@ function fakeStore(isAnonymous) {
   };
 }
 
-async function mountApp({search, isAnonymous}) {
+// A fresh router per test, over the real route table: the shared instance
+// would carry the previous test's route.
+function freshRouter() {
+  return new VueRouter({routes: router.options.routes});
+}
+
+async function mountApp({search, isAnonymous, startAt}) {
   window.history.replaceState({}, '', `/${search}`);
-  const router = new VueRouter({routes: routes.options.routes});
+  const routerInstance = freshRouter();
+  if (startAt) await routerInstance.replace(startAt).catch(() => {});
   const wrapper = shallowMount(App, {
     localVue,
-    router,
+    router: routerInstance,
     mocks: {$store: fakeStore(isAnonymous)},
   });
+  // beforeMount awaits its data loads, then the navigation it may decide on.
   await wrapper.vm.$nextTick();
   await wrapper.vm.$nextTick();
   return wrapper;
 }
 
 beforeEach(() => {
+  // beforeMount installs two setIntervals that would outlive the test.
   jest.useFakeTimers();
 });
 
@@ -59,23 +68,18 @@ test('an unpaired browser without a confirmation link still goes to the public p
 });
 
 test('a paired browser without a confirmation link is left where it is', async () => {
-  const wrapper = await mountApp({search: '', isAnonymous: false});
-  expect(wrapper.vm.$route.name).toBe('Shard');
+  const wrapper = await mountApp({search: '', isAnonymous: false, startAt: '/settings'});
+  expect(wrapper.vm.$route.name).toBe('Settings');
 });
 
 test('reloading on the confirm screen with the token still in the URL finishes loading', async () => {
   // $router.replace to the route it is already on rejects with NavigationDuplicated,
   // and that rejection would escape beforeMount and strand the loading splash.
-  window.history.replaceState({}, '', '/?confirm_email=the-token#/confirm-email');
-  const router = new VueRouter({routes: routes.options.routes});
-  await router.replace('/confirm-email').catch(() => {});
-  const wrapper = shallowMount(App, {
-    localVue,
-    router,
-    mocks: {$store: fakeStore(true)},
+  const wrapper = await mountApp({
+    search: '?confirm_email=the-token#/confirm-email',
+    isAnonymous: true,
+    startAt: '/confirm-email',
   });
-  await wrapper.vm.$nextTick();
-  await wrapper.vm.$nextTick();
   expect(wrapper.vm.$route.name).toBe('ConfirmEmail');
   expect(wrapper.vm.loading).toBe(false);
 });

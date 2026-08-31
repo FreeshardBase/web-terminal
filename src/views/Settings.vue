@@ -23,7 +23,7 @@
 
         <b-row>
           <b-col>
-            <OwnerSection ref="ownerSection"></OwnerSection>
+            <OwnerCard ref="ownerCard"></OwnerCard>
           </b-col>
         </b-row>
 
@@ -329,7 +329,7 @@
 <script>
 import Navbar from "@/components/Navbar";
 import TextField from "@/components/TextField.vue";
-import OwnerSection from "@/components/OwnerSection.vue";
+import OwnerCard from "@/components/OwnerCard.vue";
 import {toastMixin} from "@/mixins";
 import pjson from "@/../package.json";
 import {EventBus} from "@/event-bus";
@@ -341,7 +341,7 @@ const INTERSTITIAL_TIMEOUT_MS = 60000;
 
 export default {
   name: "Settings",
-  components: {OwnerSection, TextField, Navbar},
+  components: {OwnerCard, TextField, Navbar},
   mixins: [toastMixin],
 
   data: function () {
@@ -466,7 +466,7 @@ export default {
     async refresh(force) {
       this.isUpdating = true;
       try {
-        await this.$refs.ownerSection.load();
+        if (this.$refs.ownerCard) await this.$refs.ownerCard.load();
         if (force) {
           await this.$store.dispatch("force_query_profile_data");
         } else {

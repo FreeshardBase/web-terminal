@@ -10,67 +10,59 @@
     </div>
 
     <template v-else>
-      <EditableText title="Name" :value="user.display_name" @edited="saveName($event)"></EditableText>
+      <EditableText title="Name" :value="user.display_name" @edited="saveName($event)">
+        <template #hint>
+          <p class="hint">
+            Your name as this Shard's owner. The name on your public page is a different one,
+            edited under Public View.
+          </p>
+        </template>
+      </EditableText>
 
-      <b-container>
-        <b-row>
-          <b-col cols="10">
-            <p class="hint">
-              Your name as this Shard's owner. The name on your public page is a different one,
-              edited under Public View.
+      <EditableText title="Email" :value="user.email || ''" @edited="saveEmail($event)">
+        <template #hint>
+
+          <p class="hint" v-if="emailState === 'none'">
+            No address yet.
+            <span v-if="emailEnabled">
+              Add one so we can reach you about your Shard — storage warnings, billing and
+              service messages all go there.
+            </span>
+          </p>
+
+          <template v-else-if="emailState === 'pending'">
+            <p class="hint" v-if="deliveryFailed">
+              <b>{{ user.pending_email }}</b> was saved, but the confirmation email could not be
+              sent yet. The address is waiting for confirmation; use Send again in a moment.
             </p>
-          </b-col>
-        </b-row>
-      </b-container>
-
-      <EditableText title="Email" :value="user.email || ''" @edited="saveEmail($event)"></EditableText>
-
-      <b-container>
-        <b-row>
-          <b-col cols="10">
-
-            <p class="hint" v-if="emailState === 'none'">
-              No address yet.
-              <span v-if="emailEnabled">
-                Add one so we can reach you about your Shard — storage warnings, billing and
-                service messages all go there.
-              </span>
+            <p class="hint" v-else>
+              <b>{{ user.pending_email }}</b> is waiting for confirmation. Open the link we sent
+              there, or use Send again if it never arrived. A link is valid for one hour.
             </p>
+            <b-button
+                v-if="emailEnabled"
+                size="sm"
+                variant="outline-primary"
+                :disabled="busy"
+                @click="resendConfirmation">
+              Send again
+            </b-button>
+            <b-button
+                size="sm"
+                variant="link"
+                class="text-danger"
+                :disabled="busy"
+                @click="cancelPending">
+              Cancel
+            </b-button>
+          </template>
 
-            <template v-else-if="emailState === 'pending'">
-              <p class="hint" v-if="deliveryFailed">
-                <b>{{ user.pending_email }}</b> was saved, but the confirmation email could not be
-                sent yet. The address is waiting for confirmation; send the email again in a moment.
-              </p>
-              <p class="hint" v-else>
-                <b>{{ user.pending_email }}</b> is waiting for confirmation. Open the link we sent
-                there, or send it again if it never arrived. A link is valid for one hour.
-              </p>
-              <b-button
-                  v-if="emailEnabled"
-                  size="sm"
-                  variant="outline-primary"
-                  :disabled="busy"
-                  @click="resendConfirmation">
-                Send again
-              </b-button>
-              <b-button
-                  size="sm"
-                  variant="link"
-                  class="text-danger"
-                  :disabled="busy"
-                  @click="cancelPending">
-                Cancel
-              </b-button>
-            </template>
+          <p class="hint" v-if="!emailEnabled">
+            This Shard cannot send email, so the address is taken as typed, with no confirmation step.
+          </p>
 
-            <p class="hint" v-if="!emailEnabled">
-              This Shard cannot send email, so the address is taken as typed, with no confirmation step.
-            </p>
-
-          </b-col>
-        </b-row>
-      </b-container>
+        </template>
+      </EditableText>
     </template>
 
   </b-card>
@@ -79,12 +71,13 @@
 <script>
 import EditableText from "@/components/EditableText";
 import {toastMixin} from "@/mixins";
-import {errorDetail, isDeliveryFailure, ownerEmailState} from "@/lib/owner-email";
+import {errorDetail} from "@/lib/http-error";
+import {isDeliveryFailure, ownerEmailState} from "@/lib/owner-email";
 
 const USER_URL = '/core/protected/users/me';
 
 export default {
-  name: 'OwnerSection',
+  name: 'OwnerCard',
   components: {EditableText},
   mixins: [toastMixin],
 
@@ -117,6 +110,7 @@ export default {
       if (user.status === 'fulfilled') {
         this.user = user.value.data;
         this.loadFailed = false;
+        this.deliveryFailed = false;
       } else {
         console.error('Failed to load the owner row', user.reason);
         this.loadFailed = true;
@@ -163,21 +157,24 @@ export default {
         }
       } catch (e) {
         if (isDeliveryFailure(e)) {
-          // The candidate was stored; only the mail did not go out.
-          this.deliveryFailed = true;
-          try {
-            await this.reloadUser();
-          } catch (reloadError) {
-            this.user = {...this.user, pending_email: address};
-          }
-          this.toastError('Confirmation email not sent',
-              'The address was saved, but the confirmation email could not be sent. Send it again in a moment.');
+          await this.showStoredCandidate(address);
         } else {
           this.toastError('Could not save the address', errorDetail(e, 'Please try again.'));
         }
       } finally {
         eventBody.doneCallback();
       }
+    },
+    async showStoredCandidate(address) {
+      this.deliveryFailed = true;
+      try {
+        await this.reloadUser();
+      } catch (e) {
+        // The 502 said the candidate is on file, so show it even unread.
+        this.user = {...this.user, pending_email: address};
+      }
+      this.toastError('Confirmation email not sent',
+          'The address was saved, but the confirmation email could not be sent. Send it again in a moment.');
     },
     async resendConfirmation() {
       this.busy = true;
@@ -197,6 +194,7 @@ export default {
       try {
         await this.$http.delete(`${USER_URL}/email/pending`);
         this.deliveryFailed = false;
+        // The 204 carries no body, so the one field it cleared is applied here.
         this.user = {...this.user, pending_email: null};
         this.toastSuccess('Address change cancelled');
       } catch (e) {

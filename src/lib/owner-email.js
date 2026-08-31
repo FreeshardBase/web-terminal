@@ -12,8 +12,8 @@ const CONFIRM_EMAIL_PARAM = 'confirm_email';
  * `$route.query`.
  */
 export function readConfirmEmailToken(search) {
-    const token = new URLSearchParams(search || '').get(CONFIRM_EMAIL_PARAM);
-    return token || null;
+  const token = new URLSearchParams(search || '').get(CONFIRM_EMAIL_PARAM);
+  return token || null;
 }
 
 /**
@@ -23,9 +23,9 @@ export function readConfirmEmailToken(search) {
  * `pending_email` is an unverified candidate, so the pair alone says everything.
  */
 export function ownerEmailState(user) {
-    if (user && user.pending_email) return 'pending';
-    if (user && user.email) return 'set';
-    return 'none';
+  if (user && user.pending_email) return 'pending';
+  if (user && user.email) return 'set';
+  return 'none';
 }
 
 /**
@@ -40,17 +40,7 @@ export function ownerEmailState(user) {
  * the API's own 502 carries a JSON detail, so that is what this asks for.
  */
 export function isDeliveryFailure(error) {
-    const response = error && error.response;
-    return !!(response && response.status === 502
-        && response.data && typeof response.data.detail === 'string');
-}
-
-export function errorDetail(error, fallback) {
-    const data = error && error.response && error.response.data;
-    const detail = data && (data.detail || data.message);
-    // FastAPI answers a validation error with a list of per-field problems
-    if (Array.isArray(detail)) {
-        return detail.map(d => d.msg || String(d)).join('; ') || fallback;
-    }
-    return detail || (error && error.message) || fallback;
+  const response = error && error.response;
+  return !!(response && response.status === 502
+      && response.data && typeof response.data.detail === 'string');
 }
