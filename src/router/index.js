@@ -9,6 +9,7 @@ import Peers from "@/views/Peers";
 import Settings from "@/views/Settings.vue";
 import Restart from "@/views/Restart.vue";
 import Public from "@/views/Public.vue";
+import ConfirmEmail from "@/views/ConfirmEmail.vue";
 
 Vue.use(VueRouter)
 
@@ -52,6 +53,11 @@ const routes = [
     path: '/settings',
     name: 'Settings',
     component: Settings
+  },
+  {
+    path: '/confirm-email',
+    name: 'ConfirmEmail',
+    component: ConfirmEmail
   },
   {
     path: '/restart',

@@ -1,0 +1,63 @@
+import {
+  isDeliveryFailure,
+  ownerEmailState,
+  readConfirmEmailToken,
+} from '@/lib/owner-email';
+
+describe('readConfirmEmailToken', () => {
+  test('reads the token the controller puts in the mail link', () => {
+    expect(readConfirmEmailToken('?confirm_email=abc123')).toBe('abc123');
+  });
+
+  test('decodes a percent-encoded token', () => {
+    expect(readConfirmEmailToken('?confirm_email=a%2Bb%2Fc')).toBe('a+b/c');
+  });
+
+  test('finds the token next to other parameters', () => {
+    expect(readConfirmEmailToken('?sub=cancel&confirm_email=abc')).toBe('abc');
+  });
+
+  test('is null without the parameter', () => {
+    expect(readConfirmEmailToken('?sub=cancel')).toBeNull();
+    expect(readConfirmEmailToken('')).toBeNull();
+    expect(readConfirmEmailToken(undefined)).toBeNull();
+  });
+
+  test('is null for an empty token', () => {
+    expect(readConfirmEmailToken('?confirm_email=')).toBeNull();
+  });
+});
+
+describe('ownerEmailState', () => {
+  test('is none without any address', () => {
+    expect(ownerEmailState({email: null, pending_email: null})).toBe('none');
+    expect(ownerEmailState(null)).toBe('none');
+  });
+
+  test('is set for a live address', () => {
+    expect(ownerEmailState({email: 'a@b.c', pending_email: null})).toBe('set');
+  });
+
+  test('is pending for a candidate, live address or not', () => {
+    expect(ownerEmailState({email: null, pending_email: 'a@b.c'})).toBe('pending');
+    expect(ownerEmailState({email: 'old@b.c', pending_email: 'new@b.c'})).toBe('pending');
+  });
+});
+
+describe('isDeliveryFailure', () => {
+  test('is true for the API 502, which carries a detail', () => {
+    const error = {response: {status: 502, data: {detail: 'The address was saved but ...'}}};
+    expect(isDeliveryFailure(error)).toBe(true);
+  });
+
+  test('is false for a gateway 502, where nothing was stored', () => {
+    expect(isDeliveryFailure({response: {status: 502, data: 'Bad Gateway'}})).toBe(false);
+    expect(isDeliveryFailure({response: {status: 502}})).toBe(false);
+  });
+
+  test('is false for every other failure', () => {
+    expect(isDeliveryFailure({response: {status: 429, data: {detail: 'slow down'}}})).toBe(false);
+    expect(isDeliveryFailure({response: {status: 500, data: {detail: 'boom'}}})).toBe(false);
+    expect(isDeliveryFailure(new Error('Network Error'))).toBe(false);
+  });
+});

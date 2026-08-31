@@ -21,6 +21,12 @@
           so some settings are not available.
         </b-alert>
 
+        <b-row>
+          <b-col>
+            <OwnerCard ref="ownerCard"></OwnerCard>
+          </b-col>
+        </b-row>
+
         <b-row v-if="$store.state.profile && $store.state.profile.billing_enabled">
           <b-col>
             <b-card title="Subscription">
@@ -299,9 +305,6 @@
                        :content="$store.state.profile.vm_id || 'unknown'"/>
             <TextField title="Shard ID" :content="shardIdWithBreaks || 'unknown'"
                        class="text-monospace"/>
-            <TextField v-if="$store.state.profile" title="Owner" :content="$store.state.profile.owner || 'unknown'"/>
-            <TextField v-if="$store.state.profile" title="Owner Email"
-                       :content="$store.state.profile.owner_email || 'unknown'"/>
             <TextField v-if="$store.state.profile" title="Created"
                        :content="$store.state.profile.time_created | formatDateHumanize"/>
             <TextField v-if="$store.state.profile" title="Assigned"
@@ -326,6 +329,7 @@
 <script>
 import Navbar from "@/components/Navbar";
 import TextField from "@/components/TextField.vue";
+import OwnerCard from "@/components/OwnerCard.vue";
 import {toastMixin} from "@/mixins";
 import pjson from "@/../package.json";
 import {EventBus} from "@/event-bus";
@@ -337,7 +341,7 @@ const INTERSTITIAL_TIMEOUT_MS = 60000;
 
 export default {
   name: "Settings",
-  components: {TextField, Navbar},
+  components: {OwnerCard, TextField, Navbar},
   mixins: [toastMixin],
 
   data: function () {
@@ -462,6 +466,7 @@ export default {
     async refresh(force) {
       this.isUpdating = true;
       try {
+        if (this.$refs.ownerCard) await this.$refs.ownerCard.load();
         if (force) {
           await this.$store.dispatch("force_query_profile_data");
         } else {
