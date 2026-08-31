@@ -105,6 +105,7 @@ export default {
         this.emailEnabled = settings.data.email_enabled;
         this.loadFailed = false;
       } catch (e) {
+        console.error('Failed to load the owner details', e);
         this.loadFailed = true;
       }
     },
@@ -178,7 +179,7 @@ export default {
       try {
         await this.$http.delete(`${USER_URL}/email/pending`);
         this.deliveryFailed = false;
-        await this.reloadUser();
+        this.user = {...this.user, pending_email: null};
         this.toastSuccess('Address change cancelled');
       } catch (e) {
         this.toastError('Could not cancel the address change', errorDetail(e, 'Please try again.'));

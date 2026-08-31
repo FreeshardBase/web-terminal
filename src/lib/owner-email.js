@@ -1,7 +1,7 @@
 // Helpers for the owner's address, shared by the Settings section that edits it
 // and the screen that confirms it.
 
-export const CONFIRM_EMAIL_PARAM = 'confirm_email';
+const CONFIRM_EMAIL_PARAM = 'confirm_email';
 
 /**
  * The confirmation token carried by the current document URL, or null.

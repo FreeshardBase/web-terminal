@@ -209,14 +209,11 @@ describe('pending address', () => {
     expect(client.post).toHaveBeenCalledWith(`${USER_URL}/email/resend`);
   });
 
-  test('cancel discards the candidate and re-reads the owner row', async () => {
-    const get = jest.fn()
-        .mockImplementationOnce(() => Promise.resolve({data: pending}))
-        .mockImplementationOnce(() => Promise.resolve({data: {email_enabled: true}}))
-        .mockImplementationOnce(() => Promise.resolve({data: userRow({email: 'old@example.com'})}));
-    const {wrapper} = await mountSection({http: {get}});
+  test('cancel discards the candidate and keeps the live address', async () => {
+    const {wrapper, client} = await mountSection({user: pending});
     await buttonWithText(wrapper, 'Cancel').at(0).trigger('click');
     await flush();
+    expect(client.delete).toHaveBeenCalledWith(`${USER_URL}/email/pending`);
     expect(text(wrapper)).not.toContain('new@example.com');
     expect(text(wrapper)).toContain('old@example.com');
   });
