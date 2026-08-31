@@ -28,7 +28,7 @@
             A confirmation link is valid for one hour and can be used once. If Settings still shows
             the address as waiting for confirmation, send yourself a new email from there.
           </p>
-          <b-button variant="primary" to="/">Continue to your Shard</b-button>
+          <b-button variant="primary" :to="continueTarget">Continue to your Shard</b-button>
         </div>
 
         <div class="mt-4" v-else>
@@ -66,6 +66,14 @@ export default {
       token: readConfirmEmailToken(window.location.search),
       state: 'idle', // idle | confirming | confirmed | failed
     }
+  },
+
+  computed: {
+    continueTarget() {
+      // The link is often opened on a device that was never paired, and the app
+      // grid is useless there.
+      return this.$store.state.meta.is_anonymous ? '/welcome' : '/';
+    },
   },
 
   mounted() {

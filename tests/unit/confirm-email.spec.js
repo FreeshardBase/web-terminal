@@ -3,7 +3,7 @@
 // with only the public metadata, and the token where the mail link puts it —
 // the document query string, outside the hash route.
 
-import {createLocalVue, mount, RouterLinkStub} from '@vue/test-utils';
+import {createLocalVue, mount} from '@vue/test-utils';
 import {BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue';
 import ConfirmEmail from '@/views/ConfirmEmail';
 
@@ -17,16 +17,23 @@ function setLocation(search) {
   window.history.replaceState({}, '', `/${search}#/confirm-email`);
 }
 
-function mountScreen({post = jest.fn(() => Promise.resolve({status: 204}))} = {}) {
+function mountScreen({post = jest.fn(() => Promise.resolve({status: 204})), isAnonymous = true} = {}) {
   const wrapper = mount(ConfirmEmail, {
     localVue,
-    stubs: {RouterLink: RouterLinkStub},
     mocks: {
       $http: {post},
-      $store: {getters: {short_shard_id: 'abc123'}},
+      $store: {
+        getters: {short_shard_id: 'abc123'},
+        state: {meta: {is_anonymous: isAnonymous}},
+      },
     },
   });
   return {wrapper, post};
+}
+
+// The continue button renders as a link because it carries a router target.
+function continueLink(wrapper) {
+  return wrapper.find('a.btn').attributes('href');
 }
 
 function confirmButton(wrapper) {
@@ -80,4 +87,20 @@ test('says the link is incomplete when it carries no token', () => {
   const {wrapper} = mountScreen();
   expect(wrapper.find('.alert-danger').text()).toContain('incomplete');
   expect(confirmButton(wrapper).length).toBe(0);
+});
+
+describe('where it sends the owner afterwards', () => {
+  test('an unpaired browser is sent to the public page, not to the app grid', async () => {
+    const {wrapper} = mountScreen({isAnonymous: true});
+    await confirmButton(wrapper).at(0).trigger('click');
+    await wrapper.vm.$nextTick();
+    expect(continueLink(wrapper)).toBe('/welcome');
+  });
+
+  test('a paired browser is sent to the app grid', async () => {
+    const {wrapper} = mountScreen({isAnonymous: false});
+    await confirmButton(wrapper).at(0).trigger('click');
+    await wrapper.vm.$nextTick();
+    expect(continueLink(wrapper)).toBe('/');
+  });
 });

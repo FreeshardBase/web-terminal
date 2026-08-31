@@ -23,7 +23,7 @@
 
         <b-row>
           <b-col>
-            <OwnerSection></OwnerSection>
+            <OwnerSection ref="ownerSection"></OwnerSection>
           </b-col>
         </b-row>
 
@@ -465,6 +465,7 @@ export default {
   methods: {
     async refresh(force) {
       this.isUpdating = true;
+      this.$refs.ownerSection.load();
       try {
         if (force) {
           await this.$store.dispatch("force_query_profile_data");
