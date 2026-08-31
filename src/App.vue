@@ -10,6 +10,7 @@
 
 <script>
 import {EventBus} from "@/event-bus";
+import {readConfirmEmailToken} from "@/lib/owner-email";
 import {toastMixin} from "@/mixins";
 
 export default {
@@ -64,7 +65,14 @@ export default {
       console.log(error);
     }
 
-    if (this.$store.state.meta.is_anonymous) {
+    // The confirmation link is opened in whatever reads mail, which is usually
+    // not a paired browser, so this screen has to come before the pairing check.
+    // Its token sits in the document query string, outside the hash route.
+    if (readConfirmEmailToken(window.location.search)) {
+      if (this.$route.name !== 'ConfirmEmail') {
+        await this.$router.replace('/confirm-email');
+      }
+    } else if (this.$store.state.meta.is_anonymous) {
       console.log('Anonymous user detected')
       if (!['Pair', 'Welcome'].includes(this.$route.name)) {
         await this.$router.replace('/welcome');
