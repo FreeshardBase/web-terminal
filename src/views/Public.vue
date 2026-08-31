@@ -19,8 +19,6 @@
                           @edited="uploadAvatar($event)" @deleted="clearAvatar"></EditableAvatar>
           <EditableText title="Name" :value="identity.name"
                         @edited="updateField('name', $event)"></EditableText>
-          <EditableText title="Email" :value="identity.email"
-                        @edited="updateField('email', $event)"></EditableText>
           <EditableText title="Description" :value="identity.description" rows="5"
                         @edited="updateField('description', $event)"></EditableText>
         </b-col>
@@ -43,7 +41,6 @@ export default {
       identity: {
         id: '',
         name: '',
-        email: '',
         description: '',
       },
       avatarRef: ''

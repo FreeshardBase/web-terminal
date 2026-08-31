@@ -17,7 +17,6 @@ const store = new Vuex.Store({
             identity: {
                 id: '',
                 name: '',
-                email: '',
                 description: '',
                 public_key_pem: '',
                 domain: '',
