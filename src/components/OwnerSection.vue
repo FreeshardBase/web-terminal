@@ -12,6 +12,17 @@
     <template v-else>
       <EditableText title="Name" :value="user.display_name" @edited="saveName($event)"></EditableText>
 
+      <b-container>
+        <b-row>
+          <b-col cols="10">
+            <p class="hint">
+              Your name as this Shard's owner. The name on your public page is a different one,
+              edited under Public View.
+            </p>
+          </b-col>
+        </b-row>
+      </b-container>
+
       <EditableText title="Email" :value="user.email || ''" @edited="saveEmail($event)"></EditableText>
 
       <b-container>
@@ -19,8 +30,11 @@
           <b-col cols="10">
 
             <p class="hint" v-if="emailState === 'none'">
-              No address yet. Add one so we can reach you about your Shard —
-              storage warnings, billing and service messages all go there.
+              No address yet.
+              <span v-if="emailEnabled">
+                Add one so we can reach you about your Shard — storage warnings, billing and
+                service messages all go there.
+              </span>
             </p>
 
             <template v-else-if="emailState === 'pending'">
@@ -29,8 +43,8 @@
                 sent yet. The address is waiting for confirmation; send the email again in a moment.
               </p>
               <p class="hint" v-else>
-                <b>{{ user.pending_email }}</b> is waiting for confirmation. Open the link in the
-                email we sent there; it is valid for one hour.
+                <b>{{ user.pending_email }}</b> is waiting for confirmation. Open the link we sent
+                there, or send it again if it never arrived. A link is valid for one hour.
               </p>
               <b-button
                   v-if="emailEnabled"
@@ -50,7 +64,7 @@
               </b-button>
             </template>
 
-            <p class="hint" v-else-if="!emailEnabled">
+            <p class="hint" v-if="!emailEnabled">
               This Shard cannot send email, so the address is taken as typed, with no confirmation step.
             </p>
 
@@ -96,17 +110,21 @@ export default {
 
   methods: {
     async load() {
-      try {
-        const [user, settings] = await Promise.all([
-          this.$http.get(USER_URL),
-          this.$http.get('/core/protected/settings'),
-        ]);
-        this.user = user.data;
-        this.emailEnabled = settings.data.email_enabled;
+      const [user, settings] = await Promise.allSettled([
+        this.$http.get(USER_URL),
+        this.$http.get('/core/protected/settings'),
+      ]);
+      if (user.status === 'fulfilled') {
+        this.user = user.value.data;
         this.loadFailed = false;
-      } catch (e) {
-        console.error('Failed to load the owner details', e);
+      } else {
+        console.error('Failed to load the owner row', user.reason);
         this.loadFailed = true;
+      }
+      if (settings.status === 'fulfilled') {
+        this.emailEnabled = settings.value.data.email_enabled;
+      } else {
+        console.error('Failed to load the shard settings', settings.reason);
       }
     },
     async reloadUser() {

@@ -46,10 +46,19 @@ describe('ownerEmailState', () => {
 });
 
 describe('isDeliveryFailure', () => {
-  test('is true only for 502', () => {
-    expect(isDeliveryFailure({response: {status: 502}})).toBe(true);
-    expect(isDeliveryFailure({response: {status: 429}})).toBe(false);
-    expect(isDeliveryFailure({response: {status: 500}})).toBe(false);
+  test('is true for the API 502, which carries a detail', () => {
+    const error = {response: {status: 502, data: {detail: 'The address was saved but ...'}}};
+    expect(isDeliveryFailure(error)).toBe(true);
+  });
+
+  test('is false for a gateway 502, where nothing was stored', () => {
+    expect(isDeliveryFailure({response: {status: 502, data: 'Bad Gateway'}})).toBe(false);
+    expect(isDeliveryFailure({response: {status: 502}})).toBe(false);
+  });
+
+  test('is false for every other failure', () => {
+    expect(isDeliveryFailure({response: {status: 429, data: {detail: 'slow down'}}})).toBe(false);
+    expect(isDeliveryFailure({response: {status: 500, data: {detail: 'boom'}}})).toBe(false);
     expect(isDeliveryFailure(new Error('Network Error'))).toBe(false);
   });
 });

@@ -62,3 +62,20 @@ test('a paired browser without a confirmation link is left where it is', async (
   const wrapper = await mountApp({search: '', isAnonymous: false});
   expect(wrapper.vm.$route.name).toBe('Shard');
 });
+
+test('reloading on the confirm screen with the token still in the URL finishes loading', async () => {
+  // $router.replace to the route it is already on rejects with NavigationDuplicated,
+  // and that rejection would escape beforeMount and strand the loading splash.
+  window.history.replaceState({}, '', '/?confirm_email=the-token#/confirm-email');
+  const router = new VueRouter({routes: routes.options.routes});
+  await router.replace('/confirm-email').catch(() => {});
+  const wrapper = shallowMount(App, {
+    localVue,
+    router,
+    mocks: {$store: fakeStore(true)},
+  });
+  await wrapper.vm.$nextTick();
+  await wrapper.vm.$nextTick();
+  expect(wrapper.vm.$route.name).toBe('ConfirmEmail');
+  expect(wrapper.vm.loading).toBe(false);
+});

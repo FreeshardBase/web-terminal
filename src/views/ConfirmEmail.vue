@@ -15,8 +15,8 @@
         <div class="mt-4" v-if="!token">
           <b-alert show variant="danger">
             This link is incomplete, so there is nothing to confirm.
-            Open the link from the confirmation email again, or send yourself a new one
-            from the Owner section in Settings.
+            Open the link from the confirmation email again, or send yourself a new one from the
+            Owner section in Settings, on a browser that is paired with this Shard.
           </b-alert>
         </div>
 
@@ -28,7 +28,6 @@
             A confirmation link is valid for one hour and can be used once. If Settings still shows
             the address as waiting for confirmation, send yourself a new email from there.
           </p>
-          <b-button variant="primary" :to="continueTarget">Continue to your Shard</b-button>
         </div>
 
         <div class="mt-4" v-else>
@@ -37,12 +36,19 @@
             storage warnings, billing and service messages.
           </p>
           <b-alert show variant="danger" v-if="state === 'failed'">
-            The confirmation could not be completed. Try again in a moment, or send yourself a new
-            confirmation email from the Owner section in Settings.
+            The confirmation could not be completed. Try again in a moment. If it keeps failing,
+            send yourself a new confirmation email from the Owner section in Settings, on a browser
+            that is paired with this Shard.
           </b-alert>
           <b-button variant="primary" :disabled="state === 'confirming'" @click="confirm">
             <span v-if="state === 'confirming'"><b-spinner small></b-spinner></span>
             <span v-else>Confirm</span>
+          </b-button>
+        </div>
+
+        <div class="mt-4">
+          <b-button :variant="state === 'confirmed' ? 'primary' : 'outline-secondary'" :to="continueTarget">
+            Continue to your Shard
           </b-button>
         </div>
 
@@ -77,6 +83,9 @@ export default {
   },
 
   mounted() {
+    // data() has the token, so the address bar and the session history do not
+    // need to keep a single-use credential that a Referer header can carry out.
+    this.dropTokenFromUrl();
     document.title = `Shard [${this.$store.getters.short_shard_id}] - Confirm Email`;
   },
 
@@ -88,20 +97,16 @@ export default {
       try {
         await this.$http.post('/core/public/users/confirm-email', {token: this.token});
         this.state = 'confirmed';
-        this.dropTokenFromUrl();
       } catch (e) {
-        console.error('Failed to confirm the email address', e);
+        // Not the error object: it carries the request body, and with it the token.
+        console.error('Failed to confirm the email address',
+            (e.response && e.response.status) || e.message);
         this.state = 'failed';
       }
     },
     dropTokenFromUrl() {
-      // Without this a reload lands back here with a token that is now spent.
       window.history.replaceState({}, '', window.location.pathname + window.location.hash);
     },
   },
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -11,6 +11,7 @@ localVue.use(BootstrapVue);
 localVue.use(BootstrapVueIcons);
 
 const USER_URL = '/core/protected/users/me';
+const SETTINGS_URL = '/core/protected/settings';
 
 function userRow(overrides) {
   return {
@@ -24,6 +25,19 @@ function userRow(overrides) {
   };
 }
 
+// The owner row as the 502 path leaves it: no candidate when the card loads,
+// the stored one on every read after the failed PATCH.
+function readsThenStores() {
+  let reads = 0;
+  return jest.fn(url => {
+    if (url !== USER_URL) return Promise.resolve({data: {email_enabled: true}});
+    reads += 1;
+    return Promise.resolve({
+      data: reads === 1 ? userRow() : userRow({pending_email: 'ada@example.com'}),
+    });
+  });
+}
+
 function httpError(status, data) {
   const error = new Error(`Request failed with status code ${status}`);
   error.response = {status, data: data === undefined ? {} : data};
@@ -32,9 +46,11 @@ function httpError(status, data) {
 
 async function mountSection({user = userRow(), emailEnabled = true, http = {}} = {}) {
   const client = {
-    get: jest.fn(url => Promise.resolve({
-      data: url === USER_URL ? user : {email_enabled: emailEnabled},
-    })),
+    get: jest.fn(url => {
+      if (url === USER_URL) return Promise.resolve({data: user});
+      if (url === SETTINGS_URL) return Promise.resolve({data: {email_enabled: emailEnabled}});
+      return Promise.reject(httpError(404, {detail: `no route for ${url}`}));
+    }),
     patch: jest.fn(() => Promise.resolve({data: user})),
     post: jest.fn(() => Promise.resolve({status: 204})),
     delete: jest.fn(() => Promise.resolve({status: 204})),
@@ -157,13 +173,9 @@ describe('editing', () => {
 
 describe('delivery failure', () => {
   test('a 502 is reported as saved-but-not-sent, with a way to retry', async () => {
-    const stored = userRow({pending_email: 'ada@example.com'});
-    const get = jest.fn(url => Promise.resolve({
-      data: url === USER_URL ? stored : {email_enabled: true},
-    }));
     const {wrapper, toasts} = await mountSection({
       http: {
-        get,
+        get: readsThenStores(),
         patch: jest.fn(() => Promise.reject(httpError(502, {detail: 'no controller'}))),
       },
     });
@@ -185,7 +197,7 @@ describe('delivery failure', () => {
       return reads === 1 ? Promise.resolve({data: userRow()}) : Promise.reject(httpError(500));
     });
     const {wrapper} = await mountSection({
-      http: {get, patch: jest.fn(() => Promise.reject(httpError(502)))},
+      http: {get, patch: jest.fn(() => Promise.reject(httpError(502, {detail: 'no controller'})))},
     });
     await editField(wrapper, 'Email', 'ada@example.com');
     expect(text(wrapper)).toContain('ada@example.com');
@@ -235,5 +247,97 @@ describe('a shard that cannot send email', () => {
       emailEnabled: false,
     });
     expect(text(wrapper)).toContain('no confirmation step');
+  });
+});
+
+describe('recovering from a delivery failure', () => {
+  test('resend clears the not-sent warning', async () => {
+    const {wrapper} = await mountSection({
+      http: {
+        get: readsThenStores(),
+        patch: jest.fn(() => Promise.reject(httpError(502, {detail: 'no controller'}))),
+      },
+    });
+    await editField(wrapper, 'Email', 'ada@example.com');
+    expect(text(wrapper)).toContain('could not be sent');
+
+    await buttonWithText(wrapper, 'Send again').at(0).trigger('click');
+    await flush();
+    expect(text(wrapper)).not.toContain('could not be sent');
+    expect(text(wrapper)).toContain('waiting for confirmation');
+  });
+
+  test('a failed resend leaves the warning up', async () => {
+    const {wrapper, toasts} = await mountSection({
+      http: {
+        get: readsThenStores(),
+        patch: jest.fn(() => Promise.reject(httpError(502, {detail: 'no controller'}))),
+        post: jest.fn(() => Promise.reject(httpError(502, {detail: 'still no controller'}))),
+      },
+    });
+    await editField(wrapper, 'Email', 'ada@example.com');
+    await buttonWithText(wrapper, 'Send again').at(0).trigger('click');
+    await flush();
+    expect(toasts.at(1).title).toBe('Could not send the confirmation email');
+    expect(text(wrapper)).toContain('could not be sent');
+    expect(buttonWithText(wrapper, 'Send again').at(0).attributes('disabled')).toBeUndefined();
+  });
+
+  test('a proxy 502 with no API detail is a save failure, not a stored candidate', async () => {
+    const {wrapper, toasts} = await mountSection({
+      http: {
+        get: readsThenStores(),
+        patch: jest.fn(() => Promise.reject(httpError(502, 'Bad Gateway'))),
+      },
+    });
+    await editField(wrapper, 'Email', 'ada@example.com');
+    expect(toasts.at(0).title).toBe('Could not save the address');
+    expect(text(wrapper)).not.toContain('waiting for confirmation');
+    expect(text(wrapper)).toContain('No address yet');
+  });
+});
+
+describe('an address that is set', () => {
+  test('is shown plainly, with nothing left to confirm', async () => {
+    const {wrapper} = await mountSection({user: userRow({email: 'ada@example.com'})});
+    expect(text(wrapper)).toContain('ada@example.com');
+    expect(text(wrapper)).not.toContain('No address yet');
+    expect(text(wrapper)).not.toContain('waiting for confirmation');
+    expect(text(wrapper)).not.toContain('cannot send email');
+    expect(buttonWithText(wrapper, 'Send again').length).toBe(0);
+    expect(buttonWithText(wrapper, 'Cancel').length).toBe(0);
+  });
+});
+
+describe('a shard that cannot send email, writing an address', () => {
+  test('takes the address live with no pending step and no resend', async () => {
+    const saved = userRow({email: 'ada@example.com'});
+    const {wrapper, toasts} = await mountSection({
+      emailEnabled: false,
+      http: {patch: jest.fn(() => Promise.resolve({data: saved}))},
+    });
+    await editField(wrapper, 'Email', 'ada@example.com');
+    expect(toasts.at(0).message).toBe('Address saved');
+    expect(text(wrapper)).toContain('ada@example.com');
+    expect(text(wrapper)).not.toContain('waiting for confirmation');
+    expect(buttonWithText(wrapper, 'Send again').length).toBe(0);
+  });
+
+  test('does not promise mail it cannot send while no address is set', async () => {
+    const {wrapper} = await mountSection({emailEnabled: false});
+    expect(text(wrapper)).toContain('No address yet');
+    expect(text(wrapper)).not.toContain('storage warnings');
+    expect(text(wrapper)).toContain('cannot send email');
+  });
+});
+
+describe('a partial load', () => {
+  test('keeps the name editable when only the settings read fails', async () => {
+    const get = jest.fn(url => url === USER_URL
+        ? Promise.resolve({data: userRow({email: 'ada@example.com'})})
+        : Promise.reject(httpError(500)));
+    const {wrapper} = await mountSection({http: {get}});
+    expect(text(wrapper)).not.toContain('could not be loaded');
+    expect(wrapper.findAllComponents({name: 'EditableText'}).length).toBe(2);
   });
 });

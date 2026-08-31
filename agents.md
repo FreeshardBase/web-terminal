@@ -80,7 +80,9 @@ have held stale copies of it.
 - `PATCH /core/protected/users/me` with an address answers **502 when the
   candidate was stored but the confirmation mail could not be sent**. That is
   not a failed save, and rendering it as one makes owners retype an address the
-  shard already has. Resend is the retry.
+  shard already has. Resend is the retry. Traefik answers 502 too whenever
+  shard_core is down, and there nothing was stored — tell them apart by the JSON
+  `detail` only the API sends, never by the status alone.
 - `GET /core/protected/settings` returns `email_enabled`. When it is false the
   shard cannot send mail at all (self-hosted, no controller), the address is
   taken directly with no pending step, and no resend control may be offered.

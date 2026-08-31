@@ -34,9 +34,15 @@ export function ownerEmailState(user) {
  * `PATCH /protected/users/me` answers 502 when the controller could not be
  * reached, and the candidate is in `pending_email` regardless. Rendering that as
  * a failed save would tell the owner the opposite of what happened.
+ *
+ * The reverse mistake is just as wrong: the proxy answers 502 too while
+ * shard_core is down or restarting, and then nothing was stored at all. Only
+ * the API's own 502 carries a JSON detail, so that is what this asks for.
  */
 export function isDeliveryFailure(error) {
-    return !!(error && error.response && error.response.status === 502);
+    const response = error && error.response;
+    return !!(response && response.status === 502
+        && response.data && typeof response.data.detail === 'string');
 }
 
 export function errorDetail(error, fallback) {

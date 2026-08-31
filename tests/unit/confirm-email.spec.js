@@ -44,8 +44,12 @@ beforeEach(() => {
   setLocation('?confirm_email=the-token');
 });
 
-test('does not confirm on its own', () => {
+test('does not confirm on its own', async () => {
   const {wrapper, post} = mountScreen();
+  // Drained rather than asserted on the spot: a confirm one tick after mount
+  // would spend the token just as surely as one during it.
+  await wrapper.vm.$nextTick();
+  await new Promise(setImmediate);
   expect(post).not.toHaveBeenCalled();
   expect(confirmButton(wrapper).length).toBe(1);
 });
@@ -64,12 +68,17 @@ test('reports success and says what to do if the link had expired', async () => 
   expect(wrapper.text()).toContain('valid for one hour');
 });
 
-test('drops the spent token from the URL after confirming', async () => {
-  const {wrapper} = mountScreen();
-  await confirmButton(wrapper).at(0).trigger('click');
-  await wrapper.vm.$nextTick();
+test('drops the token from the URL as soon as the screen opens', () => {
+  mountScreen();
   expect(window.location.search).toBe('');
   expect(window.location.hash).toBe('#/confirm-email');
+});
+
+test('still confirms with the token it captured, once the URL no longer has it', async () => {
+  const {wrapper, post} = mountScreen();
+  expect(window.location.search).toBe('');
+  await confirmButton(wrapper).at(0).trigger('click');
+  expect(post).toHaveBeenCalledWith(CONFIRM_URL, {token: 'the-token'});
 });
 
 test('offers a retry when the request fails', async () => {
@@ -79,7 +88,18 @@ test('offers a retry when the request fails', async () => {
   await wrapper.vm.$nextTick();
   expect(wrapper.find('.alert-danger').text()).toContain('could not be completed');
   expect(confirmButton(wrapper).length).toBe(1);
-  expect(window.location.search).toBe('?confirm_email=the-token');
+});
+
+test('offers a way off the screen in every state', async () => {
+  const failing = mountScreen({post: jest.fn(() => Promise.reject(new Error('Network Error')))});
+  expect(continueLink(failing.wrapper)).toBeTruthy();
+  await confirmButton(failing.wrapper).at(0).trigger('click');
+  await failing.wrapper.vm.$nextTick();
+  expect(continueLink(failing.wrapper)).toBeTruthy();
+
+  setLocation('');
+  const {wrapper} = mountScreen();
+  expect(continueLink(wrapper)).toBeTruthy();
 });
 
 test('says the link is incomplete when it carries no token', () => {
