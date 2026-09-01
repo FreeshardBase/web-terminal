@@ -237,6 +237,7 @@
                 This sets the number of CPUs and the amount of RAM your Shard can use.
               </b-card-text>
               <b-card-text class="text-muted small">
+                A Shard can only be made larger, never smaller.
                 To unlock larger sizes, please <a href="mailto:contact@freeshard.net">contact us</a>.
               </b-card-text>
 
@@ -534,11 +535,13 @@ export default {
       }
     },
     sizeIsAvailable(size) {
-      if (this.$store.state.profile.max_vm_size === undefined) {
+      const profile = this.$store.state.profile;
+      if (profile.max_vm_size === undefined) {
         return false;
       }
-      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.$store.state.profile.max_vm_size)
-          && size !== this.$store.state.profile.vm_size;
+      const index = this.resize.sizes.indexOf(size);
+      return index <= this.resize.sizes.indexOf(profile.max_vm_size)
+          && index > this.resize.sizes.indexOf(profile.vm_size);
     },
     variantForSize(size) {
       if (size === this.$store.state.profile.vm_size) {
