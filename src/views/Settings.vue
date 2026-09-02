@@ -54,6 +54,16 @@
                 <b-card-text v-else>
                   Subscribe to keep your shard running.
                 </b-card-text>
+                <template v-if="currentSizePriceCents !== null">
+                  <b-card-text class="mb-1">
+                    Plan: <b>{{ $store.state.profile.vm_size | uppercase }}</b>
+                    — {{ formatPrice(centsToEur(currentSizePriceCents)) }}/month
+                  </b-card-text>
+                  <b-card-text class="text-muted small">
+                    Includes {{ pricing.volume_size_gb }} GB disk,
+                    incl. 19% VAT ({{ formatPrice(vatAmountEur(currentSizePriceCents)) }})
+                  </b-card-text>
+                </template>
                 <div ref="paypalButton"></div>
               </template>
 
@@ -249,6 +259,9 @@
                     :disabled="!sizeIsAvailable(size) || resize.waitingForRestart || hasPendingResize"
                     :variant="variantForSize(size)">
                   {{ size | uppercase }}
+                  <span v-if="priceCentsForSize(size) !== null" class="d-block small">
+                    {{ formatPrice(centsToEur(priceCentsForSize(size))) }}
+                  </span>
                 </b-button>
               </b-button-group>
 
@@ -270,6 +283,11 @@
                   Cancel
                 </b-button>
               </div>
+
+              <b-card-text v-if="pricing" class="text-muted small mt-2">
+                Prices are per month at your current {{ pricing.volume_size_gb }} GB disk,
+                incl. 19% VAT.
+              </b-card-text>
 
               <b-card-text v-if="hasPendingResize" class="text-muted small mt-2">
                 A size change is already pending; new resizes are disabled until it completes.
@@ -337,7 +355,7 @@ import TextField from "@/components/TextField.vue";
 import {toastMixin} from "@/mixins";
 import pjson from "@/../package.json";
 import {EventBus} from "@/event-bus";
-import {centsToEur, formatPrice, vatAmountEur} from "@/lib/pricing";
+import {centsToEur, formatPrice, grossPriceCentsFromComponents, vatAmountEur} from "@/lib/pricing";
 import {loadPaypalSdk} from "@/lib/paypal-sdk";
 
 const INTERSTITIAL_POLL_MS = 3000;
@@ -361,6 +379,7 @@ export default {
         result: '',
       },
       backupInfo: {"last_report": null},
+      pricing: null,
       passphraseLoading: false,
       passphrase: null, // This will be handled later
       navOverlays: {
@@ -426,6 +445,11 @@ export default {
       const p = this.$store.state.profile;
       return !!(p && p.billing_enabled && p.subscription && p.subscription.status === 'active');
     },
+    currentSizePriceCents() {
+      const profile = this.$store.state.profile;
+      if (!profile) return null;
+      return this.priceCentsForSize(profile.vm_size);
+    },
   },
 
   watch: {
@@ -490,6 +514,35 @@ export default {
       } catch (e) {
         this.toastError('Error during loading', e.response.data.detail);
       }
+    },
+    async refreshPricing() {
+      try {
+        const response = await this.$http.get('/core/protected/management/api/shards/self/prices');
+        this.pricing = response.data;
+        this.checkPricingArithmetic();
+      } catch (e) {
+        console.warn('Could not load shard prices', e);
+        this.pricing = null;
+      }
+    },
+    checkPricingArithmetic() {
+      const pricing = this.pricing;
+      if (!pricing || !Array.isArray(pricing.prices)) return;
+      for (const entry of pricing.prices) {
+        const local = grossPriceCentsFromComponents(
+            pricing.components, entry.vm_size, pricing.volume_size_gb);
+        if (local !== null && local !== entry.price_cents) {
+          console.warn(
+              `Pricing mismatch for ${entry.vm_size} at ${pricing.volume_size_gb} GB: ` +
+              `server ${entry.price_cents} cents, locally computed ${local} cents. ` +
+              'Displaying the server figure.');
+        }
+      }
+    },
+    priceCentsForSize(size) {
+      if (!this.pricing || !Array.isArray(this.pricing.prices)) return null;
+      const entry = this.pricing.prices.find((p) => p.vm_size === size);
+      return entry ? entry.price_cents : null;
     },
     async fetchPassphrase() {
       this.passphraseLoading = true;
@@ -708,6 +761,7 @@ export default {
   async mounted() {
     document.title = `Shard [${this.$store.getters.short_shard_id}] - About`;
     this.refreshBackupInfo(); // Load backup info in the background
+    this.refreshPricing(); // Load prices in the background
 
     EventBus.$on('backup_update', () => {
       this.refreshBackupInfo();

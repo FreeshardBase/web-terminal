@@ -43,3 +43,22 @@ export function vatAmountEur(grossCents) {
   const net = Math.round(grossCents / VAT_MULTIPLIER);
   return (grossCents - net) / 100;
 }
+
+// Gross monthly price in integer cents, recomputed from the controller's published
+// `components` block. Mirrors `compute_price` in the controller's
+// `freeshard_controller/service/pricing.py`, whose arithmetic it must reproduce
+// exactly: each component to euro before combining, then half-up rounding
+// (Math.round, not toFixed and not banker's rounding).
+export function grossPriceCentsFromComponents(components, vmSize, volumeSizeGb) {
+  if (!components || !Array.isArray(components.net_prices)) return null;
+  if (!Number.isFinite(volumeSizeGb)) return null;
+  if (!Number.isFinite(components.disk_net_price_cents_per_gb)) return null;
+  if (!Number.isFinite(components.vat_rate)) return null;
+  const entry = components.net_prices.find((p) => p.vm_size === vmSize);
+  if (!entry || !Number.isFinite(entry.net_price_cents)) return null;
+  const netEur =
+    entry.net_price_cents / 100 +
+    volumeSizeGb * (components.disk_net_price_cents_per_gb / 100);
+  const grossEur = netEur * (1 + components.vat_rate);
+  return Math.round(grossEur * 100);
+}
