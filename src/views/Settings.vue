@@ -237,6 +237,7 @@
                 This sets the number of CPUs and the amount of RAM your Shard can use.
               </b-card-text>
               <b-card-text class="text-muted small">
+                A Shard can only be made larger, never smaller.
                 To unlock larger sizes, please <a href="mailto:contact@freeshard.net">contact us</a>.
               </b-card-text>
 
@@ -252,11 +253,18 @@
               </b-button-group>
 
               <div v-if="resize.selectedSize" class="ml-3 d-inline-block align-top">
-                <b-card-text class="small mb-1">
+                <b-card-text v-if="resizeNeedsApproval" class="small mb-1">
                   Approve the new price to resize to {{ resize.selectedSize | uppercase }}. The shard restarts afterwards.
                 </b-card-text>
+                <b-card-text v-else class="small mb-1">
+                  Resize to {{ resize.selectedSize | uppercase }}. The shard restarts afterwards.
+                </b-card-text>
                 <!-- PayPal SDK revise button; performs actions.subscription.revise in-window. -->
-                <div ref="resizeButton"></div>
+                <div v-if="resizeNeedsApproval" ref="resizeButton"></div>
+                <b-button v-else variant="primary" size="sm" class="mr-2"
+                          @click="resizeShard" :disabled="resize.waitingForRestart">
+                  Confirm
+                </b-button>
                 <b-button variant="link" size="sm" class="text-danger px-0"
                           @click="cancelResizeSelection" :disabled="resize.waitingForRestart">
                   Cancel
@@ -527,11 +535,13 @@ export default {
       }
     },
     sizeIsAvailable(size) {
-      if (this.$store.state.profile.max_vm_size === undefined) {
+      const profile = this.$store.state.profile;
+      if (profile.max_vm_size === undefined) {
         return false;
       }
-      return this.resize.sizes.indexOf(size) <= this.resize.sizes.indexOf(this.$store.state.profile.max_vm_size)
-          && size !== this.$store.state.profile.vm_size;
+      const index = this.resize.sizes.indexOf(size);
+      return index <= this.resize.sizes.indexOf(profile.max_vm_size)
+          && index > this.resize.sizes.indexOf(profile.vm_size);
     },
     variantForSize(size) {
       if (size === this.$store.state.profile.vm_size) {
@@ -550,12 +560,15 @@ export default {
         await this.$http.post(
             '/core/protected/management/api/shards/self/resize',
             {new_vm_size: this.resize.selectedSize});
-        await this.$router.replace('/restart');
       } catch (e) {
         this.toastError('Error during resize', (e.response && e.response.data && e.response.data.detail) || e.message);
-      } finally {
         this.resize.waitingForRestart = false;
+        return;
       }
+      // No pending_vm_size is created on this path, so the hasPendingResize
+      // watcher never fires; waitingForRestart stays set until the shard is gone.
+      this.resize.selectedSize = null;
+      this.$router.replace('/restart').catch(() => {});
     },
     cancelResizeSelection() {
       // Watcher tears down the PayPal button when selectedSize clears.
