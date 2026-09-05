@@ -50,9 +50,18 @@
                 <b-card-text v-if="$store.state.profile.delete_after">
                   Your shard will be deleted
                   {{ $store.state.profile.delete_after | formatDateHumanize }}.
+                  That happens on its own if you do nothing:
+                  you are not charged, and there is nothing to cancel.
                 </b-card-text>
                 <b-card-text v-else>
                   Subscribe to keep your shard running.
+                </b-card-text>
+                <b-card-text v-if="$store.state.profile.delete_after">
+                  Subscribing is a separate step.
+                  It keeps this shard and its data, and removes the deletion date.
+                </b-card-text>
+                <b-card-text v-else>
+                  Subscribing keeps this shard and its data.
                 </b-card-text>
                 <template v-if="currentSizePriceCents !== null">
                   <b-card-text class="mb-1">
@@ -64,6 +73,9 @@
                     incl. 19% VAT ({{ formatPrice(vatAmountEur(currentSizePriceCents)) }})
                   </b-card-text>
                 </template>
+                <b-card-text class="text-muted small">
+                  Billed monthly, cancel any time.
+                </b-card-text>
                 <div ref="paypalButton"></div>
               </template>
 
