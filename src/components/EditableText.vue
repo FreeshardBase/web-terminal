@@ -43,6 +43,7 @@
           </div>
         </div>
 
+        <slot name="hint"></slot>
 
       </b-col>
       <b-col cols="2">
