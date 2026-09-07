@@ -16,7 +16,10 @@ Browser-based UI for controlling a Freeshard. Users manage apps, pair devices, c
 npm run serve     # Dev server with hot-reload
 npm run build     # Production build
 npm run lint      # ESLint
+npm run test:unit # Jest unit tests
 ```
+
+Unit tests run in CI on every push and pull request, before the build.
 
 ## Project Structure
 
