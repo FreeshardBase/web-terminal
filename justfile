@@ -10,9 +10,15 @@ default:
 _set-version-files version:
     #!/usr/bin/env python3
     import json
-    with open('package.json') as f:
-        pkg = json.load(f)
-    pkg['version'] = '{{version}}'
-    with open('package.json', 'w') as f:
-        json.dump(pkg, f, indent=2)
-        f.write('\n')
+    for path, keys in (('package.json', (('version',),)),
+                       ('package-lock.json', (('version',), ('packages', '', 'version')))):
+        with open(path) as f:
+            doc = json.load(f)
+        for key in keys:
+            node = doc
+            for step in key[:-1]:
+                node = node[step]
+            node[key[-1]] = '{{version}}'
+        with open(path, 'w') as f:
+            json.dump(doc, f, indent=2)
+            f.write('\n')
