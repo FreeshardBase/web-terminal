@@ -49,7 +49,8 @@
                 </b-alert>
                 <b-card-text v-if="$store.state.profile.delete_after">
                   Your shard will be deleted
-                  {{ $store.state.profile.delete_after | formatDateHumanize }}.
+                  <span v-b-tooltip.hover :title="$store.state.profile.delete_after | formatDate">{{
+                    $store.state.profile.delete_after | formatDateHumanize }}</span>.
                   That happens on its own if you do nothing:
                   you are not charged, and there is nothing to cancel.
                 </b-card-text>
@@ -89,7 +90,7 @@
                   incl. 19% VAT ({{ formatPrice(vatAmountEur($store.state.profile.subscription.price_cents)) }})
                 </b-card-text>
                 <b-card-text v-if="$store.state.profile.subscription.next_billing_date">
-                  Next charge {{ $store.state.profile.subscription.next_billing_date | formatDateHumanize }}.
+                  Next charge: {{ $store.state.profile.subscription.next_billing_date | formatDate }}.
                 </b-card-text>
                 <b-card-text v-if="$store.state.profile.subscription.payer_email" class="text-muted small">
                   Billed to {{ $store.state.profile.subscription.payer_email }}.
@@ -120,18 +121,21 @@
               <template v-else-if="subscriptionState === 'grace'">
                 <b-card-text v-if="$store.state.profile.subscription.last_payment_failed_at">
                   Payment failed
-                  {{ $store.state.profile.subscription.last_payment_failed_at | formatDateHumanize }}.
+                  <span v-b-tooltip.hover :title="$store.state.profile.subscription.last_payment_failed_at | formatDate">{{
+                    $store.state.profile.subscription.last_payment_failed_at | formatDateHumanize }}</span>.
                 </b-card-text>
                 <b-card-text v-else-if="$store.state.profile.subscription.ended">
                   Subscription ended
-                  {{ $store.state.profile.subscription.ended | formatDateHumanize }}.
+                  <span v-b-tooltip.hover :title="$store.state.profile.subscription.ended | formatDate">{{
+                    $store.state.profile.subscription.ended | formatDateHumanize }}</span>.
                 </b-card-text>
                 <b-card-text v-else>
                   Subscription is no longer active.
                 </b-card-text>
                 <b-card-text v-if="$store.state.profile.delete_after">
                   Your shard will stop
-                  {{ $store.state.profile.delete_after | formatDateHumanize }}.
+                  <span v-b-tooltip.hover :title="$store.state.profile.delete_after | formatDate">{{
+                    $store.state.profile.delete_after | formatDateHumanize }}</span>.
                 </b-card-text>
                 <div ref="paypalButton"></div>
               </template>
@@ -235,7 +239,8 @@
                   </b-alert>
                   <p v-if="backupInfo.last_passphrase_access_info" class="text-muted small">
                     Your passphrase was last revealed
-                    {{ backupInfo.last_passphrase_access_info.time | formatDateHumanize }}
+                    <span v-b-tooltip.hover :title="backupInfo.last_passphrase_access_info.time | formatDate">{{
+                      backupInfo.last_passphrase_access_info.time | formatDateHumanize }}</span>
                     from device <i>{{ backupInfo.last_passphrase_access_info.terminal_name }}</i> (with ID:
                     {{ backupInfo.last_passphrase_access_info.terminal_id }}).
                   </p>
@@ -341,12 +346,15 @@
             <TextField v-if="$store.state.profile" title="Owner Email"
                        :content="$store.state.profile.owner_email || 'unknown'"/>
             <TextField v-if="$store.state.profile" title="Created"
-                       :content="$store.state.profile.time_created | formatDateHumanize"/>
+                       :content="$store.state.profile.time_created | formatDateHumanize"
+                       :tooltip="$store.state.profile.time_created | formatDate"/>
             <TextField v-if="$store.state.profile" title="Assigned"
-                       :content="$store.state.profile.time_assigned | formatDateHumanize"/>
+                       :content="$store.state.profile.time_assigned | formatDateHumanize"
+                       :tooltip="$store.state.profile.time_assigned | formatDate"/>
             <div v-if="$store.state.profile">
               <TextField v-if="$store.state.profile.delete_after" title="Scheduled to delete"
-                         :content="$store.state.profile.delete_after | formatDateHumanize"/>
+                         :content="$store.state.profile.delete_after | formatDateHumanize"
+                         :tooltip="$store.state.profile.delete_after | formatDate"/>
               <TextField v-else title="Scheduled to delete" content="never"/>
             </div>
             <TextField title="UI Version" :content="uiVersion"/>

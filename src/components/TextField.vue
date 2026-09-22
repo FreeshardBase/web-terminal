@@ -1,13 +1,13 @@
 <template>
   <div>
     <span><small>{{ title }}</small></span>
-    <p>{{ content }}</p>
+    <p v-b-tooltip.hover :title="tooltip">{{ content }}</p>
   </div>
 </template>
 <script>
 export default {
   name: 'TextField',
-  props: ['title', 'content'],
+  props: ['title', 'content', 'tooltip'],
 
 }
 </script>
