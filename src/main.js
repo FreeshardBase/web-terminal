@@ -11,6 +11,7 @@ import 'vue-tour/dist/vue-tour.css'
 import './assets/css/main.css'
 import QrcodeVue from "qrcode.vue";
 import moment from "moment/moment";
+import { formatDateTime } from "./lib/dates";
 
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
@@ -28,9 +29,7 @@ Vue.filter('uppercase', function (value) {
   return value.toUpperCase();
 });
 
-Vue.filter('formatDate', function (value) {
-  return moment(String(value)).format('YYYY-MM-DD hh:mm');
-})
+Vue.filter('formatDate', formatDateTime)
 
 Vue.filter('formatDateHumanize', function (value) {
   const now = new moment();

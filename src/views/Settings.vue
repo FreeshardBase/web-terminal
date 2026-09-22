@@ -89,7 +89,7 @@
                   incl. 19% VAT ({{ formatPrice(vatAmountEur($store.state.profile.subscription.price_cents)) }})
                 </b-card-text>
                 <b-card-text v-if="$store.state.profile.subscription.next_billing_date">
-                  Next charge {{ $store.state.profile.subscription.next_billing_date | formatDateHumanize }}.
+                  Next charge: {{ $store.state.profile.subscription.next_billing_date | formatDate }}.
                 </b-card-text>
                 <b-card-text v-if="$store.state.profile.subscription.payer_email" class="text-muted small">
                   Billed to {{ $store.state.profile.subscription.payer_email }}.
